@@ -2,7 +2,7 @@
 
 ## Current Sprint Outcome
 
-The repository has been reset to a lightweight, builder-friendly baseline for the next feature sprint. It now contains only repository hygiene and project-definition files, without framework scaffolding or generated artifacts.
+The repository has been reset to a lightweight, builder-friendly baseline for the next feature sprint. It now includes the previously missing public-facing `README.md` and MIT `LICENSE` files, plus repository hygiene and project-definition files, without framework scaffolding or generated artifacts.
 
 ## Known Gaps
 
@@ -49,9 +49,9 @@ The repository has been reset to a lightweight, builder-friendly baseline for th
 
 ## Output Paths and Files to Analyze Next
 
-- `README.md` — project intent, MVP stack, storage rules, and UI principles.
+- `README.md` — project intent, MVP stack, storage rules, UI principles, repository file map, and license link.
 - `.gitignore` — ignored dependency, build, environment, cache, and editor artifacts.
-- `LICENSE` — MIT license text.
+- `LICENSE` — MIT license text that GitHub should detect as the repository license.
 - `docs/SPRINT_HANDOFF.md` — this handoff, including gaps, risks, targets, and next analysis paths.
 
 ## Copy/Paste Plan for Another AI Agent

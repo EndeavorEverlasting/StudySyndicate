@@ -1,5 +1,7 @@
 # StudySyndicate
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Local-first PMP study app for multimedia flashcards, recall drills, weak-area tracking, and adaptive practice.
 
 ## Purpose
@@ -44,6 +46,13 @@ Use AxTask-inspired product principles when the app shell is scaffolded later:
 
 This repository is intentionally light until the app is scaffolded. Before adding a framework, keep the default branch clean and avoid committing generated artifacts, dependency folders, local environment files, or editor-specific state.
 
+## Repository Files
+
+- `README.md` — project overview, stack, storage model, and UI principles.
+- `LICENSE` — MIT license for reuse and distribution terms.
+- `.gitignore` — Node-friendly ignore rules for dependencies, build output, caches, environment files, and editor artifacts.
+- `docs/SPRINT_HANDOFF.md` — handoff notes, known gaps, risks, targets, and next-agent plan.
+
 ## License
 
-MIT
+This project is licensed under the [MIT License](LICENSE).
