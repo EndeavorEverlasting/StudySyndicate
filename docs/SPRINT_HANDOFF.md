@@ -7,6 +7,7 @@ The repository has been reset to a lightweight, builder-friendly baseline for th
 ## Known Gaps
 
 - No runnable application has been scaffolded yet.
+- The factored actor/relationship/component model has initial TypeScript contracts, but it is not implemented in Dexie tables yet.
 - No package manager lockfile exists yet because dependencies have not been installed.
 - No CI workflow exists yet.
 - No issue labels, milestone, GitHub repository settings, or branch protections were configured from this local environment.
@@ -44,12 +45,15 @@ The repository has been reset to a lightweight, builder-friendly baseline for th
    - `tech-debt`
 4. Create milestone `MVP-001 Local Study Engine`.
 5. Scaffold the app only after repo settings are confirmed.
-6. Use Vite, React, TypeScript, Dexie.js, IndexedDB, and ts-fsrs for the MVP stack.
-7. Keep localStorage limited to lightweight preferences.
+6. Implement the factored domain model early: `actors`, `relationships`, and `components` should be first-class tables/types before feature-specific shortcuts are added.
+7. Use Vite, React, TypeScript, Dexie.js, IndexedDB, and ts-fsrs for the MVP stack.
+8. Keep localStorage limited to lightweight preferences.
 
 ## Output Paths and Files to Analyze Next
 
-- `README.md` — project intent, MVP stack, storage rules, UI principles, repository file map, and license link.
+- `README.md` — project intent, MVP stack, storage rules, domain model pointer, UI principles, repository file map, and license link.
+- `docs/DOMAIN_MODEL.md` — factored actor, relationship, and component abstraction to implement before app data grows.
+- `src/domain/factored.ts` — initial TypeScript contracts for factored domain records and common component payloads.
 - `.gitignore` — ignored dependency, build, environment, cache, and editor artifacts.
 - `LICENSE` — MIT license text that GitHub should detect as the repository license.
 - `docs/SPRINT_HANDOFF.md` — this handoff, including gaps, risks, targets, and next analysis paths.
@@ -69,6 +73,8 @@ You are taking over the StudySyndicate repository. Treat it as a local-first PMP
    - `README.md`
    - `.gitignore`
    - `LICENSE`
+   - `docs/DOMAIN_MODEL.md`
+   - `src/domain/factored.ts`
    - `docs/SPRINT_HANDOFF.md`
 5. Do not add framework scaffolding until GitHub repository settings are confirmed.
 6. If scaffolding the MVP, target:
@@ -87,6 +93,7 @@ You are taking over the StudySyndicate repository. Treat it as a local-first PMP
    - generated caches
 8. Preserve local-first architecture:
    - IndexedDB through Dexie.js for primary data
+   - first-class `actors`, `relationships`, and `components` tables/types
    - localStorage only for lightweight preferences
    - import/export as a first-class user safety feature
 9. Use AxTask-inspired UI principles:
