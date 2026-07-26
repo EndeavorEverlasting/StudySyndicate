@@ -1,0 +1,29 @@
+name: Governance Doctrine
+
+on:
+  pull_request:
+    paths:
+      - AGENTS.md
+      - scripts/validate-governance.sh
+      - .github/workflows/governance-doctrine.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate-governance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate governance contract
+        run: bash scripts/validate-governance.sh
+
+      - name: Check governance diff whitespace
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: git diff --check "$BASE_SHA...$HEAD_SHA"
