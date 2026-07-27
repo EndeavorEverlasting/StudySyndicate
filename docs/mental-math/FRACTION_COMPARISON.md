@@ -317,8 +317,8 @@ Machine-readable study material lives at:
 The seed currently contains:
 
 - 8 comparison principles in fallback order
-- 12 flashcards
-- 24 exact practice problems
+- 17 flashcards
+- 37 exact practice problems
 - explicit strategy paths so a future study engine can distinguish the first attempted benchmark from the fallback that actually settles the problem
 - worked explanations and answer keys
 
