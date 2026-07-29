@@ -72,6 +72,13 @@ LEARNING_MODEL = [
     "review-attempts", "mastery-weakness-map", "recommended-practice-queue",
 ]
 MULTIMEDIA = ["text", "image", "audio", "video"]
+JSON_PORTABILITY_ROUND_TRIPS = [
+    "structured-study-records",
+    "media-records",
+    "media-metadata",
+    "provenance",
+    "stable-media-references",
+]
 
 
 def fail(message: str) -> None:
@@ -146,8 +153,33 @@ def main() -> int:
     if policy.get("configurable") is not True:
         fail("recommendationPolicy must be marked configurable")
 
-    if not spec.get("acceptanceContract"):
+    local_first = spec.get("localFirst") or {}
+    if local_first.get("portability") != ["json-export-import", "zip-media-bundles-later"]:
+        fail("localFirst.portability must keep JSON first and ZIP media bundles later")
+    json_portability = local_first.get("jsonPortability") or {}
+    if json_portability.get("roundTrips") != JSON_PORTABILITY_ROUND_TRIPS:
+        fail("localFirst.jsonPortability.roundTrips must enumerate the complete structured dataset")
+    if json_portability.get("excludes") != ["binary-media-payloads"]:
+        fail("localFirst.jsonPortability.excludes must exclude binary media payloads")
+    if json_portability.get("binaryMediaBundle") != "zip-media-bundles-later":
+        fail("localFirst.jsonPortability.binaryMediaBundle must defer binary media bundling")
+
+    acceptance = spec.get("acceptanceContract")
+    if not acceptance:
         fail("acceptanceContract must be a non-empty list")
+    acceptance_by_id = {
+        item.get("id"): item.get("statement", "")
+        for item in acceptance
+        if isinstance(item, dict)
+    }
+    portability_statement = acceptance_by_id.get("ac-portability", "")
+    for required in (
+        "complete structured study dataset",
+        "without embedding binary media payloads",
+        "binary media bundling remains deferred",
+    ):
+        if required not in portability_statement:
+            fail(f"ac-portability must state {required!r}")
 
     boundaries = (spec.get("scopeBoundaries") or {}).get("deferred") or []
     for deferred in ("cloud-sync", "ai-grading"):
@@ -157,6 +189,15 @@ def main() -> int:
     for key in CORE_ENTITY_KEYS + EXERCISE_TYPE_IDS + SESSION_MODE_IDS + SOURCE_HIERARCHY_IDS:
         if key not in doc:
             fail(f"doctrine document is out of sync with manifest: missing {key!r}")
+
+    for required in (
+        "complete structured study dataset",
+        "JSON does not",
+        "binary media payloads",
+        "later ZIP",
+    ):
+        if required not in doc:
+            fail(f"doctrine missing portability boundary: {required!r}")
 
     print(
         "pmp doctrine validation PASS: "

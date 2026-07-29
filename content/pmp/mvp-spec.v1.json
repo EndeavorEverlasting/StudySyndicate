@@ -18,6 +18,17 @@
     "preferences": "localstorage-tiny-preferences-only",
     "backend": "none-for-mvp",
     "portability": ["json-export-import", "zip-media-bundles-later"],
+    "jsonPortability": {
+      "roundTrips": [
+        "structured-study-records",
+        "media-records",
+        "media-metadata",
+        "provenance",
+        "stable-media-references"
+      ],
+      "excludes": ["binary-media-payloads"],
+      "binaryMediaBundle": "zip-media-bundles-later"
+    },
     "spacedRepetition": "fsrs-compatible"
   },
   "sourceHierarchy": [
@@ -117,7 +128,7 @@
     { "id": "ac-exercises", "statement": "All thirteen exercise types are enumerated and gradable." },
     { "id": "ac-grading", "statement": "Recall grading supports exact, tolerant, synonym, rubric, and self-grade modes without requiring exact wording for concepts." },
     { "id": "ac-weakness", "statement": "Weakness is tracked at card, concept, competency, and domain levels and drives a configurable practice queue." },
-    { "id": "ac-portability", "statement": "JSON export and import round-trips the full local study set with no backend." },
+    { "id": "ac-portability", "statement": "JSON export/import round-trips the complete structured study dataset, including media records, metadata, provenance, and stable media references, without embedding binary media payloads. Portable binary media bundling remains deferred." },
     { "id": "ac-scheduling", "statement": "Scheduling is FSRS-compatible." }
   ]
 }

@@ -32,7 +32,10 @@ The MVP runs entirely in the browser with no backend or cloud dependency.
 - Structured data: IndexedDB through Dexie.js.
 - Binary media: blobs/files for image, audio, and video.
 - Preferences: `localStorage` only for tiny preferences, never primary study data.
-- Portability: JSON export/import first; ZIP media bundles later.
+- Portability: Phase 1 JSON export/import round-trips the complete structured study dataset,
+  including media records, metadata, provenance, and stable media references. JSON does not
+  embed binary image/audio/video payloads; portable binary media bundling remains a later ZIP
+  media-bundle capability.
 - Scheduling: FSRS-compatible spaced repetition.
 
 ## Provenance and Source Model
@@ -177,7 +180,9 @@ The MVP is accepted only when all of the following hold:
   without requiring exact wording for concepts.
 - `ac-weakness`: weakness is tracked at card, concept, competency, and domain levels and drives
   a configurable practice queue.
-- `ac-portability`: JSON export and import round-trips the full local study set with no backend.
+- `ac-portability`: JSON export/import round-trips the complete structured study dataset,
+  including media records, metadata, provenance, and stable media references, without
+  embedding binary media payloads. Portable binary media bundling remains deferred.
 - `ac-scheduling`: scheduling is FSRS-compatible.
 
 ## Scope Boundaries
