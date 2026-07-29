@@ -36,6 +36,22 @@ Primary data should use IndexedDB through Dexie.js. Browser localStorage should 
 
 Model the app around a factored abstraction so actors, relationships, and components remain explicit as the study engine grows. Start with durable actors such as learners, sources, concepts, prompts, responses, sessions, attempts, and media; connect them through typed relationships; and attach content, scoring, scheduling, provenance, and UI details as components. See [`docs/DOMAIN_MODEL.md`](docs/DOMAIN_MODEL.md) for the working model and [`src/domain/factored.ts`](src/domain/factored.ts) for the initial TypeScript contracts.
 
+## PMP Study System Doctrine
+
+StudySyndicate is a study system, not merely a flashcard app: `source-note` -> `atomic-concept`
+-> `exercise-variants` -> `review-attempts` -> `mastery-weakness-map` ->
+`recommended-practice-queue`. The canonical product architecture, PMP source model, core
+entities, exercise taxonomy, grading doctrine, weakness/mastery model, session modes, phased
+build order, and MVP acceptance contract are defined in
+[`docs/PMP_STUDY_SYSTEM.md`](docs/PMP_STUDY_SYSTEM.md) with a machine-readable companion at
+[`content/pmp/mvp-spec.v1.json`](content/pmp/mvp-spec.v1.json).
+
+Validate the doctrine and MVP spec with:
+
+```bash
+python scripts/validate-pmp-doctrine.py
+```
+
 ## Seed Study Content
 
 The first reusable study pack captures the fraction-comparison mental models developed for mental arithmetic: landmark comparisons, gap-from-one reasoning, residuals, common-numerator scaling, and an exact cross-multiplication fallback. See [`docs/mental-math/FRACTION_COMPARISON.md`](docs/mental-math/FRACTION_COMPARISON.md) for the playbook and [`content/mental-math/fraction-comparison.v1.json`](content/mental-math/fraction-comparison.v1.json) for flashcards and practice problems.
@@ -67,6 +83,9 @@ This repository is intentionally light until the app is scaffolded. Before addin
 - `.gitignore` — Node-friendly ignore rules for dependencies, build output, caches, environment files, and editor artifacts.
 - `docs/DOMAIN_MODEL.md` — factored actor, relationship, and component abstraction for the study engine.
 - `src/domain/factored.ts` — initial TypeScript contracts for actors, relationships, and components.
+- `docs/PMP_STUDY_SYSTEM.md` — canonical PMP study system doctrine and MVP specification.
+- `content/pmp/mvp-spec.v1.json` — machine-readable MVP contract for entities, exercises, grading, sources, competency mapping, weakness policy, session modes, and build order.
+- `scripts/validate-pmp-doctrine.py` — validator enforcing the PMP doctrine sections and MVP spec structural completeness.
 - `docs/mental-math/FRACTION_COMPARISON.md` — canonical fraction-comparison mental models and fallback ladder.
 - `content/mental-math/fraction-comparison.v1.json` — reusable flashcards, exact practice problems, strategy paths, and answer explanations.
 - `scripts/validate-mental-math-content.py` — exact-rational validator for the mental-math seed.

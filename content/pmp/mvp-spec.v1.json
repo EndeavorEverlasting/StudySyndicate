@@ -1,0 +1,134 @@
+{
+  "schema": "study-syndicate/pmp-study-system/v1",
+  "title": "StudySyndicate PMP Study System MVP Specification",
+  "purpose": "Machine-readable contract for the PMP study engine: entities, exercise taxonomy, grading doctrine, source/provenance model, competency mapping, weakness policy, session modes, and phased MVP build order.",
+  "notFlashcardApp": "StudySyndicate is a study system, not merely a flashcard app.",
+  "learningModel": [
+    "source-note",
+    "atomic-concept",
+    "exercise-variants",
+    "review-attempts",
+    "mastery-weakness-map",
+    "recommended-practice-queue"
+  ],
+  "localFirst": {
+    "runtime": "browser-app",
+    "structuredStore": "indexeddb-via-dexie",
+    "blobStore": "blobs-files-for-image-audio-video",
+    "preferences": "localstorage-tiny-preferences-only",
+    "backend": "none-for-mvp",
+    "portability": ["json-export-import", "zip-media-bundles-later"],
+    "jsonPortability": {
+      "roundTrips": [
+        "structured-study-records",
+        "media-records",
+        "media-metadata",
+        "provenance",
+        "stable-media-references"
+      ],
+      "excludes": ["binary-media-payloads"],
+      "binaryMediaBundle": "zip-media-bundles-later"
+    },
+    "spacedRepetition": "fsrs-compatible"
+  },
+  "sourceHierarchy": [
+    { "id": "pmp-examination-content-outline", "name": "PMP Examination Content Outline", "priority": 1, "copyright": "reference-structure-not-verbatim-bank" },
+    { "id": "pmi-standards-guides", "name": "PMI standards and guides", "priority": 2, "copyright": "cite-do-not-copy-wholesale" },
+    { "id": "user-course-video-notes", "name": "User notes, course notes, and video notes", "priority": 3, "copyright": "user-owned" },
+    { "id": "sanitized-real-work-scenarios", "name": "Sanitized real-work scenarios", "priority": 4, "copyright": "sanitize-remove-identifying-detail" },
+    { "id": "mistake-log", "name": "Mistake log", "priority": 5, "copyright": "user-owned" }
+  ],
+  "copyrightBoundary": "Preserve copyright boundaries; never copy paid question banks wholesale.",
+  "competencyMapping": {
+    "dimensions": ["examVersion", "domain", "taskOrEnabler", "deliveryApproach", "source", "weight"],
+    "deliveryApproaches": ["predictive", "agile-adaptive", "hybrid", "general"]
+  },
+  "coreEntities": [
+    { "name": "Source", "key": "source", "purpose": "Attributable origin of study material with copyright boundary.", "keyFields": ["id", "type", "title", "citation", "copyrightBoundary"] },
+    { "name": "Competency", "key": "competency", "purpose": "PMP exam-version domain, task/enabler, delivery approach, and weighting.", "keyFields": ["id", "examVersion", "domain", "taskOrEnabler", "deliveryApproach", "weight"] },
+    { "name": "Concept", "key": "concept", "purpose": "Atomic PMP idea with plain-English meaning and PMI exam logic.", "keyFields": ["id", "competencyIds", "sourceIds", "conceptRecord"] },
+    { "name": "Card", "key": "card", "purpose": "A study prompt/answer unit that may carry multimedia.", "keyFields": ["id", "conceptId", "media", "front", "back"] },
+    { "name": "MediaAsset", "key": "mediaAsset", "purpose": "Local blob handle for image, audio, or video.", "keyFields": ["id", "kind", "storageKey", "mimeType"] },
+    { "name": "Exercise", "key": "exercise", "purpose": "A typed exercise variant generated from a concept/card.", "keyFields": ["id", "conceptId", "type", "payload", "gradingMode"] },
+    { "name": "Rubric", "key": "rubric", "purpose": "Conceptual scoring definition for free-recall answers.", "keyFields": ["id", "requiredIdeas", "acceptedSynonyms", "commonWrongPatterns", "scoreRange"] },
+    { "name": "ReviewAttempt", "key": "reviewAttempt", "purpose": "A single graded interaction feeding scheduling and weakness.", "keyFields": ["id", "exerciseId", "grade", "durationMs", "attemptedAt"] },
+    { "name": "MasteryStat", "key": "masteryStat", "purpose": "Derived mastery/weakness at card, concept, competency, and domain levels.", "keyFields": ["id", "scope", "scopeId", "masteryScore", "weaknessScore"] }
+  ],
+  "multimedia": ["text", "image", "audio", "video"],
+  "exerciseTypes": [
+    { "id": "basic-flashcard", "name": "Basic flashcard" },
+    { "id": "cloze", "name": "Cloze deletion" },
+    { "id": "scenario-mcq", "name": "Scenario multiple choice" },
+    { "id": "multi-select", "name": "Multi-select" },
+    { "id": "ordering", "name": "Ordering" },
+    { "id": "matching", "name": "Matching" },
+    { "id": "categorization", "name": "Categorization" },
+    { "id": "image-prompt", "name": "Image prompt" },
+    { "id": "audio-recall", "name": "Audio recall" },
+    { "id": "video-critique", "name": "Video critique" },
+    { "id": "free-recall", "name": "Free recall" },
+    { "id": "case-drill", "name": "Case drill" },
+    { "id": "trap-correction", "name": "Trap correction" }
+  ],
+  "gradingModes": {
+    "recallModes": ["exact", "typo-tolerant", "accepted-synonyms", "rubric"],
+    "exactModeUsedFor": ["formulas", "acronyms", "named-artifacts"],
+    "toleranceApplies": ["typo", "case", "punctuation"],
+    "selfGrade": ["Again", "Hard", "Good", "Easy"],
+    "rubric": {
+      "scoreRange": [0, 3],
+      "fields": ["requiredIdeas", "acceptedSynonyms", "commonWrongPatterns"]
+    },
+    "laterExtensions": ["semantic-local-ai-grading"],
+    "mvpDependency": "semantic-local-ai-grading is not an MVP dependency"
+  },
+  "weaknessModel": {
+    "levels": ["card", "concept", "competency", "domain"],
+    "recommendationPolicy": {
+      "configurable": true,
+      "weakAreas": 0.7,
+      "dueReviews": 0.2,
+      "newMaterial": 0.1,
+      "note": "Initial configurable policy, not immutable mathematics."
+    }
+  },
+  "conceptRecordFields": [
+    { "key": "plainEnglishMeaning", "label": "Plain-English meaning" },
+    { "key": "pmiExamLogic", "label": "PMI exam logic" },
+    { "key": "commonTrap", "label": "Common trap" },
+    { "key": "realWorldInstinct", "label": "Real-world instinct" },
+    { "key": "pmiPreferredAnswer", "label": "PMI-preferred answer" },
+    { "key": "whyPmiPrefersIt", "label": "Why PMI prefers it" }
+  ],
+  "sessionModes": [
+    { "id": "due-review", "name": "Due Review" },
+    { "id": "weakness-drill", "name": "Weakness Drill" },
+    { "id": "exam-judgment", "name": "Exam Judgment" },
+    { "id": "formula-pit", "name": "Formula Pit" },
+    { "id": "mistake-replay", "name": "Mistake Replay" },
+    { "id": "source-build", "name": "Source Build Mode" },
+    { "id": "audio-walkthrough", "name": "Audio Walkthrough" }
+  ],
+  "buildOrder": [
+    { "phase": 1, "name": "Local study core", "deliverables": ["Source", "Concept", "Card", "Media", "ReviewAttempt", "basic-weakness-shell", "import-export"] },
+    { "phase": 2, "name": "Exercise engine", "deliverables": ["exercise-taxonomy-runtime"] },
+    { "phase": 3, "name": "Weakness recommender", "deliverables": ["recommendation-queue-policy"] },
+    { "phase": 4, "name": "Smarter grading", "deliverables": ["natural-language-grading"] },
+    { "phase": 5, "name": "Richer media tooling", "deliverables": ["media-authoring-and-bundles"] }
+  ],
+  "scopeBoundaries": {
+    "deferred": ["cloud-sync", "ai-grading"],
+    "note": "Do not prematurely implement cloud sync or AI grading."
+  },
+  "acceptanceContract": [
+    { "id": "ac-provenance", "statement": "Every Concept, Card, and Exercise can carry Source attribution." },
+    { "id": "ac-competency", "statement": "Concepts map to exam version, domain, task/enabler, delivery approach, source, and weight." },
+    { "id": "ac-entities", "statement": "All nine core entities are represented in the local Dexie/IndexedDB model." },
+    { "id": "ac-multimedia", "statement": "Cards and concepts support text, image, audio, and video." },
+    { "id": "ac-exercises", "statement": "All thirteen exercise types are enumerated and gradable." },
+    { "id": "ac-grading", "statement": "Recall grading supports exact, tolerant, synonym, rubric, and self-grade modes without requiring exact wording for concepts." },
+    { "id": "ac-weakness", "statement": "Weakness is tracked at card, concept, competency, and domain levels and drives a configurable practice queue." },
+    { "id": "ac-portability", "statement": "JSON export/import round-trips the complete structured study dataset, including media records, metadata, provenance, and stable media references, without embedding binary media payloads. Portable binary media bundling remains deferred." },
+    { "id": "ac-scheduling", "statement": "Scheduling is FSRS-compatible." }
+  ]
+}
