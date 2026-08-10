@@ -58,5 +58,5 @@ Canonical terminal action: `none; no safe actionable work remains`
 - **Acceptance gate:** one adapter has targeted pass/failure/timeout tests; guest exceptions/errors normalize to registered `ExecutionOutcome`; the React shell remains recoverable; owning validator plus npm run lint and npm run build pass; runner status matches observed runtime proof
 - **Gate:** none
 - **Last proof:** commit:752da1ae46d60a4b5b62d553e51314dba905fb2c establishes the tested host-safe UI/runner contract; no runtime adapter proof exists yet
-- **Next action:** choose exactly one registered runner, implement its adapter with finite timeout/cancellation, add pass/failure/timeout tests, and update only that runner status after observed runtime proof
+- **Next action:** create one registered runner adapter with finite timeout/cancellation, add pass/failure/timeout tests, and update only that runner status after observed runtime proof
 - **Updated:** 2026-08-10T19:18:00-04:00
