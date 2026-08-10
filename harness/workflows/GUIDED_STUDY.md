@@ -1,119 +1,134 @@
 # Guided Study Workflow
 
-Use this when the learner is staring at a blank file and does not know how to begin.
+Use this when the learner does not know how to begin, cannot reconstruct the assignment from memory,
+or needs feedback without immediately seeing a solution.
+
+## Non-negotiable packet order
+
+A guided exercise must not begin with vague questions such as "What comes in?" before presenting the
+assignment. Every problem packet establishes context in this order:
+
+1. **Premise** — what problem the learner is solving.
+2. **Inputs** — what data is provided.
+3. **Output** — what must be returned or produced.
+4. **Guarantees and constraints** — rules that change what counts as correct.
+5. **Worked example of the contract** — demonstrate input/output meaning without implementation code.
+6. **Learning goal and allowed help** — explain what this rep is practicing.
+7. **Guided checkpoints** — only now ask the learner to reason or code.
+8. **Executable feedback, hints, and documentation path** — make the next move obvious when stuck.
+
+The UI is deferred until these mechanics have repeated operator proof. A future UI must render this
+contract; it must not invent, omit, or hide the premise and feedback mechanics.
 
 ## The three modes
 
 ### Guided
 
-Use this first when the task feels daunting. Hints, examples, decomposition, documentation, and
-feedback are allowed. The goal is to create a mental model and a first successful loop.
+Use this first when the task feels daunting. Premise, examples, decomposition, graduated hints,
+official documentation, and executable feedback are allowed. The goal is a first successful loop.
 
 ### Docs-assisted
 
-Attempt from memory first, then use official documentation for syntax/API facts. Record exactly
-what was looked up. Do not search for the exact challenge solution.
+Attempt first, then consult official documentation for syntax/API facts. Record what was looked up.
+Do not search for the exact challenge solution.
 
 ### Mastery
 
-Use only after the problem is familiar. Start from a blank file with no AI and no solution lookup,
-explain the invariant and complexity, pass the harness, and solve a transfer variant.
+Use only after the problem is familiar. The premise and tests remain available, but solution hints,
+AI help, and solution lookup do not. Reconstruct from a blank file, explain correctness and
+complexity, pass executable feedback, and solve a transfer variant.
 
-Moving through these modes is progression, not cheating. Only the label must stay honest.
+Moving through these modes is progression, not cheating. Only the evidence label must stay honest.
 
-## Two Sum: where to begin
+## Canonical problem packets
 
-Do **not** begin by trying to remember the final hash-map solution.
+Problem mechanics live in tracked packets under `harness/problems/` and bind to
+`harness/problems/problem-packet-contract.v1.json`.
 
-### Step 1 — write the contract in plain English
+The first packet is Two Sum: `harness/problems/two-sum.v1.json`.
 
-Answer on paper or in comments:
+Read it as a self-contained exercise:
 
-- What comes in?
-- What must come out?
-- Are values or indices required?
-- Can the same index be used twice?
-- What does the problem guarantee about solutions?
-
-### Step 2 — hand-simulate one tiny example
-
-Use:
-
-```text
-nums = [2, 7, 11, 15]
-target = 9
+```bash
+python scripts/study-problem.py render two-sum --mode guided
 ```
 
-Ask: if you stand on `2`, what other value would complete `9`?
+Create an editable Python attempt with the premise, example, checkpoints, feedback commands, and
+starter function already present:
 
-Write the arithmetic explicitly:
-
-```text
-9 - 2 = 7
+```bash
+python scripts/study-problem.py render two-sum --mode guided --format comments --output two_sum_guided_attempt.py
 ```
 
-That subtraction is the complement idea.
+A learner should be able to close the repository documentation and still know exactly what problem
+they are solving.
 
-### Step 3 — solve it the slow obvious way
+## Two Sum: first guided loop
 
-Before optimizing, describe nested-loop brute force in words:
+After reading the complete packet:
 
-1. Pick one index.
-2. Compare it with every later index.
-3. If the values add to the target, return the two indices.
+1. Restate the assignment in your own words.
+2. Walk through the provided example and explain why its returned indices are correct.
+3. Describe a slow but obviously correct pair-search strategy.
+4. Write pseudocode for that slow strategy.
+5. Implement `two_sum(nums, target)`.
+6. Run executable feedback.
 
-If coding is still too hard, write pseudocode first. A correct slow solution is a legitimate first
-milestone because it proves you understand the contract.
+Do **not** require the optimized hash-map solution as the first successful rep. A correct brute-force
+solution is useful evidence that the contract is understood.
 
-### Step 4 — get feedback
+## Executable feedback
 
-Run the smallest executable test you have. If it fails, use
-`harness/skills/guided-feedback/SKILL.md`. Do not inspect the known-good reference immediately.
+Run:
 
-### Step 5 — discover the optimization
+```bash
+python scripts/study-problem.py check two-sum two_sum_guided_attempt.py
+```
 
-Ask this question for every value `x`:
+The checker does not reveal a solution. It reports concrete failures such as a missing function,
+Python exception, invalid result shape, same-index reuse, out-of-range indices, wrong sum, or input
+mutation. A passing guided attempt proves tested behavior, not mastery.
 
-> What value would I need to have seen already so that `x + needed == target`?
+## Graduated hints
 
-Store previously seen values with their indices. Check for the needed value **before** storing the
-current value so one element cannot match itself.
+Pull one hint at a time, make another attempt, then rerun the checker before escalating:
 
-### Step 6 — explain before claiming mastery
+```bash
+python scripts/study-problem.py hint two-sum --level 1
+python scripts/study-problem.py hint two-sum --level 2
+python scripts/study-problem.py hint two-sum --level 3
+python scripts/study-problem.py hint two-sum --level 4
+```
 
-Be able to say:
-
-- brute force checks pairs and is `O(n^2)` time;
-- the hash-map version trades `O(n)` extra space for expected `O(n)` time;
-- the map stores `value -> earlier index`;
-- lookup happens before insertion to avoid self-use.
-
-Then use a blank file later for the `mastery` attempt.
+The reusable feedback doctrine remains `harness/skills/guided-feedback/SKILL.md` (`guided-feedback`).
 
 ## Documentation without asking an AI for the answer
 
-When you know the concept but forget Python syntax, use the documentation skill:
+When the algorithmic idea is understood but Python syntax is missing, run:
 
-`harness/skills/documentation-lookup/SKILL.md`
+```bash
+python scripts/study-problem.py docs two-sum
+```
 
-For Two Sum, legitimate syntax questions include:
+The packet supplies narrow documentation needs, suggested search wording, and official Python docs.
+Searching for the exact Two Sum solution is solution lookup, not documentation lookup.
 
-- How do I create a dictionary?
-- How do I test whether a key is in a dictionary?
-- How do I enumerate a list with indices?
-- How do I retrieve a dictionary value by key?
+The reusable procedure remains `harness/skills/documentation-lookup/SKILL.md`
+(`documentation-lookup`).
 
-Searching for "Two Sum Python solution" is not documentation lookup; it is solution lookup.
+## Source-repository problem sets
+
+When a repository such as SysAdminSuite becomes a source for exercises, do not expose a raw snippet
+or vague questions as the assignment. Intake must first produce the same packet shape:
+
+`source context -> premise -> inputs -> desired output -> constraints -> example -> checkpoints -> feedback`
+
+The source repository remains authority for real behavior. StudySyndicate owns the pedagogical
+restatement. Never copy secrets, client data, credentials, machine-specific identifiers, or
+sensitive operational evidence into a study packet.
 
 ## Session evidence
 
-Record:
-
-- mode
-- problem/claim
-- what you wrote before hints
-- hint level reached
-- documentation consulted
-- failing/passing test
-- explanation you can give from memory
-- next retrieval target
+Record the mode, problem/source, premise version, work completed before hints, highest hint level,
+documentation consulted, checker evidence, explanation possible from memory, and next retrieval
+target.

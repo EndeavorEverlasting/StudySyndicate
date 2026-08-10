@@ -1,0 +1,156 @@
+{
+  "schema": "study-syndicate/problem-packet/v1",
+  "packetContract": "study-syndicate/problem-packet-contract/v1",
+  "id": "two-sum",
+  "title": "Two Sum",
+  "source": {
+    "kind": "canonical-algorithm-kata",
+    "note": "The packet restates the premise so the learner never has to reconstruct the assignment from vague prompts."
+  },
+  "premise": "Given a list of integers named nums and an integer target, find two different positions whose values add up to target. Return the two indices, not the values. The exercise guarantees that exactly one valid pair exists, and the same index cannot be used twice.",
+  "inputs": [
+    {
+      "name": "nums",
+      "type": "list[int]",
+      "meaning": "the integer values to search"
+    },
+    {
+      "name": "target",
+      "type": "int",
+      "meaning": "the sum the selected pair must produce"
+    }
+  ],
+  "output": "A two-item list containing the indices of the matching values. Either index order is acceptable.",
+  "guarantees": [
+    "Exactly one valid pair exists for the exercise inputs.",
+    "The two returned indices must be different.",
+    "The answer is expressed as indices, not as the values themselves."
+  ],
+  "example": {
+    "nums": [
+      2,
+      7,
+      11,
+      15
+    ],
+    "target": 9,
+    "output": [
+      0,
+      1
+    ],
+    "explanation": "nums[0] is 2 and nums[1] is 7; 2 + 7 equals 9."
+  },
+  "learningObjectives": [
+    "Translate a prose contract into explicit inputs, output, and constraints.",
+    "Build a correct slow solution before optimizing.",
+    "Recognize the complement relationship target - current_value.",
+    "Use a lookup structure only after the pair-search logic is understood.",
+    "Explain correctness and time/space complexity."
+  ],
+  "attemptContract": {
+    "language": "python",
+    "functionName": "two_sum",
+    "signature": "def two_sum(nums, target):",
+    "mutationAllowed": false,
+    "guidedGoal": "First produce a correct explanation or brute-force implementation; optimization is a later step."
+  },
+  "guidedCheckpoints": [
+    {
+      "id": "restate",
+      "prompt": "Restate the task in your own words. Name what you receive and what you must return."
+    },
+    {
+      "id": "walk-example",
+      "prompt": "For nums = [2, 7, 11, 15] and target = 9, which two positions form the answer, and why?"
+    },
+    {
+      "id": "slow-plan",
+      "prompt": "Describe a slow but obviously correct way to test pairs. Do not optimize yet."
+    },
+    {
+      "id": "pseudocode",
+      "prompt": "Turn that slow plan into 3-6 lines of pseudocode before writing Python."
+    },
+    {
+      "id": "implement",
+      "prompt": "Implement the slow plan in two_sum(nums, target). Run the checker before asking for an optimization hint."
+    }
+  ],
+  "hints": [
+    {
+      "level": 1,
+      "name": "contract nudge",
+      "text": "Work only from the sample first: identify the two indices whose values sum to the target."
+    },
+    {
+      "level": 2,
+      "name": "brute-force nudge",
+      "text": "Ignore efficiency. Pick one position and compare it with each later position so you never pair an element with itself."
+    },
+    {
+      "level": 3,
+      "name": "complement nudge",
+      "text": "For a current value x, the value that would complete the pair is target - x."
+    },
+    {
+      "level": 4,
+      "name": "lookup nudge",
+      "text": "An optimized pass can remember values seen earlier with their indices. Check whether the needed value was seen before recording the current value."
+    }
+  ],
+  "documentation": {
+    "policy": "Documentation lookup is allowed in guided and docs-assisted modes for language/API facts. Do not search for the exact Two Sum solution.",
+    "topics": [
+      {
+        "need": "iterate over a list while receiving both index and value",
+        "search": "Python built-in enumerate documentation",
+        "officialUrl": "https://docs.python.org/3/library/functions.html#enumerate"
+      },
+      {
+        "need": "create, read, and update a dictionary",
+        "search": "Python tutorial dictionaries",
+        "officialUrl": "https://docs.python.org/3/tutorial/datastructures.html#dictionaries"
+      },
+      {
+        "need": "test whether a dictionary already contains a key",
+        "search": "Python mapping key membership in operator documentation",
+        "officialUrl": "https://docs.python.org/3/reference/expressions.html#membership-test-operations"
+      }
+    ]
+  },
+  "feedback": {
+    "checkCommand": "python scripts/study-problem.py check two-sum PATH_TO_ATTEMPT.py",
+    "hintCommand": "python scripts/study-problem.py hint two-sum --level LEVEL",
+    "docsCommand": "python scripts/study-problem.py docs two-sum",
+    "principle": "Run executable feedback before revealing more of the solution."
+  },
+  "validationCases": [
+    {
+      "name": "canonical",
+      "nums": [2, 7, 11, 15],
+      "target": 9
+    },
+    {
+      "name": "complement-later",
+      "nums": [3, 2, 4],
+      "target": 6
+    },
+    {
+      "name": "duplicates",
+      "nums": [3, 3],
+      "target": 6
+    },
+    {
+      "name": "negative-values",
+      "nums": [-3, 4, 3, 90],
+      "target": 0
+    }
+  ],
+  "masteryGate": [
+    "Reconstruct a correct solution from a blank file without AI or solution lookup.",
+    "Explain why two distinct indices are returned.",
+    "Explain the brute-force O(n^2) approach.",
+    "Explain the expected O(n) lookup-based approach and its O(n) extra space.",
+    "Pass executable feedback and then solve a transfer variant."
+  ]
+}
