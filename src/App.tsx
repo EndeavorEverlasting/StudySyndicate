@@ -86,8 +86,10 @@ export default function App() {
       const anchor = document.createElement('a')
       anchor.href = url
       anchor.download = `${target.id}-attempt.${extension[language.id] ?? 'txt'}`
+      document.body.appendChild(anchor)
       anchor.click()
-      URL.revokeObjectURL(url)
+      anchor.remove()
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
     } catch (error) {
       setOutcome(normalizeHostFailure('browser-download', error))
     }
