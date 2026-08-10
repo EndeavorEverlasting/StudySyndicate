@@ -12,6 +12,19 @@
       "required": true
     },
     {
+      "id": "repo-location-recovery",
+      "tier": "quick",
+      "kind": "harness",
+      "argv": [
+        "pwsh",
+        "-NoLogo",
+        "-NoProfile",
+        "-File",
+        "scripts/Test-RepoLocationRecovery.ps1"
+      ],
+      "required": true
+    },
+    {
       "id": "repository-ledger-contract",
       "tier": "quick",
       "kind": "contract",
@@ -176,6 +189,7 @@
     "formatter": "No repository-wide formatter/linter is configured; Python compile and git diff --check are the current static floor.",
     "build": "No root application build exists yet. media-bundle-behavior is the current executable artifact-build proof.",
     "deploy": "StudySyndicate has no deployment contract at this floor.",
-    "ledger": "Quick validation includes the canonical repository ledger and compact frontier so low-capability agents cannot bypass deterministic task intake by using the harness."
+    "ledger": "Quick validation includes the canonical repository ledger and compact frontier so low-capability agents cannot bypass deterministic task intake by using the harness.",
+    "location": "Quick validation proves the tracked repository-location resolver returns the canonical StudySyndicate root from both root and nested paths and rejects origin drift."
   }
 }
