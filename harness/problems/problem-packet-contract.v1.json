@@ -1,0 +1,67 @@
+{
+  "schema": "study-syndicate/problem-packet-contract/v1",
+  "purpose": "Make every study exercise understandable and actionable before a learner is asked to reason or code.",
+  "requiredDisplayOrder": [
+    "premise",
+    "inputs",
+    "output",
+    "guarantees",
+    "example",
+    "help-mode",
+    "guided-checkpoints",
+    "feedback"
+  ],
+  "requiredPacketFields": [
+    "schema",
+    "packetContract",
+    "id",
+    "title",
+    "source",
+    "premise",
+    "inputs",
+    "output",
+    "guarantees",
+    "example",
+    "learningObjectives",
+    "attemptContract",
+    "guidedCheckpoints",
+    "hints",
+    "documentation",
+    "feedback",
+    "validationCases",
+    "masteryGate"
+  ],
+  "intakeRules": [
+    "State the premise before asking any learner question.",
+    "A packet must be usable without assuming the learner remembers the source assignment.",
+    "Show at least one input/output example that explains the contract without revealing implementation code.",
+    "Let a correct slow solution count as a guided milestone when optimization is not part of the stated first goal.",
+    "Prefer executable feedback before algorithmic hints.",
+    "Reveal hints one level at a time and require another attempt before escalation.",
+    "Separate documentation lookup for language/API facts from exact-solution lookup.",
+    "A source repository remains authority for its behavior; StudySyndicate owns the pedagogical restatement.",
+    "Do not import secrets, client data, credentials, machine-specific identifiers, or sensitive operational evidence into study packets."
+  ],
+  "sourceRepositoryAdapter": {
+    "required": [
+      "source context",
+      "premise",
+      "inputs",
+      "desired output",
+      "constraints",
+      "example"
+    ],
+    "output": "a StudySyndicate problem packet that then supplies checkpoints, feedback, hints, and documentation guidance"
+  },
+  "uiGate": {
+    "status": "deferred",
+    "rule": "Do not build the guided-study UI until CLI/file-based use proves the premise, attempt, feedback, hint, documentation, and evidence mechanics.",
+    "proofNeeded": [
+      "a learner can start without external context",
+      "checker failures identify the next repair",
+      "hint escalation is usable without solution dumping",
+      "documentation lookup is discoverable",
+      "session evidence can distinguish guided from mastery"
+    ]
+  }
+}

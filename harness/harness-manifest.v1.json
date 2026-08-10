@@ -9,7 +9,9 @@
     "workflowSpecs": [
       "harness/WORKFLOW_SPECS.md",
       "harness/workflows/GUIDED_STUDY.md",
-      "harness/workflows/PUBLIC_CLAIM_TO_STUDY.md"
+      "harness/workflows/PUBLIC_CLAIM_TO_STUDY.md",
+      "harness/problems/problem-packet-contract.v1.json",
+      "harness/problems/two-sum.v1.json"
     ],
     "artifactRegistry": [
       "harness/artifact-registry.v1.json"
@@ -18,6 +20,8 @@
       "harness/validation-manifest.v1.json",
       "scripts/validate-harness.py",
       "scripts/harness.py",
+      "scripts/study-problem.py",
+      "tests/test_guided_problem_packet.py",
       ".github/workflows/harness-infrastructure.yml"
     ],
     "hooks": [
@@ -40,7 +44,7 @@
   "workflows": [
     {
       "id": "guided-study",
-      "trigger": "The learner does not know how to begin, needs hints, or needs a safe first attempt.",
+      "trigger": "The learner does not know how to begin, needs the problem premise recited, needs hints, or needs executable feedback.",
       "entrypoint": "harness/workflows/GUIDED_STUDY.md",
       "skillRefs": [
         "harness/skills/documentation-lookup/SKILL.md",
@@ -63,8 +67,8 @@
     }
   ],
   "studyModes": {
-    "guided": "Hints, examples, decomposition, and feedback are allowed; does not satisfy mastery.",
-    "docs-assisted": "Official documentation may be consulted after an initial attempt; record what was used.",
-    "mastery": "Blank-file/no-AI reconstruction, explanation, executable tests, and transfer are required."
+    "guided": "The complete premise is presented first; hints, examples, decomposition, documentation, and feedback are allowed; does not satisfy mastery.",
+    "docs-assisted": "The complete premise is presented; official documentation may be consulted after an initial attempt; record what was used.",
+    "mastery": "The premise and tests remain available; blank-file/no-AI reconstruction, explanation, executable tests, and transfer are required."
   }
 }
