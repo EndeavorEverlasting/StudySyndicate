@@ -6,6 +6,8 @@ on:
       - "harness/**"
       - "scripts/harness.py"
       - "scripts/validate-harness.py"
+      - "scripts/Resolve-StudySyndicateRepo.ps1"
+      - "scripts/Test-RepoLocationRecovery.ps1"
       - ".githooks/**"
       - ".github/workflows/harness-infrastructure.yml"
       - "README.md"

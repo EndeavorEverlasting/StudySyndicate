@@ -10,6 +10,8 @@
       "harness/WORKFLOW_SPECS.md",
       "harness/workflows/GUIDED_STUDY.md",
       "harness/workflows/PUBLIC_CLAIM_TO_STUDY.md",
+      "harness/workflows/REPO_LOCATION_RECOVERY.md",
+      "scripts/Resolve-StudySyndicateRepo.ps1",
       "harness/problems/problem-packet-contract.v1.json",
       "harness/problems/two-sum.v1.json"
     ],
@@ -20,6 +22,7 @@
       "harness/validation-manifest.v1.json",
       "scripts/validate-harness.py",
       "scripts/harness.py",
+      "scripts/Test-RepoLocationRecovery.ps1",
       "scripts/study-problem.py",
       "tests/test_guided_problem_packet.py",
       ".github/workflows/harness-infrastructure.yml"
@@ -31,7 +34,8 @@
     "skills": [
       "harness/skills/documentation-lookup/SKILL.md",
       "harness/skills/guided-feedback/SKILL.md",
-      "harness/skills/public-claim-intake/SKILL.md"
+      "harness/skills/public-claim-intake/SKILL.md",
+      "harness/skills/repo-location-recovery/SKILL.md"
     ],
     "operatorReports": [
       "harness/reports/STATE.md",
@@ -63,7 +67,9 @@
       "id": "repo-change",
       "trigger": "Tracked doctrine, pack, validator, harness, or reference material must change.",
       "entrypoint": "harness/WORKFLOW_SPECS.md",
-      "skillRefs": []
+      "skillRefs": [
+        "harness/skills/repo-location-recovery/SKILL.md"
+      ]
     }
   ],
   "studyModes": {
