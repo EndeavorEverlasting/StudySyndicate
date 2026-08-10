@@ -1,0 +1,70 @@
+{
+  "schema": "study-syndicate/harness/v1",
+  "entrypoint": "harness/README.md",
+  "governanceAuthority": "AGENTS.md",
+  "components": {
+    "codebaseMap": [
+      "harness/CODEBASE_MAP.md"
+    ],
+    "workflowSpecs": [
+      "harness/WORKFLOW_SPECS.md",
+      "harness/workflows/GUIDED_STUDY.md",
+      "harness/workflows/PUBLIC_CLAIM_TO_STUDY.md"
+    ],
+    "artifactRegistry": [
+      "harness/artifact-registry.v1.json"
+    ],
+    "validators": [
+      "harness/validation-manifest.v1.json",
+      "scripts/validate-harness.py",
+      "scripts/harness.py",
+      ".github/workflows/harness-infrastructure.yml"
+    ],
+    "hooks": [
+      ".githooks/pre-commit",
+      ".githooks/pre-push"
+    ],
+    "skills": [
+      "harness/skills/documentation-lookup/SKILL.md",
+      "harness/skills/guided-feedback/SKILL.md",
+      "harness/skills/public-claim-intake/SKILL.md"
+    ],
+    "operatorReports": [
+      "harness/reports/STATE.md",
+      "harness/reports/PARALLAXPORT_STUDY_FODDER.md"
+    ],
+    "sourceAdapters": [
+      "harness/sources/parallaxport-claims.v1.json"
+    ]
+  },
+  "workflows": [
+    {
+      "id": "guided-study",
+      "trigger": "The learner does not know how to begin, needs hints, or needs a safe first attempt.",
+      "entrypoint": "harness/workflows/GUIDED_STUDY.md",
+      "skillRefs": [
+        "harness/skills/documentation-lookup/SKILL.md",
+        "harness/skills/guided-feedback/SKILL.md"
+      ]
+    },
+    {
+      "id": "public-claim-to-study",
+      "trigger": "A technology or capability is presented publicly and should become study fodder.",
+      "entrypoint": "harness/workflows/PUBLIC_CLAIM_TO_STUDY.md",
+      "skillRefs": [
+        "harness/skills/public-claim-intake/SKILL.md"
+      ]
+    },
+    {
+      "id": "repo-change",
+      "trigger": "Tracked doctrine, pack, validator, harness, or reference material must change.",
+      "entrypoint": "harness/WORKFLOW_SPECS.md",
+      "skillRefs": []
+    }
+  ],
+  "studyModes": {
+    "guided": "Hints, examples, decomposition, and feedback are allowed; does not satisfy mastery.",
+    "docs-assisted": "Official documentation may be consulted after an initial attempt; record what was used.",
+    "mastery": "Blank-file/no-AI reconstruction, explanation, executable tests, and transfer are required."
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "schema": "study-syndicate/artifact-registry/v1",
+  "naming": {
+    "trackedContract": "<domain>-<purpose>.v<major>.json",
+    "operatorReport": "harness/reports/<UPPER_SNAKE_NAME>.md",
+    "localSession": "local-study-exports/session-YYYYMMDD-HHMM-<track>.json",
+    "mediaBundle": "media-bundles/<study-id>-YYYYMMDD.study-media.zip"
+  },
+  "artifacts": [
+    {
+      "id": "parallaxport-study-fodder",
+      "kind": "tracked-report",
+      "path": "harness/reports/PARALLAXPORT_STUDY_FODDER.md",
+      "source": "harness/sources/parallaxport-claims.v1.json",
+      "generate": [
+        "python",
+        "scripts/harness.py",
+        "study-fodder"
+      ],
+      "validate": [
+        "python",
+        "scripts/harness.py",
+        "study-fodder",
+        "--check"
+      ]
+    },
+    {
+      "id": "harness-state",
+      "kind": "tracked-report",
+      "path": "harness/reports/STATE.md",
+      "generate": null,
+      "validate": [
+        "python",
+        "scripts/validate-harness.py"
+      ]
+    },
+    {
+      "id": "arrays-reference",
+      "kind": "tracked-reference",
+      "path": "practice/arrays/two_sum.py",
+      "generate": null,
+      "validate": [
+        "python",
+        "tests/test_two_sum.py"
+      ]
+    },
+    {
+      "id": "software-foundations-pack",
+      "kind": "tracked-contract",
+      "path": "content/software/sql-rust-foundations.v1.json",
+      "generate": null,
+      "validate": [
+        "python",
+        "scripts/validate-software-foundations.py"
+      ]
+    },
+    {
+      "id": "arrays-mastery-pack",
+      "kind": "tracked-contract",
+      "path": "content/software/arrays-mastery.v1.json",
+      "generate": null,
+      "validate": [
+        "python",
+        "scripts/validate-arrays-mastery.py"
+      ]
+    },
+    {
+      "id": "media-contract",
+      "kind": "tracked-contract",
+      "path": "content/media/multimodal-media-contract.v1.json",
+      "generate": null,
+      "validate": [
+        "python",
+        "scripts/validate-multimodal-media.py"
+      ]
+    },
+    {
+      "id": "local-study-session",
+      "kind": "ignored-operator-artifact",
+      "path": "local-study-exports/session-YYYYMMDD-HHMM-<track>.json",
+      "generate": "operator/session workflow",
+      "validate": "track-specific validator plus recorded evidence"
+    },
+    {
+      "id": "portable-media-bundle",
+      "kind": "ignored-binary-artifact",
+      "path": "media-bundles/<study-id>-YYYYMMDD.study-media.zip",
+      "generate": [
+        "python",
+        "scripts/media-bundle.py",
+        "pack"
+      ],
+      "validate": [
+        "python",
+        "scripts/media-bundle.py",
+        "validate"
+      ]
+    }
+  ]
+}
