@@ -1,0 +1,178 @@
+{
+  "schema": "study-syndicate/multimodal-media/v1",
+  "title": "StudySyndicate Multimodal Media Contract",
+  "purpose": "Make image, audio, and video reusable first-class media nodes that can be attached to prompts, answers, explanations, mnemonics, and context while remaining local-first, portable, integrity-checked, and accessible.",
+  "factoredModel": {
+    "actorKind": "media",
+    "assetComponentKind": "media-ref",
+    "usageRelationshipKind": "uses-media",
+    "usageComponentKind": "media-usage",
+    "principle": "Binary payloads never live inside prompt, response, concept, or relationship records."
+  },
+  "mediaKinds": [
+    "image",
+    "audio",
+    "video"
+  ],
+  "roles": [
+    "prompt",
+    "answer",
+    "explanation",
+    "mnemonic",
+    "context"
+  ],
+  "learningModes": [
+    "audio-first",
+    "visual-first",
+    "multimodal",
+    "text-fallback"
+  ],
+  "origins": [
+    "recorded",
+    "generated",
+    "imported"
+  ],
+  "assetFields": {
+    "required": [
+      "assetId",
+      "mediaKind",
+      "storageKey",
+      "mimeType",
+      "sha256",
+      "byteLength",
+      "origin"
+    ],
+    "optional": [
+      "originalFileName",
+      "language",
+      "durationMs",
+      "width",
+      "height",
+      "transcriptComponentId",
+      "altText",
+      "decorative",
+      "voice"
+    ]
+  },
+  "voiceNode": {
+    "kind": "audio",
+    "speechField": "speech",
+    "speechTranscriptRequired": true,
+    "speechLanguageRequired": true,
+    "generatedVoiceMetadata": [
+      "generator"
+    ],
+    "generatedSourceTextHash": "sha256-of-transcript",
+    "note": "Generated speech stores reproducibility metadata but never credentials, API keys, or provider secrets."
+  },
+  "visualNode": {
+    "kind": "image",
+    "meaningfulImageAltTextRequired": true,
+    "decorativeImagesMayOmitAltText": true
+  },
+  "usage": {
+    "required": [
+      "role",
+      "learningMode"
+    ],
+    "optional": [
+      "sequence",
+      "autoplay",
+      "startMs",
+      "endMs",
+      "playbackRate"
+    ],
+    "autoplayDefault": false,
+    "principle": "The same media node may be reused by multiple cards or concepts through separate uses-media relationships."
+  },
+  "portability": {
+    "structuredJson": {
+      "artifact": "study.json",
+      "containsBinaryPayloads": false,
+      "roundTrips": [
+        "media-actors",
+        "media-ref-components",
+        "media-usage-components",
+        "provenance",
+        "stable-media-references"
+      ]
+    },
+    "mediaBundle": {
+      "manifestSchema": "study-syndicate/media-bundle/v1",
+      "sourceDescriptorSchema": "study-syndicate/media-bundle-source/v1",
+      "transports": [
+        "directory",
+        "zip"
+      ],
+      "rootManifest": "manifest.json",
+      "structuredData": "study.json",
+      "assetsDirectory": "assets",
+      "assetPathRule": "assets/<sha256><lowercase-extension>",
+      "integrityFields": [
+        "sha256",
+        "byteLength"
+      ],
+      "importRules": [
+        "parse-study-json",
+        "validate-manifest-schema",
+        "reject-path-traversal",
+        "verify-every-asset-sha256-and-byteLength",
+        "deduplicate-binary-assets-by-sha256",
+        "preserve-stable-media-node-id",
+        "fail-if-required-binary-asset-is-missing"
+      ]
+    },
+    "authority": {
+      "studyJson": [
+        "actors",
+        "relationships",
+        "components",
+        "transcript-text",
+        "alt-text",
+        "media-usage-role",
+        "learning-mode"
+      ],
+      "manifestJson": [
+        "bundle-identity",
+        "asset-path",
+        "sha256",
+        "byteLength",
+        "mimeType",
+        "binary-origin",
+        "accessibility-text-hashes",
+        "generated-voice-provenance"
+      ]
+    }
+  },
+  "accessibility": {
+    "audioSpeech": "spoken audio carries a text transcript so the card remains reviewable without sound",
+    "meaningfulImages": "meaningful images carry alt text",
+    "preferenceModel": "support modality preferences and context without assigning a fixed learning-style identity to the learner"
+  },
+  "acceptanceContract": [
+    {
+      "id": "ac-media-node",
+      "statement": "Audio, image, and video are first-class reusable media actors rather than nested binary blobs."
+    },
+    {
+      "id": "ac-voice-node",
+      "statement": "A spoken-audio media node can preserve transcript, language, origin, integrity metadata, and generated-voice provenance without storing secrets."
+    },
+    {
+      "id": "ac-usage",
+      "statement": "Prompts, responses, concepts, and other study actors attach media through uses-media relationships with an explicit role and learning mode."
+    },
+    {
+      "id": "ac-bundle",
+      "statement": "A full media bundle carries study.json, manifest.json, and integrity-addressed binary assets and can be validated before import."
+    },
+    {
+      "id": "ac-dedupe",
+      "statement": "Bundle import can deduplicate identical binary assets by SHA-256 while preserving stable media node identifiers."
+    },
+    {
+      "id": "ac-accessibility",
+      "statement": "Spoken audio requires a transcript and meaningful images require alt text unless explicitly decorative."
+    }
+  ]
+}

@@ -22,6 +22,7 @@ export type RelationshipKind =
 export type ComponentKind =
   | 'text-content'
   | 'media-ref'
+  | 'media-usage'
   | 'pmp-map'
   | 'rubric'
   | 'schedule'
@@ -30,6 +31,23 @@ export type ComponentKind =
   | 'ui-state';
 
 export type FactoredOwnerType = 'actor' | 'relationship';
+
+export type MediaKind = 'image' | 'audio' | 'video';
+
+export type MediaRole =
+  | 'prompt'
+  | 'answer'
+  | 'explanation'
+  | 'mnemonic'
+  | 'context';
+
+export type MediaLearningMode =
+  | 'audio-first'
+  | 'visual-first'
+  | 'multimodal'
+  | 'text-fallback';
+
+export type MediaOrigin = 'recorded' | 'generated' | 'imported';
 
 export interface TimestampedRecord {
   id: string;
@@ -62,13 +80,41 @@ export interface TextContentData {
   body: string;
 }
 
+export interface VoiceMetadata {
+  generator: string;
+  model?: string;
+  label?: string;
+  sourceTextSha256?: string;
+}
+
 export interface MediaRefData {
+  assetId: string;
+  mediaKind: MediaKind;
   storageKey: string;
   mimeType: string;
-  caption?: string;
+  sha256: string;
+  byteLength: number;
+  origin: MediaOrigin;
+  originalFileName?: string;
+  language?: string;
   durationMs?: number;
   width?: number;
   height?: number;
+  speech?: boolean;
+  transcriptComponentId?: string;
+  altText?: string;
+  decorative?: boolean;
+  voice?: VoiceMetadata;
+}
+
+export interface MediaUsageData {
+  role: MediaRole;
+  learningMode: MediaLearningMode;
+  sequence?: number;
+  autoplay?: boolean;
+  startMs?: number;
+  endMs?: number;
+  playbackRate?: number;
 }
 
 export interface PmpMapData {

@@ -7,6 +7,8 @@ local-first MVP must deliver. Its machine-readable companion is
 [`content/pmp/mvp-spec.v1.json`](../content/pmp/mvp-spec.v1.json), and both are enforced by
 [`scripts/validate-pmp-doctrine.py`](../scripts/validate-pmp-doctrine.py). The factored data
 abstraction that implements these entities lives in [`docs/DOMAIN_MODEL.md`](DOMAIN_MODEL.md).
+Reusable image/audio/video nodes and portable media bundles are defined by
+[`docs/MULTIMODAL_MEDIA.md`](MULTIMODAL_MEDIA.md).
 
 ## Product Vision
 
@@ -32,11 +34,16 @@ The MVP runs entirely in the browser with no backend or cloud dependency.
 - Structured data: IndexedDB through Dexie.js.
 - Binary media: blobs/files for image, audio, and video.
 - Preferences: `localStorage` only for tiny preferences, never primary study data.
-- Portability: Phase 1 JSON export/import round-trips the complete structured study dataset,
+- Structured portability: `study.json` round-trips the complete structured study dataset,
   including media records, metadata, provenance, and stable media references. JSON does not
-  embed binary image/audio/video payloads; portable binary media bundling remains a later ZIP
-  media-bundle capability.
+  embed binary image/audio/video payloads.
+- Full media portability: a Phase 1 media bundle carries `study.json`, `manifest.json`, and
+  integrity-addressed binary assets. Directory and ZIP transports are both valid; import
+  verifies SHA-256 and byte length before trusting saved audio/image/video files.
 - Scheduling: FSRS-compatible spaced repetition.
+
+Binary media portability is no longer deferred to rich media tooling. Rich authoring UX can
+arrive later, but a saved voice node must already survive export/import in the local-first core.
 
 ## Provenance and Source Model
 
@@ -69,7 +76,7 @@ The MVP data model is built from nine core entities:
 | `Competency` | `competency` | Exam-version domain, task/enabler, delivery approach, and weight. |
 | `Concept` | `concept` | Atomic PMP idea with plain-English meaning and PMI exam logic. |
 | `Card` | `card` | A study prompt/answer unit that may carry multimedia. |
-| `MediaAsset` | `mediaAsset` | Local blob handle for image, audio, or video. |
+| `MediaAsset` | `mediaAsset` | Reusable local media node with integrity, provenance, accessibility, and portable bundle support. |
 | `Exercise` | `exercise` | A typed exercise variant generated from a concept/card. |
 | `Rubric` | `rubric` | Conceptual scoring for free-recall answers. |
 | `ReviewAttempt` | `reviewAttempt` | A single graded interaction feeding scheduling and weakness. |
@@ -81,7 +88,15 @@ model rather than becoming a pile of special-case tables.
 ## Multimedia Support
 
 Cards and concepts may contain `text`, `image`, `audio`, and `video`. Text lives in the
-structured store; image, audio, and video live as blobs referenced by `MediaAsset`.
+structured store; image, audio, and video are reusable `media` actors backed by local files or
+blobs and attached through `uses-media` relationships.
+
+A spoken voice node preserves transcript, language, origin, integrity metadata, and generated
+voice provenance when applicable. A meaningful visual node preserves alt text. Media usage
+declares whether the asset is acting as a prompt, answer, explanation, mnemonic, or context and
+whether presentation is audio-first, visual-first, multimodal, or text-fallback.
+
+The reusable contract is `study-syndicate/multimodal-media/v1`.
 
 ## Exercise Taxonomy
 
@@ -160,11 +175,13 @@ The MVP ships seven session modes:
 ## MVP Build Order
 
 1. **Phase 1 — Local study core:** `Source` -> `Concept` -> `Card` -> `Media` ->
-   `ReviewAttempt` -> basic weakness shell -> import/export.
+   `ReviewAttempt` -> basic weakness shell -> structured JSON import/export ->
+   `media-bundle-import-export`.
 2. **Phase 2 — Exercise engine:** the exercise taxonomy runtime.
 3. **Phase 3 — Weakness recommender:** the recommendation queue policy.
 4. **Phase 4 — Smarter grading:** natural-language grading.
-5. **Phase 5 — Richer media tooling:** media authoring and bundles.
+5. **Phase 5 — Richer media tooling:** `media-authoring-tools` such as recording, synthesis,
+   editing, waveform/thumbnail UX, and batch authoring. Portability is already Phase 1.
 
 ## MVP Acceptance Contract
 
@@ -174,19 +191,24 @@ The MVP is accepted only when all of the following hold:
 - `ac-competency`: Concepts map to exam version, domain, task/enabler, delivery approach,
   source, and weight.
 - `ac-entities`: all nine core entities are represented in the local Dexie/IndexedDB model.
-- `ac-multimedia`: Cards and concepts support text, image, audio, and video.
+- `ac-multimedia`: Cards and concepts support text, image, audio, and video through reusable
+  media nodes with explicit usage roles.
 - `ac-exercises`: all thirteen exercise types are enumerated and gradable.
 - `ac-grading`: recall grading supports exact, tolerant, synonym, rubric, and self-grade modes
   without requiring exact wording for concepts.
 - `ac-weakness`: weakness is tracked at card, concept, competency, and domain levels and drives
   a configurable practice queue.
-- `ac-portability`: JSON export/import round-trips the complete structured study dataset,
-  including media records, metadata, provenance, and stable media references, without
-  embedding binary media payloads. Portable binary media bundling remains deferred.
+- `ac-portability`: JSON export/import round-trips the complete structured study dataset
+  without embedding binary media payloads; a full media bundle carries `study.json`,
+  `manifest.json`, and integrity-addressed binary media so saved audio, image, and video nodes
+  survive export/import.
 - `ac-scheduling`: scheduling is FSRS-compatible.
 
 ## Scope Boundaries
 
-Do not prematurely implement cloud sync or AI grading. `cloud-sync` and `ai-grading` are
-explicitly deferred until the local-first core, exercise engine, and weakness recommender are
-proven.
+Do not prematurely implement cloud sync or AI grading. `cloud-sync`, `ai-grading`, and a rich
+media authoring UI are explicitly deferred until the local-first core is proven.
+
+The safety boundary is narrower than the old media deferral: **binary media portability is not
+deferred**. The app may postpone recording/synthesis/editing UX, but it must not create voice
+or visual nodes that cannot be backed up and restored.
