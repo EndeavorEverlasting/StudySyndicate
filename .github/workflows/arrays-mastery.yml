@@ -1,0 +1,41 @@
+name: Arrays Mastery
+
+on:
+  pull_request:
+    paths:
+      - docs/software/ARRAYS_MASTERY.md
+      - content/software/arrays-mastery.v1.json
+      - practice/arrays/two_sum.py
+      - tests/test_two_sum.py
+      - scripts/validate-arrays-mastery.py
+      - README.md
+      - .github/workflows/arrays-mastery.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate-arrays-mastery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate arrays mastery contract
+        run: python scripts/validate-arrays-mastery.py
+
+      - name: Run Two Sum kata harness
+        run: python tests/test_two_sum.py
+
+      - name: Check arrays mastery diff whitespace
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: git diff --check "$BASE_SHA...$HEAD_SHA"

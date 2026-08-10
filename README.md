@@ -71,6 +71,26 @@ Validate the foundations pack with:
 python scripts/validate-software-foundations.py
 ```
 
+## Arrays and Algorithms Mastery
+
+Arrays now have a dedicated evidence-oriented track beginning with **Two Sum front to back**:
+correct brute force, complement reasoning, hash-map optimization, edge-case defense,
+complexity explanation, blank-file no-AI reconstruction, and transfer. The track then advances
+through membership/frequency maps, running state, prefix/suffix structure, two pointers,
+windows, binary search, and an unfamiliar-problem capstone.
+
+See [`docs/software/ARRAYS_MASTERY.md`](docs/software/ARRAYS_MASTERY.md) for the doctrine,
+[`content/software/arrays-mastery.v1.json`](content/software/arrays-mastery.v1.json) for the
+machine-readable roadmap and evidence contract, and [`practice/arrays/two_sum.py`](practice/arrays/two_sum.py)
+for the known-good reference implementations.
+
+Validate the contract and run the kata harness with:
+
+```bash
+python scripts/validate-arrays-mastery.py
+python tests/test_two_sum.py
+```
+
 ## Seed Study Content
 
 The first reusable study pack captures the fraction-comparison mental models developed for mental arithmetic: landmark comparisons, gap-from-one reasoning, residuals, common-numerator scaling, and an exact cross-multiplication fallback. See [`docs/mental-math/FRACTION_COMPARISON.md`](docs/mental-math/FRACTION_COMPARISON.md) for the playbook and [`content/mental-math/fraction-comparison.v1.json`](content/mental-math/fraction-comparison.v1.json) for flashcards and practice problems.
@@ -108,6 +128,11 @@ This repository is intentionally light until the app is scaffolded. Before addin
 - `docs/software/SQL_RUST_FOUNDATIONS.md` — canonical SQL/Rust resume-claim practice doctrine, mastery gates, and `taskq` integration project.
 - `content/software/sql-rust-foundations.v1.json` — machine-readable SQL/Rust modules, exercises, cadence, maintenance roster, and acceptance contract.
 - `scripts/validate-software-foundations.py` — validator enforcing the software-foundations doctrine and machine-readable practice pack.
+- `docs/software/ARRAYS_MASTERY.md` — canonical arrays/algorithms mastery doctrine, Two Sum gate, 45-minute session loop, roadmap, and public-safe proof contract.
+- `content/software/arrays-mastery.v1.json` — machine-readable arrays roadmap, Two Sum invariants, exercises, evidence ledger, and acceptance contract.
+- `practice/arrays/two_sum.py` — known-good brute-force and hash-map Two Sum reference implementations.
+- `tests/test_two_sum.py` — dependency-free Two Sum correctness and edge-case harness.
+- `scripts/validate-arrays-mastery.py` — validator enforcing the arrays doctrine, roadmap, evidence contract, and executable-kata surface.
 - `docs/mental-math/FRACTION_COMPARISON.md` — canonical fraction-comparison mental models and fallback ladder.
 - `content/mental-math/fraction-comparison.v1.json` — reusable flashcards, exact practice problems, strategy paths, and answer explanations.
 - `scripts/validate-mental-math-content.py` — exact-rational validator for the mental-math seed.

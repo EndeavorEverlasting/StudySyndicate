@@ -1,0 +1,93 @@
+{
+  "schema": "study-syndicate/arrays-mastery/v1",
+  "title": "Arrays and Algorithms Mastery Contract",
+  "purpose": "Build defensible arrays-and-algorithms fluency through reconstruction, explanation, executable tests, and transfer rather than passive exposure.",
+  "claimDefense": {
+    "states": ["exposed", "practicing", "defensible"],
+    "rule": "Repository code is study material, not proof of personal mastery. A problem becomes defensible only after a blank-file, no-AI reconstruction, correct explanation, harness pass, and transfer exercise.",
+    "publicProofFields": ["problem", "commit", "tests", "complexity", "reconstructionMode", "transferExercise", "masteryState"]
+  },
+  "sessionTemplate": [
+    {"minutes": 5, "activity": "closed-book contract and invariant recall"},
+    {"minutes": 10, "activity": "write or explain the baseline solution"},
+    {"minutes": 20, "activity": "blank-file optimized reconstruction"},
+    {"minutes": 5, "activity": "run edge-case harness and repair"},
+    {"minutes": 5, "activity": "record complexity, confusion, evidence, and next rep"}
+  ],
+  "twoSumMastery": {
+    "problem": "Two Sum",
+    "contract": "Given an integer sequence and target, return two distinct indices whose values sum to the target; this repository raises ValueError when no pair exists.",
+    "referenceImplementations": ["two_sum_bruteforce", "two_sum_hash"],
+    "phases": [
+      "contract-recall",
+      "brute-force-reconstruction",
+      "complement-model-explanation",
+      "hash-map-reconstruction",
+      "edge-case-defense",
+      "complexity-defense",
+      "blank-file-reconstruction",
+      "transfer-variant"
+    ],
+    "invariants": [
+      "The current value needs a complement equal to target minus current value.",
+      "The seen map contains only values from earlier indices.",
+      "Check for the complement before inserting the current value so a value cannot reuse its own index and duplicate pairs such as [3, 3] still work."
+    ],
+    "complexity": {
+      "bruteforce": {"time": "O(n^2)", "space": "O(1) excluding the returned indices"},
+      "hash": {"time": "O(n) average", "space": "O(n)"}
+    },
+    "requiredEdgeCases": ["duplicate values", "negative values", "zero", "single-element self-reuse", "no solution", "input immutability"],
+    "graduationGates": [
+      "State the input/output contract without looking it up.",
+      "Write the brute-force solution from memory and explain why the loops start at different indices.",
+      "Derive complement = target - value without copying a remembered solution.",
+      "Write the hash-map solution from a blank file without AI assistance.",
+      "Explain why lookup-before-insert handles [3, 3] and prevents reusing the same index.",
+      "Explain O(n^2)/O(1) versus average O(n)/O(n) tradeoffs.",
+      "Pass the executable harness after reconstruction.",
+      "Solve a transfer variant that uses the same lookup or two-pointer idea."
+    ]
+  },
+  "roadmap": [
+    {"id": "array-mechanics", "order": 1, "name": "Array mechanics and invariants", "skills": ["index versus value", "single pass", "mutation versus copy", "boundary conditions"]},
+    {"id": "array-two-sum", "order": 2, "name": "Two Sum front to back", "skills": ["brute force", "complements", "hash lookup", "complexity defense"]},
+    {"id": "array-set-map", "order": 3, "name": "Membership, frequency, and lookup tables", "skills": ["set membership", "frequency map", "duplicate detection", "lookup invariants"]},
+    {"id": "array-running-state", "order": 4, "name": "Running state and one-pass optimization", "skills": ["running minimum", "running maximum", "best-so-far", "Kadane-style reasoning"]},
+    {"id": "array-prefix-suffix", "order": 5, "name": "Prefix, suffix, and cumulative structure", "skills": ["prefix sum", "suffix product", "range reasoning", "exclude-self construction"]},
+    {"id": "array-two-pointers", "order": 6, "name": "Sorted arrays and two pointers", "skills": ["left/right invariants", "sorting tradeoffs", "pair search", "three-value reduction"]},
+    {"id": "array-window", "order": 7, "name": "Fixed and variable windows", "skills": ["window sum", "enter/leave updates", "constraint maintenance", "amortized movement"]},
+    {"id": "array-binary-search", "order": 8, "name": "Binary search over array structure", "skills": ["monotonic predicate", "inclusive/exclusive bounds", "rotated arrays", "off-by-one defense"]},
+    {"id": "array-capstone", "order": 9, "name": "Unfamiliar array problem capstone", "skills": ["pattern classification", "baseline first", "optimization", "tests", "complexity explanation", "transfer"]}
+  ],
+  "exercises": [
+    {"id": "array-001", "module": "array-mechanics", "prompt": "Given an array, narrate index, value, previous state, and next state for one complete linear scan without writing code first.", "proof": "written-trace"},
+    {"id": "array-002", "module": "array-two-sum", "prompt": "Write Two Sum with nested loops from a blank file and explain why right begins at left + 1.", "proof": "code+explanation+tests"},
+    {"id": "array-003", "module": "array-two-sum", "prompt": "Rewrite Two Sum using a complement hash map from a blank file, then explain lookup-before-insert.", "proof": "code+explanation+tests"},
+    {"id": "array-004", "module": "array-two-sum", "prompt": "Defend Two Sum against duplicates, negatives, zero, no solution, and self-reuse edge cases.", "proof": "test-packet+oral-explanation"},
+    {"id": "array-005", "module": "array-set-map", "prompt": "Detect whether an array contains a duplicate, first with a baseline comparison and then with a set.", "proof": "code+complexity"},
+    {"id": "array-006", "module": "array-set-map", "prompt": "Build a frequency map and use it to identify values occurring more than once.", "proof": "code+invariant"},
+    {"id": "array-007", "module": "array-running-state", "prompt": "Compute the best single buy/sell profit with one pass while explaining the running-minimum invariant.", "proof": "code+trace+complexity"},
+    {"id": "array-008", "module": "array-running-state", "prompt": "Find a maximum-sum contiguous subarray and explain the restart-versus-extend decision.", "proof": "code+trace"},
+    {"id": "array-009", "module": "array-prefix-suffix", "prompt": "Build prefix sums and answer several range-sum queries from the precomputed structure.", "proof": "code+complexity"},
+    {"id": "array-010", "module": "array-prefix-suffix", "prompt": "Produce product-of-array-except-self without division using prefix and suffix state.", "proof": "code+trace"},
+    {"id": "array-011", "module": "array-two-pointers", "prompt": "Solve a sorted pair-sum problem with left/right pointers and state why each pointer movement is safe.", "proof": "code+invariant"},
+    {"id": "array-012", "module": "array-two-pointers", "prompt": "Reduce a three-value sum search to repeated two-pointer scans after sorting.", "proof": "code+duplicate-handling-explanation"},
+    {"id": "array-013", "module": "array-window", "prompt": "Find the maximum sum of any fixed-length window using enter/leave updates rather than recomputing each window.", "proof": "code+trace+complexity"},
+    {"id": "array-014", "module": "array-binary-search", "prompt": "Implement binary search twice: once with inclusive bounds and once with a half-open interval, then explain the loop invariants.", "proof": "code+boundary-tests"},
+    {"id": "array-015", "module": "array-capstone", "prompt": "Take an unfamiliar array problem, write a correct baseline, classify the reusable pattern, optimize it, add edge tests, and defend complexity without AI assistance.", "proof": "capstone-evidence-packet"}
+  ],
+  "evidenceLedger": {
+    "requiredFields": ["date", "problem", "attemptMode", "artifact", "tests", "explanation", "confusion", "nextRep", "masteryState"],
+    "attemptModes": ["assisted-study", "closed-book", "blank-file-no-ai", "transfer"],
+    "rule": "Never mark defensible from an assisted-study attempt alone."
+  },
+  "acceptanceContract": [
+    {"id": "ac-two-sum-reference", "statement": "The repository contains working brute-force and hash-map Two Sum reference implementations."},
+    {"id": "ac-two-sum-harness", "statement": "A dependency-free executable harness covers canonical, duplicate, negative, zero, self-reuse, no-solution, and input-mutation cases."},
+    {"id": "ac-two-sum-defense", "statement": "Two Sum mastery requires contract recall, blank-file no-AI reconstruction, lookup-before-insert explanation, complexity defense, and transfer."},
+    {"id": "ac-arrays-roadmap", "statement": "The arrays roadmap advances from mechanics through hash lookup, running state, prefix/suffix, two pointers, windows, binary search, and an unfamiliar-problem capstone."},
+    {"id": "ac-evidence-ledger", "statement": "Each deliberate-practice session records executable evidence, confusion, next rep, and mastery state."},
+    {"id": "ac-no-fabricated-mastery", "statement": "Committed reference code and AI-assisted work do not by themselves establish personal mastery or freelancer expertise."}
+  ]
+}
