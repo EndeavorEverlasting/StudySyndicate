@@ -1,0 +1,63 @@
+{
+  "schema": "study-syndicate/practice-workbench/v1",
+  "purpose": "Render premise-first study material in a modal, multi-language, draggable workbench without implying execution capabilities that do not exist.",
+  "uiContract": {
+    "premiseFirst": true,
+    "sessionConfiguration": "modal",
+    "workspace": "draggable-panels",
+    "textFallback": "textarea-notepad",
+    "capabilityDisclosure": "required",
+    "sourceAuthority": "StudySyndicate contracts and problem packets remain authority; UI only renders them."
+  },
+  "facets": [
+    {"id":"understand","label":"Understand","goal":"Restate premise, inputs, output, constraints, and example before implementation."},
+    {"id":"implement","label":"Implement","goal":"Write a working attempt in the selected language."},
+    {"id":"test","label":"Test / Debug","goal":"Use executable evidence or smallest counterexample to repair behavior."},
+    {"id":"explain","label":"Explain","goal":"Explain correctness, tradeoffs, and complexity in your own words."},
+    {"id":"docs","label":"Documentation","goal":"Practice finding official syntax/API documentation without solution lookup."}
+  ],
+  "studyModes": ["guided","docs-assisted","mastery"],
+  "executionBoundary": {
+    "principle": "Guest code failure is data, not a host-shell failure.",
+    "guestFailures": ["throw","panic","rejection","compile error","runtime error","timeout","database error"],
+    "hostResponsibility": "Every runner adapter catches or receives guest failure at its boundary and converts it into one normalized ExecutionOutcome. The React shell stays mounted.",
+    "normalizedStatuses": ["not-run","passed","failed","compile-error","runtime-error","timeout","unsupported","host-error"],
+    "requiredFields": ["status","runnerId","summary","detail","recoverable"],
+    "invariants": [
+      "Never infer runner availability from a language being listed.",
+      "Every executable adapter has a finite timeout or host-controlled cancellation path.",
+      "Guest exceptions must not escape into the React event loop.",
+      "Runner crashes become host-error outcomes with a recovery action.",
+      "The browser shell must not use eval or new Function for learner code until a dedicated sandbox contract is approved.",
+      "Unsupported execution remains a valid UI state and must explain the external tool or adapter required."
+    ]
+  },
+  "languages": [
+    {"id":"python","label":"Python","editorMode":"python","runner":{"id":"python-cli","kind":"host-process","status":"external-host-available","exceptionModel":"Python exceptions are caught by the host checker and normalized."}},
+    {"id":"rust","label":"Rust","editorMode":"rust","runner":{"id":"rust-host","kind":"host-process","status":"planned","exceptionModel":"Compiler diagnostics, Result errors, and panics must be normalized by the host adapter."}},
+    {"id":"sql","label":"SQL","editorMode":"sql","runner":{"id":"sql-session","kind":"database-session","status":"planned","exceptionModel":"Database errors and transaction failures must be normalized without crashing the shell."}},
+    {"id":"c","label":"C","editorMode":"c","runner":{"id":"c-host","kind":"host-process","status":"planned","exceptionModel":"Compiler failures, nonzero exit codes, signals, and timeouts must be normalized."}},
+    {"id":"javascript","label":"JavaScript","editorMode":"javascript","runner":{"id":"javascript-sandbox","kind":"browser-sandbox","status":"planned","exceptionModel":"Thrown values, rejected promises, and timeouts must be contained by the sandbox adapter."}},
+    {"id":"typescript","label":"TypeScript","editorMode":"typescript","runner":{"id":"typescript-sandbox","kind":"transpile-browser-sandbox","status":"planned","exceptionModel":"Type diagnostics and runtime failures must be normalized by the adapter."}},
+    {"id":"java","label":"Java","editorMode":"java","runner":{"id":"java-host","kind":"host-process","status":"planned","exceptionModel":"Compiler errors, thrown exceptions, nonzero exit codes, and timeouts must be normalized."}},
+    {"id":"lua","label":"Lua","editorMode":"lua","runner":{"id":"lua-embedded-host","kind":"embedded-host","status":"planned","exceptionModel":"Lua raises an error; the embedding host catches it and converts it to runtime-error without terminating the study shell."}}
+  ],
+  "sourceTracks": [
+    {"id":"two-sum","authority":"harness/problems/two-sum.v1.json","readiness":"premise-first-packet","starterPolicy":"packet-specific","languages":["python","rust","c","javascript","typescript","java","lua"]},
+    {"id":"arrays-roadmap","authority":"content/software/arrays-mastery.v1.json#exercises","readiness":"exercise-catalog","starterPolicy":"neutral-empty-until-packet","languages":["python","rust","c","javascript","typescript","java","lua"]},
+    {"id":"sql-foundations","authority":"content/software/sql-rust-foundations.v1.json#tracks/sql","readiness":"exercise-catalog","starterPolicy":"track-neutral-comment","languages":["sql"]},
+    {"id":"rust-foundations","authority":"content/software/sql-rust-foundations.v1.json#tracks/rust","readiness":"exercise-catalog","starterPolicy":"track-neutral-comment","languages":["rust"]},
+    {"id":"public-claims","authority":"harness/sources/parallaxport-claims.v1.json","readiness":"study-target-catalog","starterPolicy":"none","languages":["python","javascript","typescript","java","c","sql","rust","lua"]}
+  ],
+  "panelLayout": {"defaultOrder":["premise","workspace","feedback"],"draggable":true,"requiredPanels":["premise","workspace","feedback"],"rule":"Drag-and-drop changes presentation order only; it never changes source authority, study mode, or runner capability."},
+  "acceptanceContract": [
+    {"id":"ac-modal","statement":"A learner can choose study target, facet, language, and study mode in one modal without editing code or config files."},
+    {"id":"ac-premise","statement":"The premise and source context are visible before the editable work area."},
+    {"id":"ac-language","statement":"Python, Rust, SQL, C, JavaScript, TypeScript, Java, and Lua have explicit runner kinds and availability; no language is treated as executable by assumption."},
+    {"id":"ac-boundary","statement":"Guest failures normalize to ExecutionOutcome and cannot be allowed to crash the React host shell."},
+    {"id":"ac-drag","statement":"Premise, workspace, and feedback panels are reorderable with drag-and-drop while preserving semantic roles."},
+    {"id":"ac-text-fallback","statement":"The editor remains a plain text/Notepad-like fallback when richer language services are unavailable."},
+    {"id":"ac-starters","statement":"Catalog-only exercises use neutral starters until their own premise-first packet defines an exercise-specific scaffold."},
+    {"id":"ac-build","statement":"The root Vite/React/TypeScript application builds and lints in CI."}
+  ]
+}

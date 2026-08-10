@@ -17,12 +17,7 @@ PACKET = ROOT / "harness" / "problems" / "two-sum.v1.json"
 
 
 def run_problem(*args: str) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        [sys.executable, str(PROBLEM_CLI), *args],
-        cwd=ROOT,
-        text=True,
-        capture_output=True,
-    )
+    return subprocess.run([sys.executable, str(PROBLEM_CLI), *args], cwd=ROOT, text=True, capture_output=True)
 
 
 class GuidedProblemPacketTests(unittest.TestCase):
@@ -30,14 +25,13 @@ class GuidedProblemPacketTests(unittest.TestCase):
         contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
         self.assertEqual(contract["schema"], "study-syndicate/problem-packet-contract/v1")
         self.assertEqual(contract["requiredDisplayOrder"][0], "premise")
-        self.assertEqual(contract["uiGate"]["status"], "deferred")
-
+        self.assertEqual(contract["uiGate"]["status"], "foundation-ready")
+        self.assertIn("renderer", contract["uiGate"]["rule"].lower())
         packet = json.loads(PACKET.read_text(encoding="utf-8"))
         self.assertEqual(packet["schema"], "study-syndicate/problem-packet/v1")
         self.assertEqual(packet["packetContract"], "study-syndicate/problem-packet-contract/v1")
         self.assertGreater(len(packet["premise"]), 80)
         self.assertIn("indices", packet["output"].lower())
-
         result = run_problem("render", "two-sum", "--mode", "guided")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertLess(result.stdout.index("## Premise"), result.stdout.index("## Checkpoints"))
@@ -62,11 +56,9 @@ class GuidedProblemPacketTests(unittest.TestCase):
         self.assertEqual(first.returncode, 0, first.stderr)
         self.assertNotIn("lookup", first.stdout.lower())
         self.assertNotIn("target -", first.stdout.lower())
-
         fourth = run_problem("hint", "two-sum", "--level", "4")
         self.assertEqual(fourth.returncode, 0, fourth.stderr)
         self.assertIn("remember values seen earlier", fourth.stdout)
-
         docs = run_problem("docs", "two-sum")
         self.assertEqual(docs.returncode, 0, docs.stderr)
         self.assertIn("docs.python.org", docs.stdout)
@@ -75,14 +67,7 @@ class GuidedProblemPacketTests(unittest.TestCase):
     def test_checker_accepts_correct_slow_attempt_without_requiring_optimization(self):
         with tempfile.TemporaryDirectory() as tmp:
             attempt = Path(tmp) / "attempt.py"
-            attempt.write_text(
-                "def two_sum(nums, target):\n"
-                "    for left in range(len(nums)):\n"
-                "        for right in range(left + 1, len(nums)):\n"
-                "            if nums[left] + nums[right] == target:\n"
-                "                return [left, right]\n",
-                encoding="utf-8",
-            )
+            attempt.write_text("def two_sum(nums, target):\n    for left in range(len(nums)):\n        for right in range(left + 1, len(nums)):\n            if nums[left] + nums[right] == target:\n                return [left, right]\n", encoding="utf-8")
             result = run_problem("check", "two-sum", str(attempt))
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("attempt feedback PASS: 4 cases", result.stdout)
@@ -91,11 +76,7 @@ class GuidedProblemPacketTests(unittest.TestCase):
     def test_checker_returns_specific_failure_without_revealing_solution(self):
         with tempfile.TemporaryDirectory() as tmp:
             attempt = Path(tmp) / "attempt.py"
-            attempt.write_text(
-                "def two_sum(nums, target):\n"
-                "    return [0, 0]\n",
-                encoding="utf-8",
-            )
+            attempt.write_text("def two_sum(nums, target):\n    return [0, 0]\n", encoding="utf-8")
             result = run_problem("check", "two-sum", str(attempt))
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("same index", result.stderr)

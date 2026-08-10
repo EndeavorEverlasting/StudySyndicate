@@ -12,17 +12,51 @@ Canonical terminal action: `none; no safe actionable work remains`
 
 ## SSQ-001 — Scaffold the browser application shell
 
+- **Status:** DONE
+- **Priority:** P0
+- **Work class:** BOUNDED
+- **Owner:** workbench-sprint-20260810
+- **Branch / PR:** `feat/multilanguage-practice-workbench-20260810` / #13
+- **Scope:** create the minimal Vite + React + TypeScript application shell, package scripts, and one buildable study-app entrypoint while preserving contract-first study authority
+- **Forbidden:** Dexie schema implementation; media playback or recording; cloud sync; AI grading; PMP content rewrites; generated dependency folders or build output
+- **Dependencies:** none
+- **References:** `README.md`, `docs/DOMAIN_MODEL.md`, `docs/PMP_STUDY_SYSTEM.md`, `harness/practice-workbench.v1.json`
+- **Acceptance gate:** `package.json` and Vite/React/TypeScript source/config are tracked; dependency installation, lint, and build pass in CI; existing repository validators remain green; no generated dependency or build-output directory is committed
+- **Gate:** none
+- **Last proof:** commit:752da1ae46d60a4b5b62d553e51314dba905fb2c workflow:31441430835 proved full harness validation including npm lint/build; workflow:31441430845 proved targeted app install/lint/build
+- **Next action:** none; no safe actionable work remains
+- **Updated:** 2026-08-10T19:18:00-04:00
+
+## SSQ-002 — Build the multi-language Practice Workbench foundation
+
+- **Status:** DONE
+- **Priority:** P0
+- **Work class:** BOUNDED
+- **Owner:** workbench-sprint-20260810
+- **Branch / PR:** `feat/multilanguage-practice-workbench-20260810` / #13
+- **Scope:** render canonical study targets through a premise-first modal workbench with facet/language/mode selection, draggable panels, plain-text fallback, explicit runner capabilities, and host-safe normalized failure semantics
+- **Forbidden:** arbitrary browser code execution; direct `eval` or `new Function`; cloud execution; secrets; silently claiming planned runners are available; curriculum duplication; unrelated source-repository mutation
+- **Dependencies:** SSQ-001
+- **References:** `harness/workflows/PRACTICE_WORKBENCH.md`, `harness/practice-workbench.v1.json`, `harness/problems/problem-packet-contract.v1.json`, `src/App.tsx`
+- **Acceptance gate:** target/facet/language/mode modal is tracked; premise appears before workspace; required panels support drag-and-drop; plain-text fallback remains usable; eight language capabilities are explicit; guest failure semantics are normalized; workbench validators/tests plus npm lint/build pass
+- **Gate:** none
+- **Last proof:** commit:752da1ae46d60a4b5b62d553e51314dba905fb2c workflow:31441430845 proved contract tests, Oxlint, TypeScript/Vite build, and diff check; workflow:31441430835 proved full repository validation
+- **Next action:** none; no safe actionable work remains
+- **Updated:** 2026-08-10T19:18:00-04:00
+
+## SSQ-003 — Prove the first real Practice Workbench execution adapter
+
 - **Status:** READY
 - **Priority:** P0
 - **Work class:** BOUNDED
 - **Owner:** unclaimed
 - **Branch / PR:** none / none
-- **Scope:** create the minimal Vite + React + TypeScript application shell, package scripts, and one buildable empty study-app entrypoint without implementing feature behavior
-- **Forbidden:** Dexie schema implementation; media playback or recording; cloud sync; AI grading; PMP content rewrites; SQL/Rust or arrays curriculum rewrites; generated dependency folders or build output
-- **Dependencies:** none
-- **References:** `README.md`, `docs/DOMAIN_MODEL.md`, `docs/PMP_STUDY_SYSTEM.md`
-- **Acceptance gate:** `package.json` and the minimal Vite/React/TypeScript source/config files are tracked; dependency installation succeeds; the canonical build command exits 0; existing repository validators remain green; no generated dependency or build-output directory is committed
+- **Scope:** implement exactly one runner adapter behind `harness/practice-workbench.v1.json`; prove success, guest failure normalization, and timeout/cancellation while keeping the host shell usable; update only that runner status after proof
+- **Forbidden:** implementing multiple language runners in one sprint; direct browser `eval` or `new Function`; cloud execution service; secrets; weakening the premise-first packet or mastery contracts; unrelated curriculum rewrites
+- **Dependencies:** SSQ-001, SSQ-002
+- **References:** `harness/workflows/PRACTICE_WORKBENCH.md`, `src/practice/execution.ts`, `harness/practice-workbench.v1.json`
+- **Acceptance gate:** one adapter has targeted pass/failure/timeout tests; guest exceptions/errors normalize to registered `ExecutionOutcome`; the React shell remains recoverable; owning validator plus npm run lint and npm run build pass; runner status matches observed runtime proof
 - **Gate:** none
-- **Last proof:** merge:6f7b65ef5aa88eba1d7bc4286a97235252b7e181 established the current local-first media/domain floor before app scaffolding
-- **Next action:** create an isolated branch from current main, scaffold only the Vite + React + TypeScript shell, run the build plus existing repository validators, and commit the bounded shell if all gates pass
-- **Updated:** 2026-08-10T17:06:00-04:00
+- **Last proof:** commit:752da1ae46d60a4b5b62d553e51314dba905fb2c establishes the tested host-safe UI/runner contract; no runtime adapter proof exists yet
+- **Next action:** create one registered runner adapter with finite timeout/cancellation, add pass/failure/timeout tests, and update only that runner status after observed runtime proof
+- **Updated:** 2026-08-10T19:18:00-04:00

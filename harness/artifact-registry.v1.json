@@ -8,6 +8,22 @@
   },
   "artifacts": [
     {
+      "id": "practice-workbench-build",
+      "kind": "ignored-build-artifact",
+      "path": "dist/",
+      "source": "src/ + harness/practice-workbench.v1.json + canonical study packs",
+      "generate": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "validate": [
+        "npm",
+        "run",
+        "build"
+      ]
+    },
+    {
       "id": "repo-location-proof",
       "kind": "operator-terminal-proof",
       "path": "stdout",

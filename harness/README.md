@@ -31,6 +31,11 @@ If the study task feels too hard to begin, do **not** jump directly to the answe
 `harness/workflows/GUIDED_STUDY.md`. Guided work is legitimate practice; it is simply recorded
 as `guided` or `docs-assisted` rather than `mastery`.
 
+For browser-based practice, use `harness/workflows/PRACTICE_WORKBENCH.md`. The UI renders canonical
+problem/study contracts through a modal target/facet/language/mode selector and draggable premise,
+workspace, and feedback panels. A language appearing in the selector never implies that its runner is
+available; `harness/practice-workbench.v1.json` owns that capability state.
+
 ## Harness authority map
 
 - `.ai/WORK_QUEUE.md` — canonical repository coordination ledger; implementation truth remains in repository-owned evidence surfaces.
@@ -40,6 +45,8 @@ as `guided` or `docs-assisted` rather than `mastery`.
 - `CODEBASE_MAP.md` — repository layout, entry points, commands, and current build/deploy floor.
 - `WORKFLOW_SPECS.md` — task pickup, failure handling, validation, and handoff.
 - `workflows/REPO_LOCATION_RECOVERY.md` — recovery workflow for wrong-directory and detached-worktree traps.
+- `workflows/PRACTICE_WORKBENCH.md` — browser practice workflow and execution-capability boundary.
+- `practice-workbench.v1.json` — language, facet, panel, and runner-capability contract.
 - `harness-manifest.v1.json` — machine-readable component inventory and workflow selector.
 - `artifact-registry.v1.json` — output locations, generators, naming, and retention.
 - `validation-manifest.v1.json` — executable validation command registry.
@@ -60,7 +67,12 @@ python scripts/validate-repo-ledger.py
 python scripts/harness.py inspect
 python scripts/harness.py workflows
 python scripts/harness.py start guided-study
+python scripts/harness.py start practice-workbench
 python scripts/harness.py study-fodder
+python scripts/validate-practice-workbench.py
+python tests/test_practice_workbench_contract.py
+npm run lint
+npm run build
 python scripts/harness.py validate --level quick
 python scripts/harness.py validate --level full
 ```
@@ -76,6 +88,13 @@ Install the tracked hooks only when you intentionally want this checkout to use 
 ```bash
 git config core.hooksPath .githooks
 ```
+
+## Runner capability is explicit
+
+Guest code failure is data, not a host-shell failure. A runner adapter catches or receives language/runtime
+failures and normalizes them before the result reaches React. For embedded Lua, the host catches the raised
+Lua error and returns a `runtime-error` outcome. Planned runners remain visibly planned until runtime proof
+exists; browser `eval`/`new Function` is not an approved shortcut.
 
 ## Public claims are inputs, not proof
 

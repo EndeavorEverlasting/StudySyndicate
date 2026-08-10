@@ -1,36 +1,8 @@
 {
   "schema": "study-syndicate/problem-packet-contract/v1",
   "purpose": "Make every study exercise understandable and actionable before a learner is asked to reason or code.",
-  "requiredDisplayOrder": [
-    "premise",
-    "inputs",
-    "output",
-    "guarantees",
-    "example",
-    "help-mode",
-    "guided-checkpoints",
-    "feedback"
-  ],
-  "requiredPacketFields": [
-    "schema",
-    "packetContract",
-    "id",
-    "title",
-    "source",
-    "premise",
-    "inputs",
-    "output",
-    "guarantees",
-    "example",
-    "learningObjectives",
-    "attemptContract",
-    "guidedCheckpoints",
-    "hints",
-    "documentation",
-    "feedback",
-    "validationCases",
-    "masteryGate"
-  ],
+  "requiredDisplayOrder": ["premise","inputs","output","guarantees","example","help-mode","guided-checkpoints","feedback"],
+  "requiredPacketFields": ["schema","packetContract","id","title","source","premise","inputs","output","guarantees","example","learningObjectives","attemptContract","guidedCheckpoints","hints","documentation","feedback","validationCases","masteryGate"],
   "intakeRules": [
     "State the premise before asking any learner question.",
     "A packet must be usable without assuming the learner remembers the source assignment.",
@@ -42,26 +14,20 @@
     "A source repository remains authority for its behavior; StudySyndicate owns the pedagogical restatement.",
     "Do not import secrets, client data, credentials, machine-specific identifiers, or sensitive operational evidence into study packets."
   ],
-  "sourceRepositoryAdapter": {
-    "required": [
-      "source context",
-      "premise",
-      "inputs",
-      "desired output",
-      "constraints",
-      "example"
-    ],
-    "output": "a StudySyndicate problem packet that then supplies checkpoints, feedback, hints, and documentation guidance"
-  },
+  "sourceRepositoryAdapter": {"required":["source context","premise","inputs","desired output","constraints","example"],"output":"a StudySyndicate problem packet that then supplies checkpoints, feedback, hints, and documentation guidance"},
   "uiGate": {
-    "status": "deferred",
-    "rule": "Do not build the guided-study UI until CLI/file-based use proves the premise, attempt, feedback, hint, documentation, and evidence mechanics.",
-    "proofNeeded": [
-      "a learner can start without external context",
-      "checker failures identify the next repair",
-      "hint escalation is usable without solution dumping",
-      "documentation lookup is discoverable",
-      "session evidence can distinguish guided from mastery"
+    "status": "foundation-ready",
+    "rule": "The browser UI may now render proven packet mechanics, but it is a renderer of the canonical packet/harness contracts and may not invent, shorten away, or silently upgrade premise, feedback, mastery, or runner semantics.",
+    "proofSatisfied": [
+      "guided packet behavior tests prove the premise appears before questions",
+      "checker failures identify specific repair classes without dumping the solution",
+      "graduated hints and official-documentation lookup are separately available",
+      "the operator successfully generated and used a self-contained Two Sum attempt from the harness"
+    ],
+    "remainingBoundaries": [
+      "language execution is capability-gated by harness/practice-workbench.v1.json",
+      "new source-repository exercises must pass the same premise-first intake contract",
+      "mastery proof remains stricter than guided or docs-assisted work"
     ]
   }
 }

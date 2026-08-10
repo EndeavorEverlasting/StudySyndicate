@@ -1,29 +1,26 @@
-name: Harness Infrastructure
+name: Practice Workbench
 
 on:
   pull_request:
     paths:
-      - "harness/**"
-      - "scripts/harness.py"
-      - "scripts/validate-harness.py"
-      - "scripts/validate-practice-workbench.py"
-      - "scripts/Resolve-StudySyndicateRepo.ps1"
-      - "scripts/Test-RepoLocationRecovery.ps1"
-      - "tests/test_practice-workbench_contract.py"
-      - ".githooks/**"
-      - ".github/workflows/harness-infrastructure.yml"
-      - "src/**"
-      - "index.html"
       - "package.json"
+      - "index.html"
       - "tsconfig*.json"
       - "vite.config.ts"
-      - "README.md"
+      - "src/**"
+      - "harness/practice-workbench.v1.json"
+      - "harness/problems/problem-packet-contract.v1.json"
+      - "harness/workflows/PRACTICE_WORKBENCH.md"
+      - "harness/skills/runner-adapter/SKILL.md"
+      - "scripts/validate-practice-workbench.py"
+      - "tests/test_practice_workbench_contract.py"
+      - ".github/workflows/practice-workbench.yml"
 
 permissions:
   contents: read
 
 jobs:
-  validate-harness:
+  validate-workbench:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -41,14 +38,20 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Install browser dependencies
+      - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Inspect harness
-        run: python scripts/harness.py inspect
+      - name: Validate workbench contract
+        run: python scripts/validate-practice-workbench.py
 
-      - name: Run full registered validation floor
-        run: python scripts/harness.py validate --level full
+      - name: Test workbench contracts
+        run: python tests/test_practice_workbench_contract.py
+
+      - name: Lint app
+        run: npm run lint
+
+      - name: Build app
+        run: npm run build
 
       - name: Check PR diff whitespace
         env:
