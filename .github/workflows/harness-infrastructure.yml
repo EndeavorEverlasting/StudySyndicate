@@ -1,0 +1,40 @@
+name: Harness Infrastructure
+
+on:
+  pull_request:
+    paths:
+      - "harness/**"
+      - "scripts/harness.py"
+      - "scripts/validate-harness.py"
+      - ".githooks/**"
+      - ".github/workflows/harness-infrastructure.yml"
+      - "README.md"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-harness:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Inspect harness
+        run: python scripts/harness.py inspect
+
+      - name: Run full registered validation floor
+        run: python scripts/harness.py validate --level full
+
+      - name: Check PR diff whitespace
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: git diff --check "$BASE_SHA...$HEAD_SHA"

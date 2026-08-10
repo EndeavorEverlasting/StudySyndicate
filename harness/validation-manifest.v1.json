@@ -1,0 +1,136 @@
+{
+  "schema": "study-syndicate/validation-manifest/v1",
+  "checks": [
+    {
+      "id": "harness-completeness",
+      "tier": "quick",
+      "kind": "contract",
+      "argv": [
+        "python",
+        "scripts/validate-harness.py"
+      ],
+      "required": true
+    },
+    {
+      "id": "parallaxport-report-sync",
+      "tier": "quick",
+      "kind": "generated-artifact",
+      "argv": [
+        "python",
+        "scripts/harness.py",
+        "study-fodder",
+        "--check"
+      ],
+      "required": true
+    },
+    {
+      "id": "harness-python-compile",
+      "tier": "quick",
+      "kind": "static",
+      "argv": [
+        "python",
+        "-m",
+        "py_compile",
+        "scripts/harness.py",
+        "scripts/validate-harness.py"
+      ],
+      "required": true
+    },
+    {
+      "id": "governance",
+      "tier": "full",
+      "kind": "contract",
+      "argv": [
+        "bash",
+        "scripts/validate-governance.sh"
+      ],
+      "required": true
+    },
+    {
+      "id": "pmp-doctrine",
+      "tier": "full",
+      "kind": "contract",
+      "argv": [
+        "python",
+        "scripts/validate-pmp-doctrine.py"
+      ],
+      "required": true
+    },
+    {
+      "id": "software-foundations",
+      "tier": "full",
+      "kind": "contract",
+      "argv": [
+        "python",
+        "scripts/validate-software-foundations.py"
+      ],
+      "required": true
+    },
+    {
+      "id": "arrays-mastery",
+      "tier": "full",
+      "kind": "contract",
+      "argv": [
+        "python",
+        "scripts/validate-arrays-mastery.py"
+      ],
+      "required": true
+    },
+    {
+      "id": "two-sum-kata",
+      "tier": "full",
+      "kind": "test",
+      "argv": [
+        "python",
+        "tests/test_two_sum.py"
+      ],
+      "required": true
+    },
+    {
+      "id": "multimodal-media",
+      "tier": "full",
+      "kind": "contract",
+      "argv": [
+        "python",
+        "scripts/validate-multimodal-media.py"
+      ],
+      "required": true
+    },
+    {
+      "id": "media-bundle-behavior",
+      "tier": "full",
+      "kind": "build-test",
+      "argv": [
+        "python",
+        "scripts/test-media-bundle.py"
+      ],
+      "required": true
+    },
+    {
+      "id": "mental-math",
+      "tier": "full",
+      "kind": "contract",
+      "argv": [
+        "python",
+        "scripts/validate-mental-math-content.py"
+      ],
+      "required": true
+    },
+    {
+      "id": "diff-whitespace",
+      "tier": "full",
+      "kind": "static",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "required": true
+    }
+  ],
+  "notes": {
+    "formatter": "No repository-wide formatter/linter is configured; Python compile and git diff --check are the current static floor.",
+    "build": "No root application build exists yet. media-bundle-behavior is the current executable artifact-build proof.",
+    "deploy": "StudySyndicate has no deployment contract at this floor."
+  }
+}

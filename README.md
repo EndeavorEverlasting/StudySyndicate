@@ -123,6 +123,31 @@ python scripts/validate-arrays-mastery.py
 python tests/test_two_sum.py
 ```
 
+## Operational Harness
+
+The repository has a tracked operational harness for agents and operators. Start at
+[`harness/README.md`](harness/README.md), inspect the repo with `python scripts/harness.py inspect`,
+and select a workflow with `python scripts/harness.py workflows`.
+
+The harness also treats the technologies presented on **ParallaxPort** as versioned study fodder.
+The source snapshot is [`harness/sources/parallaxport-claims.v1.json`](harness/sources/parallaxport-claims.v1.json)
+and the generated human queue is
+[`harness/reports/PARALLAXPORT_STUDY_FODDER.md`](harness/reports/PARALLAXPORT_STUDY_FODDER.md).
+Public claims create practice priority; they do not count as mastery proof.
+
+If a blank-file exercise feels too difficult to start, use:
+
+```bash
+python scripts/harness.py start guided-study
+```
+
+Run the harness validation floor with:
+
+```bash
+python scripts/harness.py validate --level quick
+python scripts/harness.py validate --level full
+```
+
 ## Seed Study Content
 
 The first reusable study pack captures the fraction-comparison mental models developed for mental arithmetic: landmark comparisons, gap-from-one reasoning, residuals, common-numerator scaling, and an exact cross-multiplication fallback. See [`docs/mental-math/FRACTION_COMPARISON.md`](docs/mental-math/FRACTION_COMPARISON.md) for the playbook and [`content/mental-math/fraction-comparison.v1.json`](content/mental-math/fraction-comparison.v1.json) for flashcards and practice problems.

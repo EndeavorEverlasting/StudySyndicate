@@ -1,0 +1,173 @@
+{
+  "schema": "study-syndicate/public-claim-source/v1",
+  "sourceId": "parallaxport",
+  "displayName": "ParallaxPort",
+  "sourceType": "public-portfolio",
+  "snapshotDate": "2026-08-10",
+  "snapshotBasis": [
+    "ParallaxPort public Skills presentation supplied by the operator",
+    "ParallaxPort repository README used only to corroborate portfolio implementation context"
+  ],
+  "refreshPolicy": "Refresh deliberately when the public skills presentation changes; do not silently scrape or mutate claims.",
+  "evidenceRule": "A public claim creates study priority, not mastery proof.",
+  "claims": [
+    {
+      "id": "parallaxport-programming-languages-python",
+      "category": "programming-languages",
+      "claim": "Python",
+      "studyTargets": [
+        "arrays-mastery",
+        "software-foundations-maintenance"
+      ],
+      "firstPractice": "Use guided Two Sum in Python, then explain dictionary membership and complexity.",
+      "initialState": "exposed"
+    },
+    {
+      "id": "parallaxport-programming-languages-javascript",
+      "category": "programming-languages",
+      "claim": "JavaScript",
+      "studyTargets": [
+        "software-foundations-maintenance"
+      ],
+      "firstPractice": "Write a frequency-map array drill and explain object/Map lookup tradeoffs.",
+      "initialState": "exposed"
+    },
+    {
+      "id": "parallaxport-programming-languages-typescript",
+      "category": "programming-languages",
+      "claim": "TypeScript",
+      "studyTargets": [
+        "software-foundations-maintenance"
+      ],
+      "firstPractice": "Type a small array transform with explicit input/output types and one failing test.",
+      "initialState": "exposed"
+    },
+    {
+      "id": "parallaxport-programming-languages-java",
+      "category": "programming-languages",
+      "claim": "Java",
+      "studyTargets": [
+        "software-foundations-maintenance"
+      ],
+      "firstPractice": "Rebuild a small array scan and explain value/reference behavior relevant to the solution.",
+      "initialState": "exposed"
+    },
+    {
+      "id": "parallaxport-programming-languages-c",
+      "category": "programming-languages",
+      "claim": "C",
+      "studyTargets": [
+        "software-foundations-maintenance"
+      ],
+      "firstPractice": "Implement a bounded array scan and explain indices, memory bounds, and failure cases.",
+      "initialState": "exposed"
+    },
+    {
+      "id": "parallaxport-data-science-analytics-pandas",
+      "category": "data-science-analytics",
+      "claim": "Pandas",
+      "studyTargets": [
+        "software-foundations-maintenance"
+      ],
+      "firstPractice": "Load a tiny table, filter rows, group once, and explain the resulting shape from memory.",
+      "initialState": "exposed"
+    },
+    {
+      "id": "parallaxport-data-science-analytics-numpy",
+      "category": "data-science-analytics",
+      "claim": "NumPy",
+      "studyTargets": [
+        "software-foundations-maintenance"
+      ],
+      "firstPractice": "Create one vectorized array operation and explain shape, dtype, and broadcasting.",
+      "initialState": "exposed"
+    },
+    {
+      "id": "parallaxport-data-science-analytics-matplotlib",
+      "category": "data-science-analytics",
+      "claim": "Matplotlib",
+      "studyTargets": [
+        "software-foundations-maintenance"
+      ],
+      "firstPractice": "Build one plot from a small dataset and explain figure/axes responsibilities.",
+      "initialState": "exposed"
+    },
+    {
+      "id": "parallaxport-web-development-react",
+      "category": "web-development",
+      "claim": "React",
+      "studyTargets": [
+        "software-foundations-maintenance"
+      ],
+      "firstPractice": "Build or explain a tiny state-to-view loop and identify one stale-state failure mode.",
+      "initialState": "exposed"
+    },
+    {
+      "id": "parallaxport-web-development-django",
+      "category": "web-development",
+      "claim": "Django",
+      "studyTargets": [
+        "software-foundations-maintenance"
+      ],
+      "firstPractice": "Trace one request through URL routing, view, model/query, and response.",
+      "initialState": "exposed"
+    },
+    {
+      "id": "parallaxport-web-development-flask",
+      "category": "web-development",
+      "claim": "Flask",
+      "studyTargets": [
+        "software-foundations-maintenance"
+      ],
+      "firstPractice": "Explain the ParallaxPort request path from Flask route to Jinja response without reading the answer first.",
+      "initialState": "exposed"
+    },
+    {
+      "id": "parallaxport-web-development-nodejs",
+      "category": "web-development",
+      "claim": "Node.js",
+      "studyTargets": [
+        "software-foundations-maintenance"
+      ],
+      "firstPractice": "Explain the event loop at a practical level and write one small async I/O example.",
+      "initialState": "exposed"
+    },
+    {
+      "id": "parallaxport-databases-postgresql",
+      "category": "databases",
+      "claim": "PostgreSQL",
+      "studyTargets": [
+        "sql"
+      ],
+      "firstPractice": "Write filtering, join, aggregation, and transaction drills using PostgreSQL-compatible SQL.",
+      "initialState": "exposed"
+    },
+    {
+      "id": "parallaxport-databases-mysql",
+      "category": "databases",
+      "claim": "MySQL",
+      "studyTargets": [
+        "sql"
+      ],
+      "firstPractice": "Practice the shared SQL foundations, then note one MySQL-specific behavior only when encountered.",
+      "initialState": "exposed"
+    },
+    {
+      "id": "parallaxport-databases-sqlite",
+      "category": "databases",
+      "claim": "SQLite",
+      "studyTargets": [
+        "sql",
+        "taskq"
+      ],
+      "firstPractice": "Use SQLite for the taskq schema/CRUD path and explain transaction boundaries.",
+      "initialState": "exposed"
+    }
+  ],
+  "targetAuthorities": {
+    "arrays-mastery": "docs/software/ARRAYS_MASTERY.md",
+    "software-foundations-maintenance": "docs/software/SQL_RUST_FOUNDATIONS.md",
+    "sql": "docs/software/SQL_RUST_FOUNDATIONS.md",
+    "taskq": "content/software/sql-rust-foundations.v1.json"
+  }
+}
