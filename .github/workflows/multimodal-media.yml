@@ -1,0 +1,56 @@
+name: Multimodal Media
+
+on:
+  pull_request:
+    paths:
+      - docs/MULTIMODAL_MEDIA.md
+      - docs/DOMAIN_MODEL.md
+      - content/media/multimodal-media-contract.v1.json
+      - src/domain/factored.ts
+      - scripts/media-bundle.py
+      - scripts/test-media-bundle.py
+      - scripts/validate-multimodal-media.py
+      - docs/PMP_STUDY_SYSTEM.md
+      - content/pmp/mvp-spec.v1.json
+      - scripts/validate-pmp-doctrine.py
+      - README.md
+      - .github/workflows/multimodal-media.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate-multimodal-media:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile media tooling
+        run: |
+          python -m py_compile scripts/media-bundle.py
+          python -m py_compile scripts/test-media-bundle.py
+          python -m py_compile scripts/validate-multimodal-media.py
+          python -m py_compile scripts/validate-pmp-doctrine.py
+
+      - name: Validate multimodal media contract
+        run: python scripts/validate-multimodal-media.py
+
+      - name: Exercise media bundle pack and validation
+        run: python scripts/test-media-bundle.py
+
+      - name: Revalidate PMP doctrine coupling
+        run: python scripts/validate-pmp-doctrine.py
+
+      - name: Check media diff whitespace
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: git diff --check "$BASE_SHA...$HEAD_SHA"
