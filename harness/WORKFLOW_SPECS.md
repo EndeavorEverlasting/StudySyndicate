@@ -2,15 +2,31 @@
 
 ## Pick up a task
 
-1. Read `AGENTS.md` and declare repo, branch, lane, owned scope, forbidden scope, expected artifacts,
+1. Prove the repository root before mutation. If Git says `not a git repository`, the shell was restarted, or a `%TEMP%` worktree may be active, use `harness/workflows/REPO_LOCATION_RECOVERY.md` first.
+2. Read `AGENTS.md` and declare repo, branch, lane, owned scope, forbidden scope, expected artifacts,
    validation commands, and proof ceiling.
-2. Run `python scripts/harness.py inspect`.
-3. Run `python scripts/harness.py workflows`.
-4. Select exactly one primary workflow from `harness/harness-manifest.v1.json`.
-5. Run the quick validation floor before mutation.
-6. Search existing doctrine, packs, scripts, validators, and naming before creating a new authority.
+3. Run `python scripts/get-repo-ledger-frontier.py --prompt` and obey the selected bounded route before free-form planning.
+4. Run `python scripts/harness.py inspect`.
+5. Run `python scripts/harness.py workflows`.
+6. Select exactly one primary workflow from `harness/harness-manifest.v1.json`.
+7. Run the quick validation floor before mutation.
+8. Search existing doctrine, packs, scripts, validators, and naming before creating a new authority.
 
-Use an isolated branch/worktree when the current checkout is dirty or separately owned.
+Use an isolated branch/worktree when the current checkout is dirty or separately owned. Do not reset or clean a checkout merely because the current shell lost its directory.
+
+## Repository location recovery
+
+Repository identity is proven by Git, not by the prompt path. A durable clone at `$HOME\Desktop\Dev\StudySyndicate` is different from `$HOME\dev\StudySyndicate`; a detached `%TEMP%\StudySyndicate-*` worktree may also exist.
+
+From a reachable checkout, run:
+
+```powershell
+pwsh -NoLogo -NoProfile -File scripts/Resolve-StudySyndicateRepo.ps1 -RunHarness
+```
+
+The resolver must emit the canonical root, origin, branch/detached state, and HEAD. It must reject a repository whose origin is not `EndeavorEverlasting/StudySyndicate`.
+
+When the script itself is not reachable, use the self-contained PowerShell recovery snippet in `harness/workflows/REPO_LOCATION_RECOVERY.md`; it searches durable candidate paths without assuming the current directory is correct.
 
 ## Study task selection
 
@@ -38,7 +54,7 @@ git diff
 ```
 
 The full harness validation invokes the existing repository validators and executable tests registered
-in `harness/validation-manifest.v1.json`.
+in `harness/validation-manifest.v1.json`, including the repository-location self-test.
 
 ## Handle failures
 
@@ -46,12 +62,13 @@ Do not respond to a red check by broad rewriting.
 
 1. Capture the exact failing command and exit code.
 2. Reduce to the smallest failing input or contract.
-3. Classify the failure: syntax/import, structural contract, wrong output, edge case, complexity,
+3. Classify the failure: wrong repository/current directory, syntax/import, structural contract, wrong output, edge case, complexity,
    generated-artifact drift, environment/tooling, or unrelated pre-existing failure.
-4. Repair only the owning layer.
-5. Re-run the smallest failing check first.
-6. Re-run full validation before claiming recovery.
-7. If blocked by environment/tool availability, report the blocker and the exact command that should
+4. If the failure is repository/current-directory related, recover the root and rerun using `git -C` or absolute paths before changing files.
+5. Repair only the owning layer.
+6. Re-run the smallest failing check first.
+7. Re-run full validation before claiming recovery.
+8. If blocked by environment/tool availability, report the blocker and the exact command that should
    run in the required environment.
 
 For study failures, use the feedback ladder in `harness/skills/guided-feedback/SKILL.md`; do not jump
@@ -62,6 +79,7 @@ from confusion directly to copying the reference solution.
 A handoff must contain:
 
 - repo and exact branch/commit
+- resolved local root when local-path state matters
 - lane and owned/forbidden scope
 - files changed and artifacts produced
 - validation commands and observed results

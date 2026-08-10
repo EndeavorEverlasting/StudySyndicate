@@ -3,14 +3,27 @@
 This directory is the operational entry point for agents and operators. It does not replace
 `AGENTS.md`; repository governance remains authoritative there.
 
+## If the shell lost the repository
+
+If Git says `fatal: not a git repository`, do not assume the clone is missing and do not create a second clone immediately. Recover the durable root first with `harness/workflows/REPO_LOCATION_RECOVERY.md`.
+
+The common Windows durable path is `C:\Users\<user>\Desktop\Dev\StudySyndicate`. A shell at `C:\Users\<user>\Dev` or `C:\Users\<user>` is outside that repository even though the folder names look similar. A detached `%TEMP%\StudySyndicate-*` worktree is also not the durable clone.
+
+Once this checkout is reachable, the tracked resolver can prove the root and run ledger intake without depending on the current directory:
+
+```powershell
+pwsh -NoLogo -NoProfile -File scripts/Resolve-StudySyndicateRepo.ps1 -RunHarness
+```
+
 ## First five minutes
 
-1. Read `AGENTS.md`.
-2. Run `python scripts/get-repo-ledger-frontier.py --prompt` before free-form planning.
-3. If the packet says `EXECUTE`, work only that bounded task. If it says `DECOMPOSE`, create bounded child tasks before implementation. If it says `EMPTY`, do not invent work.
-4. Run `python scripts/harness.py inspect`, then `python scripts/harness.py workflows` and choose the smallest workflow that supports the selected ledger task.
-5. Run `python scripts/harness.py validate --level quick` before editing.
-6. Work inside the selected lane, then run `python scripts/harness.py validate --level full` before commit or handoff and update `.ai/WORK_QUEUE.md` before stopping.
+1. Prove the repository root. If location is uncertain, use `harness/workflows/REPO_LOCATION_RECOVERY.md` first.
+2. Read `AGENTS.md`.
+3. Run `python scripts/get-repo-ledger-frontier.py --prompt` before free-form planning.
+4. If the packet says `EXECUTE`, work only that bounded task. If it says `DECOMPOSE`, create bounded child tasks before implementation. If it says `EMPTY`, do not invent work.
+5. Run `python scripts/harness.py inspect`, then `python scripts/harness.py workflows` and choose the smallest workflow that supports the selected ledger task.
+6. Run `python scripts/harness.py validate --level quick` before editing.
+7. Work inside the selected lane, then run `python scripts/harness.py validate --level full` before commit or handoff and update `.ai/WORK_QUEUE.md` before stopping.
 
 The compact frontier is deliberately the default intake for weak models and hurried humans. It emits one self-contained sprint packet with scope, forbidden scope, dependencies, acceptance gate, current proof, and the first executable action. Do not make a low-capability worker infer those fields from the whole repository or from a long queue.
 
@@ -23,8 +36,10 @@ as `guided` or `docs-assisted` rather than `mastery`.
 - `.ai/WORK_QUEUE.md` — canonical repository coordination ledger; implementation truth remains in repository-owned evidence surfaces.
 - `.ai/README.md` — ledger intake, routes, authority/version pins, and weak-model rules.
 - `scripts/get-repo-ledger-frontier.py` — deterministic one-task frontier and copy/paste sprint packet generator.
+- `scripts/Resolve-StudySyndicateRepo.ps1` — canonical-origin repository locator for shell/worktree recovery.
 - `CODEBASE_MAP.md` — repository layout, entry points, commands, and current build/deploy floor.
 - `WORKFLOW_SPECS.md` — task pickup, failure handling, validation, and handoff.
+- `workflows/REPO_LOCATION_RECOVERY.md` — recovery workflow for wrong-directory and detached-worktree traps.
 - `harness-manifest.v1.json` — machine-readable component inventory and workflow selector.
 - `artifact-registry.v1.json` — output locations, generators, naming, and retention.
 - `validation-manifest.v1.json` — executable validation command registry.
@@ -48,6 +63,12 @@ python scripts/harness.py start guided-study
 python scripts/harness.py study-fodder
 python scripts/harness.py validate --level quick
 python scripts/harness.py validate --level full
+```
+
+Windows location proof:
+
+```powershell
+pwsh -NoLogo -NoProfile -File scripts/Resolve-StudySyndicateRepo.ps1 -Json
 ```
 
 Install the tracked hooks only when you intentionally want this checkout to use them:

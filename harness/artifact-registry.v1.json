@@ -8,6 +8,27 @@
   },
   "artifacts": [
     {
+      "id": "repo-location-proof",
+      "kind": "operator-terminal-proof",
+      "path": "stdout",
+      "source": "Git top-level root plus canonical origin",
+      "generate": [
+        "pwsh",
+        "-NoLogo",
+        "-NoProfile",
+        "-File",
+        "scripts/Resolve-StudySyndicateRepo.ps1",
+        "-Json"
+      ],
+      "validate": [
+        "pwsh",
+        "-NoLogo",
+        "-NoProfile",
+        "-File",
+        "scripts/Test-RepoLocationRecovery.ps1"
+      ]
+    },
+    {
       "id": "parallaxport-study-fodder",
       "kind": "tracked-report",
       "path": "harness/reports/PARALLAXPORT_STUDY_FODDER.md",
