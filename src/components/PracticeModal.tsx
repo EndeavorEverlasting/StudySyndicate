@@ -43,9 +43,26 @@ export function PracticeModal({ open, targets, current, onClose, onStart }: Prac
   if (!open) return null
 
   const masteryBlocked = target.readiness !== 'premise-first-packet'
+
+  const handleTargetChange = (targetId: string) => {
+    const nextTarget = targets.find((item) => item.id === targetId) ?? targets[0]
+    setDraft((value) => ({
+      ...value,
+      targetId,
+      mode: value.mode === 'mastery' && nextTarget.readiness !== 'premise-first-packet' ? 'guided' : value.mode,
+    }))
+  }
+
   const setMode = (mode: StudyMode) => {
     if (mode === 'mastery' && masteryBlocked) return
     setDraft((value) => ({ ...value, mode }))
+  }
+
+  const startDraft = () => {
+    const safeDraft: PracticeSession = masteryBlocked && draft.mode === 'mastery'
+      ? { ...draft, mode: 'guided' }
+      : draft
+    onStart(safeDraft)
   }
 
   return (
@@ -61,7 +78,7 @@ export function PracticeModal({ open, targets, current, onClose, onStart }: Prac
 
         <label className="field">
           <span>Study target</span>
-          <select value={draft.targetId} onChange={(event) => setDraft((value) => ({ ...value, targetId: event.target.value }))}>
+          <select value={draft.targetId} onChange={(event) => handleTargetChange(event.target.value)}>
             {targets.map((item) => <option key={item.id} value={item.id}>{item.track} · {item.title}</option>)}
           </select>
         </label>
@@ -104,7 +121,7 @@ export function PracticeModal({ open, targets, current, onClose, onStart }: Prac
 
         <div className="modal-actions">
           <button className="secondary-button" type="button" onClick={onClose}>Cancel</button>
-          <button className="primary-button" type="button" onClick={() => onStart(draft)}>Start session</button>
+          <button className="primary-button" type="button" onClick={startDraft}>Start session</button>
         </div>
       </div>
     </div>

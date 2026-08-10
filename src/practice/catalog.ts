@@ -71,6 +71,10 @@ end
 `,
 }
 
+const neutralCatalogStarters: Record<string, string> = Object.fromEntries(
+  algorithmLanguages.map((language) => [language, '']),
+)
+
 const twoSumTarget: PracticeTarget = {
   id: 'two-sum',
   title: twoSum.title,
@@ -116,7 +120,7 @@ function arrayTargets(): PracticeTarget[] {
     premise: exercise.prompt,
     context: `Expected evidence: ${exercise.proof}. Convert this catalog exercise to a full problem packet before labeling a rep mastery.`,
     languages: algorithmLanguages,
-    starterByLanguage: Object.fromEntries(algorithmLanguages.map((language) => [language, twoSumStarters[language] ?? ''])),
+    starterByLanguage: neutralCatalogStarters,
   }))
 }
 

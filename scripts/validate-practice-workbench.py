@@ -80,6 +80,15 @@ def main() -> int:
     if layout.get("draggable") is not True or layout.get("defaultOrder") != ["premise", "workspace", "feedback"]:
         fail("panel layout must default premise -> workspace -> feedback and remain draggable")
 
+    tracks = {item.get("id"): item for item in spec.get("sourceTracks") or []}
+    if tracks.get("two-sum", {}).get("starterPolicy") != "packet-specific":
+        fail("Two Sum must retain a packet-specific starter policy")
+    if tracks.get("arrays-roadmap", {}).get("starterPolicy") != "neutral-empty-until-packet":
+        fail("arrays catalog must use neutral starters until each exercise owns a packet")
+    for track_id in ("sql-foundations", "rust-foundations"):
+        if tracks.get(track_id, {}).get("starterPolicy") != "track-neutral-comment":
+            fail(f"{track_id} must use a track-neutral starter")
+
     gate = packet.get("uiGate") or {}
     if gate.get("status") != "foundation-ready":
         fail("problem packet UI gate must be foundation-ready before browser UI ships")
@@ -101,15 +110,23 @@ def main() -> int:
     catalog = CATALOG.read_text(encoding="utf-8")
     all_src = "\n".join(path.read_text(encoding="utf-8") for path in (APP, MODAL, CATALOG, EXECUTION))
 
-    for literal in ("draggable", "onDrop", "premise-panel", "workspace-panel", "feedback-panel"):
+    for literal in ("draggable", "onDrop", "premise-panel", "workspace-panel", "feedback-panel", "anchor.remove()", "URL.revokeObjectURL(url), 1000"):
         if literal not in app:
             fail(f"App missing required UI mechanic: {literal}")
-    for literal in ('role="dialog"', "Study target", "Facet", "Language / environment", "Study mode"):
+    for literal in ('role="dialog"', "Study target", "Facet", "Language / environment", "Study mode", "handleTargetChange", "masteryBlocked && draft.mode === 'mastery'"):
         if literal not in modal:
-            fail(f"modal missing session control: {literal}")
+            fail(f"modal missing session safety/control: {literal}")
     for authority in ("harness/problems/two-sum.v1.json", "content/software/arrays-mastery.v1.json", "content/software/sql-rust-foundations.v1.json"):
         if authority not in catalog:
             fail(f"catalog must import canonical study authority: {authority}")
+
+    if "neutralCatalogStarters" not in catalog:
+        fail("arrays exercise catalog must define a neutral starter surface")
+    array_section = catalog.split("function arrayTargets", 1)[1].split("export const practiceTargets", 1)[0]
+    if "twoSumStarters" in array_section:
+        fail("arrays catalog must not leak Two Sum-specific starters into unrelated exercises")
+    if "starterByLanguage: neutralCatalogStarters" not in array_section:
+        fail("arrays catalog must bind neutral starters explicitly")
 
     for forbidden in FORBIDDEN_UI_EXECUTION:
         if forbidden in all_src:
@@ -126,6 +143,6 @@ def main() -> int:
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except (AssertionError, json.JSONDecodeError, OSError, KeyError, TypeError) as exc:
+    except (AssertionError, json.JSONDecodeError, OSError, KeyError, TypeError, IndexError) as exc:
         print(f"practice workbench validation FAIL: {exc}", file=sys.stderr)
         raise SystemExit(1)

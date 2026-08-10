@@ -37,12 +37,16 @@ class PracticeWorkbenchContractTests(unittest.TestCase):
         self.assertEqual(ui["textFallback"], "textarea-notepad")
         self.assertEqual(SPEC["panelLayout"]["defaultOrder"], ["premise", "workspace", "feedback"])
 
-    def test_two_sum_and_foundations_are_registered_as_distinct_authorities(self):
+    def test_source_tracks_enforce_authority_and_starter_policy(self):
         tracks = {item["id"]: item for item in SPEC["sourceTracks"]}
         self.assertEqual(tracks["two-sum"]["readiness"], "premise-first-packet")
+        self.assertEqual(tracks["two-sum"]["starterPolicy"], "packet-specific")
         self.assertIn("javascript", tracks["arrays-roadmap"]["languages"])
+        self.assertEqual(tracks["arrays-roadmap"]["starterPolicy"], "neutral-empty-until-packet")
         self.assertEqual(tracks["sql-foundations"]["languages"], ["sql"])
+        self.assertEqual(tracks["sql-foundations"]["starterPolicy"], "track-neutral-comment")
         self.assertEqual(tracks["rust-foundations"]["languages"], ["rust"])
+        self.assertEqual(tracks["rust-foundations"]["starterPolicy"], "track-neutral-comment")
 
 
 if __name__ == "__main__":

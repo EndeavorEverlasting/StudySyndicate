@@ -43,11 +43,11 @@
     {"id":"lua","label":"Lua","editorMode":"lua","runner":{"id":"lua-embedded-host","kind":"embedded-host","status":"planned","exceptionModel":"Lua raises an error; the embedding host catches it and converts it to runtime-error without terminating the study shell."}}
   ],
   "sourceTracks": [
-    {"id":"two-sum","authority":"harness/problems/two-sum.v1.json","readiness":"premise-first-packet","languages":["python","rust","c","javascript","typescript","java","lua"]},
-    {"id":"arrays-roadmap","authority":"content/software/arrays-mastery.v1.json#exercises","readiness":"exercise-catalog","languages":["python","rust","c","javascript","typescript","java","lua"]},
-    {"id":"sql-foundations","authority":"content/software/sql-rust-foundations.v1.json#tracks/sql","readiness":"exercise-catalog","languages":["sql"]},
-    {"id":"rust-foundations","authority":"content/software/sql-rust-foundations.v1.json#tracks/rust","readiness":"exercise-catalog","languages":["rust"]},
-    {"id":"public-claims","authority":"harness/sources/parallaxport-claims.v1.json","readiness":"study-target-catalog","languages":["python","javascript","typescript","java","c","sql","rust","lua"]}
+    {"id":"two-sum","authority":"harness/problems/two-sum.v1.json","readiness":"premise-first-packet","starterPolicy":"packet-specific","languages":["python","rust","c","javascript","typescript","java","lua"]},
+    {"id":"arrays-roadmap","authority":"content/software/arrays-mastery.v1.json#exercises","readiness":"exercise-catalog","starterPolicy":"neutral-empty-until-packet","languages":["python","rust","c","javascript","typescript","java","lua"]},
+    {"id":"sql-foundations","authority":"content/software/sql-rust-foundations.v1.json#tracks/sql","readiness":"exercise-catalog","starterPolicy":"track-neutral-comment","languages":["sql"]},
+    {"id":"rust-foundations","authority":"content/software/sql-rust-foundations.v1.json#tracks/rust","readiness":"exercise-catalog","starterPolicy":"track-neutral-comment","languages":["rust"]},
+    {"id":"public-claims","authority":"harness/sources/parallaxport-claims.v1.json","readiness":"study-target-catalog","starterPolicy":"none","languages":["python","javascript","typescript","java","c","sql","rust","lua"]}
   ],
   "panelLayout": {"defaultOrder":["premise","workspace","feedback"],"draggable":true,"requiredPanels":["premise","workspace","feedback"],"rule":"Drag-and-drop changes presentation order only; it never changes source authority, study mode, or runner capability."},
   "acceptanceContract": [
@@ -57,6 +57,7 @@
     {"id":"ac-boundary","statement":"Guest failures normalize to ExecutionOutcome and cannot be allowed to crash the React host shell."},
     {"id":"ac-drag","statement":"Premise, workspace, and feedback panels are reorderable with drag-and-drop while preserving semantic roles."},
     {"id":"ac-text-fallback","statement":"The editor remains a plain text/Notepad-like fallback when richer language services are unavailable."},
+    {"id":"ac-starters","statement":"Catalog-only exercises use neutral starters until their own premise-first packet defines an exercise-specific scaffold."},
     {"id":"ac-build","statement":"The root Vite/React/TypeScript application builds and lints in CI."}
   ]
 }
