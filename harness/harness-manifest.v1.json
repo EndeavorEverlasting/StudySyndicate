@@ -13,7 +13,9 @@
       "harness/workflows/REPO_LOCATION_RECOVERY.md",
       "scripts/Resolve-StudySyndicateRepo.ps1",
       "harness/problems/problem-packet-contract.v1.json",
-      "harness/problems/two-sum.v1.json"
+      "harness/problems/two-sum.v1.json",
+      "harness/practice-workbench.v1.json",
+      "harness/workflows/PRACTICE_WORKBENCH.md"
     ],
     "artifactRegistry": [
       "harness/artifact-registry.v1.json"
@@ -25,7 +27,10 @@
       "scripts/Test-RepoLocationRecovery.ps1",
       "scripts/study-problem.py",
       "tests/test_guided_problem_packet.py",
-      ".github/workflows/harness-infrastructure.yml"
+      "scripts/validate-practice-workbench.py",
+      "tests/test_practice_workbench_contract.py",
+      ".github/workflows/harness-infrastructure.yml",
+      ".github/workflows/practice-workbench.yml"
     ],
     "hooks": [
       ".githooks/pre-commit",
@@ -35,7 +40,8 @@
       "harness/skills/documentation-lookup/SKILL.md",
       "harness/skills/guided-feedback/SKILL.md",
       "harness/skills/public-claim-intake/SKILL.md",
-      "harness/skills/repo-location-recovery/SKILL.md"
+      "harness/skills/repo-location-recovery/SKILL.md",
+      "harness/skills/runner-adapter/SKILL.md"
     ],
     "operatorReports": [
       "harness/reports/STATE.md",
@@ -51,6 +57,16 @@
       "trigger": "The learner does not know how to begin, needs the problem premise recited, needs hints, or needs executable feedback.",
       "entrypoint": "harness/workflows/GUIDED_STUDY.md",
       "skillRefs": [
+        "harness/skills/documentation-lookup/SKILL.md",
+        "harness/skills/guided-feedback/SKILL.md"
+      ]
+    },
+    {
+      "id": "practice-workbench",
+      "trigger": "The learner wants a browser study session, a different language/facet, or a runner capability must be added without changing study authority.",
+      "entrypoint": "harness/workflows/PRACTICE_WORKBENCH.md",
+      "skillRefs": [
+        "harness/skills/runner-adapter/SKILL.md",
         "harness/skills/documentation-lookup/SKILL.md",
         "harness/skills/guided-feedback/SKILL.md"
       ]
