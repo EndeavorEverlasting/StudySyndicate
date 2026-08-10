@@ -45,3 +45,8 @@ tmp/
 # Test artifacts
 playwright-report/
 test-results/
+
+# Local study exports and binary media bundles
+local-study-exports/
+media-bundles/
+*.study-media.zip

@@ -1,14 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the PMP study system doctrine and its machine-readable MVP spec.
-
-The doctrine lives in two coupled artifacts:
-  - docs/PMP_STUDY_SYSTEM.md        (human-readable product architecture)
-  - content/pmp/mvp-spec.v1.json    (machine-readable MVP contract)
-
-This validator fails when either artifact is missing, when the manifest is
-structurally incomplete, or when the doctrine document drifts out of sync with
-the canonical enumerations declared in the manifest.
-"""
+"""Validate the PMP study system doctrine and its machine-readable MVP spec."""
 
 from __future__ import annotations
 
@@ -19,8 +10,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DOC = ROOT / "docs" / "PMP_STUDY_SYSTEM.md"
 SPEC = ROOT / "content" / "pmp" / "mvp-spec.v1.json"
+MEDIA_SPEC = ROOT / "content" / "media" / "multimodal-media-contract.v1.json"
 
 EXPECTED_SCHEMA = "study-syndicate/pmp-study-system/v1"
+MEDIA_CONTRACT_SCHEMA = "study-syndicate/multimodal-media/v1"
+MEDIA_BUNDLE_SCHEMA = "study-syndicate/media-bundle/v1"
 
 REQUIRED_SECTIONS = [
     "# PMP Study System Doctrine",
@@ -94,10 +88,9 @@ def check_ids(items, key, expected, label):
 
 
 def main() -> int:
-    if not DOC.is_file():
-        fail(f"missing doctrine document: {DOC.relative_to(ROOT)}")
-    if not SPEC.is_file():
-        fail(f"missing MVP spec: {SPEC.relative_to(ROOT)}")
+    for path in (DOC, SPEC, MEDIA_SPEC):
+        if not path.is_file():
+            fail(f"missing required artifact: {path.relative_to(ROOT)}")
 
     doc = DOC.read_text(encoding="utf-8")
     for section in REQUIRED_SECTIONS:
@@ -107,6 +100,10 @@ def main() -> int:
     spec = json.loads(SPEC.read_text(encoding="utf-8"))
     if spec.get("schema") != EXPECTED_SCHEMA:
         fail(f"unexpected schema: {spec.get('schema')!r}")
+
+    media_spec = json.loads(MEDIA_SPEC.read_text(encoding="utf-8"))
+    if media_spec.get("schema") != MEDIA_CONTRACT_SCHEMA:
+        fail("multimodal media contract schema drifted")
 
     if spec.get("learningModel") != LEARNING_MODEL:
         fail("learningModel does not match the canonical pipeline")
@@ -154,15 +151,36 @@ def main() -> int:
         fail("recommendationPolicy must be marked configurable")
 
     local_first = spec.get("localFirst") or {}
-    if local_first.get("portability") != ["json-export-import", "zip-media-bundles-later"]:
-        fail("localFirst.portability must keep JSON first and ZIP media bundles later")
+    if local_first.get("portability") != ["json-export-import", "media-bundle-import-export"]:
+        fail("localFirst.portability must provide structured JSON and full media bundles")
+
     json_portability = local_first.get("jsonPortability") or {}
     if json_portability.get("roundTrips") != JSON_PORTABILITY_ROUND_TRIPS:
         fail("localFirst.jsonPortability.roundTrips must enumerate the complete structured dataset")
     if json_portability.get("excludes") != ["binary-media-payloads"]:
         fail("localFirst.jsonPortability.excludes must exclude binary media payloads")
-    if json_portability.get("binaryMediaBundle") != "zip-media-bundles-later":
-        fail("localFirst.jsonPortability.binaryMediaBundle must defer binary media bundling")
+
+    media_bundle = local_first.get("mediaBundle") or {}
+    if media_bundle.get("contract") != MEDIA_CONTRACT_SCHEMA:
+        fail("localFirst.mediaBundle.contract must reference the reusable multimodal contract")
+    if media_bundle.get("manifestSchema") != MEDIA_BUNDLE_SCHEMA:
+        fail("localFirst.mediaBundle.manifestSchema drifted")
+    if media_bundle.get("contains") != ["study.json", "manifest.json", "integrity-addressed-binary-assets"]:
+        fail("localFirst.mediaBundle.contains must include study.json, manifest.json, and binary assets")
+    if media_bundle.get("integrity") != ["sha256", "byteLength"]:
+        fail("localFirst.mediaBundle.integrity must use sha256 and byteLength")
+    if media_bundle.get("transport") != ["directory", "zip"]:
+        fail("localFirst.mediaBundle.transport must be directory and zip")
+
+    build_order = spec.get("buildOrder") or []
+    phase1 = next((item for item in build_order if item.get("phase") == 1), {})
+    phase5 = next((item for item in build_order if item.get("phase") == 5), {})
+    if "media-bundle-import-export" not in (phase1.get("deliverables") or []):
+        fail("phase 1 must include media-bundle-import-export")
+    if "media-authoring-tools" not in (phase5.get("deliverables") or []):
+        fail("phase 5 must retain richer media authoring tools")
+    if any("bundle" in item for item in (phase5.get("deliverables") or [])):
+        fail("media bundle portability must not be deferred to phase 5")
 
     acceptance = spec.get("acceptanceContract")
     if not acceptance:
@@ -176,13 +194,20 @@ def main() -> int:
     for required in (
         "complete structured study dataset",
         "without embedding binary media payloads",
-        "binary media bundling remains deferred",
+        "study.json",
+        "manifest.json",
+        "saved audio, image, and video nodes survive export/import",
     ):
         if required not in portability_statement:
             fail(f"ac-portability must state {required!r}")
 
+    multimedia_statement = acceptance_by_id.get("ac-multimedia", "")
+    for required in ("text, image, audio, and video", "reusable media nodes", "explicit usage roles"):
+        if required not in multimedia_statement:
+            fail(f"ac-multimedia must state {required!r}")
+
     boundaries = (spec.get("scopeBoundaries") or {}).get("deferred") or []
-    for deferred in ("cloud-sync", "ai-grading"):
+    for deferred in ("cloud-sync", "ai-grading", "rich-media-authoring-ui"):
         if deferred not in boundaries:
             fail(f"scopeBoundaries.deferred must include {deferred!r}")
 
@@ -193,11 +218,15 @@ def main() -> int:
     for required in (
         "complete structured study dataset",
         "JSON does not",
-        "binary media payloads",
-        "later ZIP",
+        "study.json",
+        "manifest.json",
+        "SHA-256",
+        "binary media portability is not",
+        "voice node",
+        "uses-media",
     ):
         if required not in doc:
-            fail(f"doctrine missing portability boundary: {required!r}")
+            fail(f"doctrine missing media portability boundary: {required!r}")
 
     print(
         "pmp doctrine validation PASS: "
@@ -205,7 +234,8 @@ def main() -> int:
         f"{len(CORE_ENTITY_KEYS)} entities, "
         f"{len(EXERCISE_TYPE_IDS)} exercise types, "
         f"{len(SESSION_MODE_IDS)} session modes, "
-        f"{len(spec['acceptanceContract'])} acceptance criteria"
+        f"{len(spec['acceptanceContract'])} acceptance criteria, "
+        "phase-1 media bundles"
     )
     return 0
 
