@@ -1,0 +1,55 @@
+name: Repository Work Ledger
+
+on:
+  pull_request:
+    paths:
+      - ".ai/**"
+      - "scripts/repo_ledger.py"
+      - "scripts/validate-repo-ledger.py"
+      - "scripts/get-repo-ledger-frontier.py"
+      - "tests/test_repo_ledger_contract.py"
+      - "tests/test_repo_ledger_frontier.py"
+      - ".github/workflows/repository-work-ledger.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-ledger:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile ledger tooling
+        run: python -m py_compile scripts/repo_ledger.py scripts/validate-repo-ledger.py scripts/get-repo-ledger-frontier.py
+
+      - name: Validate ledger contract
+        run: python scripts/validate-repo-ledger.py
+
+      - name: Validate deterministic frontier
+        run: python scripts/get-repo-ledger-frontier.py --json
+
+      - name: Run contract tests
+        run: python tests/test_repo_ledger_contract.py
+
+      - name: Run frontier tests
+        run: python tests/test_repo_ledger_frontier.py
+
+      - name: Check diff whitespace
+        if: runner.os == 'Linux'
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: git diff --check "$BASE_SHA...$HEAD_SHA"

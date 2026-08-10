@@ -1,0 +1,46 @@
+{
+  "schema": "studysyndicate.repository-work-ledger.profile.v1",
+  "version": "1.0.0",
+  "portableContract": {
+    "repository": "EndeavorEverlasting/BlacksmithGuild",
+    "version": "RepoLedgerInteroperability.v1",
+    "commit": "429237aa41d8712d71859865c9be407ca23d8580"
+  },
+  "referenceOnlyStrengthening": {
+    "repository": "EndeavorEverlasting/AgentSwitchboard",
+    "commit": "b090637be810b2b25c35a11c299b4f2d9cc90ca3",
+    "idea": "BOUNDED versus UNBOUNDED work classes with a derived compact execution frontier",
+    "authority": "reference-only; StudySyndicate owns its local implementation and task state"
+  },
+  "local": {
+    "ledger": ".ai/WORK_QUEUE.md",
+    "taskPrefix": "SSQ",
+    "validator": "scripts/validate-repo-ledger.py",
+    "frontier": "scripts/get-repo-ledger-frontier.py",
+    "tests": [
+      "tests/test_repo_ledger_contract.py",
+      "tests/test_repo_ledger_frontier.py"
+    ],
+    "executionProfile": {
+      "requiredField": "Work class",
+      "classes": ["BOUNDED", "UNBOUNDED"],
+      "unboundedAllowedStatuses": ["READY", "BLOCKED", "OPERATOR", "DONE"],
+      "routesAreDerived": true,
+      "routes": {
+        "boundedContinuation": "EXECUTE",
+        "unboundedReady": "DECOMPOSE",
+        "blocked": "BLOCKED",
+        "operator": "OPERATOR",
+        "done": "TERMINAL"
+      }
+    }
+  },
+  "weakModelRules": [
+    "Read the compact frontier before the full ledger.",
+    "If ROUTE is EXECUTE, do only the selected bounded task until its gate changes.",
+    "If ROUTE is DECOMPOSE, create bounded child tasks before implementation.",
+    "Do not infer completion from prose, a PR number, or green-looking text.",
+    "Do not analyze unrelated ledger items after a deterministic frontier is available."
+  ],
+  "proofCeiling": "portable compatibility plus local task-granularity and deterministic frontier routing only"
+}
