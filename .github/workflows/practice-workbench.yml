@@ -45,7 +45,7 @@ jobs:
         run: python scripts/validate-practice-workbench.py
 
       - name: Test workbench contracts
-        run: python tests/test_practice-workbench_contract.py
+        run: python tests/test_practice_workbench_contract.py
 
       - name: Lint app
         run: npm run lint
