@@ -5,35 +5,53 @@
       "id": "harness-completeness",
       "tier": "quick",
       "kind": "contract",
-      "argv": ["python", "scripts/validate-harness.py"],
+      "argv": [
+        "python",
+        "scripts/validate-harness.py"
+      ],
       "required": true
     },
     {
       "id": "guided-problem-packet-tests",
       "tier": "quick",
       "kind": "test",
-      "argv": ["python", "tests/test_guided_problem_packet.py"],
+      "argv": [
+        "python",
+        "tests/test_guided_problem_packet.py"
+      ],
       "required": true
     },
     {
       "id": "repository-ledger-contract",
       "tier": "quick",
       "kind": "contract",
-      "argv": ["python", "scripts/validate-repo-ledger.py"],
+      "argv": [
+        "python",
+        "scripts/validate-repo-ledger.py"
+      ],
       "required": true
     },
     {
       "id": "repository-ledger-frontier",
       "tier": "quick",
       "kind": "contract",
-      "argv": ["python", "scripts/get-repo-ledger-frontier.py", "--json"],
+      "argv": [
+        "python",
+        "scripts/get-repo-ledger-frontier.py",
+        "--json"
+      ],
       "required": true
     },
     {
       "id": "parallaxport-report-sync",
       "tier": "quick",
       "kind": "generated-artifact",
-      "argv": ["python", "scripts/harness.py", "study-fodder", "--check"],
+      "argv": [
+        "python",
+        "scripts/harness.py",
+        "study-fodder",
+        "--check"
+      ],
       "required": true
     },
     {
@@ -58,77 +76,111 @@
       "id": "governance",
       "tier": "full",
       "kind": "contract",
-      "argv": ["bash", "scripts/validate-governance.sh"],
+      "argv": [
+        "bash",
+        "scripts/validate-governance.sh"
+      ],
       "required": true
     },
     {
       "id": "repository-ledger-contract-tests",
       "tier": "full",
       "kind": "test",
-      "argv": ["python", "tests/test_repo_ledger_contract.py"],
+      "argv": [
+        "python",
+        "tests/test_repo_ledger_contract.py"
+      ],
       "required": true
     },
     {
       "id": "repository-ledger-frontier-tests",
       "tier": "full",
       "kind": "test",
-      "argv": ["python", "tests/test_repo_ledger_frontier.py"],
+      "argv": [
+        "python",
+        "tests/test_repo_ledger_frontier.py"
+      ],
       "required": true
     },
     {
       "id": "pmp-doctrine",
       "tier": "full",
       "kind": "contract",
-      "argv": ["python", "scripts/validate-pmp-doctrine.py"],
+      "argv": [
+        "python",
+        "scripts/validate-pmp-doctrine.py"
+      ],
       "required": true
     },
     {
       "id": "software-foundations",
       "tier": "full",
       "kind": "contract",
-      "argv": ["python", "scripts/validate-software-foundations.py"],
+      "argv": [
+        "python",
+        "scripts/validate-software-foundations.py"
+      ],
       "required": true
     },
     {
       "id": "arrays-mastery",
       "tier": "full",
       "kind": "contract",
-      "argv": ["python", "scripts/validate-arrays-mastery.py"],
+      "argv": [
+        "python",
+        "scripts/validate-arrays-mastery.py"
+      ],
       "required": true
     },
     {
       "id": "two-sum-kata",
       "tier": "full",
       "kind": "test",
-      "argv": ["python", "tests/test_two_sum.py"],
+      "argv": [
+        "python",
+        "tests/test_two_sum.py"
+      ],
       "required": true
     },
     {
       "id": "multimodal-media",
       "tier": "full",
       "kind": "contract",
-      "argv": ["python", "scripts/validate-multimodal-media.py"],
+      "argv": [
+        "python",
+        "scripts/validate-multimodal-media.py"
+      ],
       "required": true
     },
     {
       "id": "media-bundle-behavior",
       "tier": "full",
       "kind": "build-test",
-      "argv": ["python", "scripts/test-media-bundle.py"],
+      "argv": [
+        "python",
+        "scripts/test-media-bundle.py"
+      ],
       "required": true
     },
     {
       "id": "mental-math",
       "tier": "full",
       "kind": "contract",
-      "argv": ["python", "scripts/validate-mental-math-content.py"],
+      "argv": [
+        "python",
+        "scripts/validate-mental-math-content.py"
+      ],
       "required": true
     },
     {
       "id": "diff-whitespace",
       "tier": "full",
       "kind": "static",
-      "argv": ["git", "diff", "--check"],
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
       "required": true
     }
   ],
