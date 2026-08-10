@@ -88,6 +88,10 @@ function foundationTargets(trackId: 'sql' | 'rust'): PracticeTarget[] {
   const track = foundations.tracks.find((item) => item.id === trackId)
   if (!track) return []
   const moduleNames = new Map(track.modules.map((item) => [item.id, item.name]))
+  const starterByLanguage: Record<string, string> = trackId === 'sql'
+    ? { sql: '-- Write the smallest query that satisfies the premise.\n' }
+    : { rust: '// Write the smallest Rust program/function that satisfies the premise.\n' }
+
   return track.exercises.map((exercise) => ({
     id: exercise.id,
     title: `${exercise.id.toUpperCase()} · ${moduleNames.get(exercise.module) ?? exercise.module}`,
@@ -97,9 +101,7 @@ function foundationTargets(trackId: 'sql' | 'rust'): PracticeTarget[] {
     premise: exercise.prompt,
     context: `Expected evidence: ${exercise.proof}. This item comes from the foundations exercise catalog; the UI must not invent missing schema/runtime details.`,
     languages: [trackId],
-    starterByLanguage: trackId === 'sql'
-      ? { sql: `-- Write the smallest query that satisfies the premise.\n` }
-      : { rust: `// Write the smallest Rust program/function that satisfies the premise.\n` },
+    starterByLanguage,
   }))
 }
 
