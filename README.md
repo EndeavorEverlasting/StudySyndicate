@@ -52,6 +52,25 @@ Validate the doctrine and MVP spec with:
 python scripts/validate-pmp-doctrine.py
 ```
 
+## Software Foundations Practice
+
+Resume-visible software skill claims have a dedicated practice contract with **SQL as the
+primary lane**, **Rust as the secondary lane**, and a smaller maintenance lane for other
+public claims. The pack is evidence-oriented: skills move from `exposed` to `practicing` to
+`defensible` through no-AI reconstruction, explanation, and mastery gates rather than visual
+confidence scores alone.
+
+See [`docs/software/SQL_RUST_FOUNDATIONS.md`](docs/software/SQL_RUST_FOUNDATIONS.md) for the
+study doctrine and [`content/software/sql-rust-foundations.v1.json`](content/software/sql-rust-foundations.v1.json)
+for the machine-readable modules, exercises, cadence, mastery gates, and `taskq` Rust + SQLite
+integration project.
+
+Validate the foundations pack with:
+
+```bash
+python scripts/validate-software-foundations.py
+```
+
 ## Seed Study Content
 
 The first reusable study pack captures the fraction-comparison mental models developed for mental arithmetic: landmark comparisons, gap-from-one reasoning, residuals, common-numerator scaling, and an exact cross-multiplication fallback. See [`docs/mental-math/FRACTION_COMPARISON.md`](docs/mental-math/FRACTION_COMPARISON.md) for the playbook and [`content/mental-math/fraction-comparison.v1.json`](content/mental-math/fraction-comparison.v1.json) for flashcards and practice problems.
@@ -78,7 +97,7 @@ This repository is intentionally light until the app is scaffolded. Before addin
 
 ## Repository Files
 
-- `README.md` — project overview, stack, storage model, seed study content, and UI principles.
+- `README.md` — project overview, stack, storage model, study content, and UI principles.
 - `LICENSE` — MIT license for reuse and distribution terms.
 - `.gitignore` — Node-friendly ignore rules for dependencies, build output, caches, environment files, and editor artifacts.
 - `docs/DOMAIN_MODEL.md` — factored actor, relationship, and component abstraction for the study engine.
@@ -86,6 +105,9 @@ This repository is intentionally light until the app is scaffolded. Before addin
 - `docs/PMP_STUDY_SYSTEM.md` — canonical PMP study system doctrine and MVP specification.
 - `content/pmp/mvp-spec.v1.json` — machine-readable MVP contract for entities, exercises, grading, sources, competency mapping, weakness policy, session modes, and build order.
 - `scripts/validate-pmp-doctrine.py` — validator enforcing the PMP doctrine sections and MVP spec structural completeness.
+- `docs/software/SQL_RUST_FOUNDATIONS.md` — canonical SQL/Rust resume-claim practice doctrine, mastery gates, and `taskq` integration project.
+- `content/software/sql-rust-foundations.v1.json` — machine-readable SQL/Rust modules, exercises, cadence, maintenance roster, and acceptance contract.
+- `scripts/validate-software-foundations.py` — validator enforcing the software-foundations doctrine and machine-readable practice pack.
 - `docs/mental-math/FRACTION_COMPARISON.md` — canonical fraction-comparison mental models and fallback ladder.
 - `content/mental-math/fraction-comparison.v1.json` — reusable flashcards, exact practice problems, strategy paths, and answer explanations.
 - `scripts/validate-mental-math-content.py` — exact-rational validator for the mental-math seed.

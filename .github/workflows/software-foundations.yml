@@ -1,0 +1,36 @@
+name: Software Foundations
+
+on:
+  pull_request:
+    paths:
+      - docs/software/SQL_RUST_FOUNDATIONS.md
+      - content/software/sql-rust-foundations.v1.json
+      - scripts/validate-software-foundations.py
+      - README.md
+      - .github/workflows/software-foundations.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate-software-foundations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate SQL and Rust foundations pack
+        run: python scripts/validate-software-foundations.py
+
+      - name: Check foundations diff whitespace
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: git diff --check "$BASE_SHA...$HEAD_SHA"

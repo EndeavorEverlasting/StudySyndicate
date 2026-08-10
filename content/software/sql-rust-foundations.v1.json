@@ -1,0 +1,134 @@
+{
+  "schema": "study-syndicate/software-foundations/v1",
+  "title": "SQL and Rust Foundations Practice Contract",
+  "purpose": "Turn resume-visible software skill claims into repeatable, evidence-backed practice with SQL as the primary lane, Rust as the secondary lane, and a small maintenance lane for other claimed technologies.",
+  "allocation": {
+    "sqlPercent": 50,
+    "rustPercent": 25,
+    "maintenancePercent": 25,
+    "sessionMinutes": [45, 60],
+    "principle": "Every study session includes typed retrieval or implementation; reading alone does not count as practice."
+  },
+  "claimDefense": {
+    "rule": "A public skill claim is defensible only when the learner can reconstruct the named foundation without AI assistance, explain why it works, and pass the track mastery gates.",
+    "states": ["exposed", "practicing", "defensible"],
+    "maintenanceTechnologies": ["Python", "JavaScript", "TypeScript", "Pandas", "NumPy", "Matplotlib", "React", "Django", "Flask", "Node.js", "Java", "C"]
+  },
+  "tracks": [
+    {
+      "id": "sql",
+      "priority": 1,
+      "target": "professional-foundations",
+      "modules": [
+        {"id":"sql-select-filter-sort","name":"SELECT, filtering, sorting, limits","skills":["SELECT","FROM","WHERE","ORDER BY","LIMIT","DISTINCT"]},
+        {"id":"sql-aggregation","name":"Aggregation and grouped reasoning","skills":["COUNT","SUM","AVG","MIN","MAX","GROUP BY","HAVING"]},
+        {"id":"sql-joins","name":"Relational joins and cardinality","skills":["INNER JOIN","LEFT JOIN","join cardinality","duplicate-row diagnosis"]},
+        {"id":"sql-null","name":"NULL and three-valued logic","skills":["IS NULL","IS NOT NULL","COALESCE","NULL comparison semantics"]},
+        {"id":"sql-subqueries-ctes","name":"Subqueries and CTEs","skills":["subquery","correlated subquery","WITH"]},
+        {"id":"sql-window-functions","name":"Window functions","skills":["ROW_NUMBER","RANK","DENSE_RANK","LAG","LEAD","PARTITION BY","OVER"]},
+        {"id":"sql-data-change","name":"Safe data mutation","skills":["INSERT","UPDATE","DELETE","transaction","rollback"]},
+        {"id":"sql-modeling","name":"Relational modeling and integrity","skills":["primary key","foreign key","one-to-many","many-to-many","normalization","constraints"]},
+        {"id":"sql-indexes-plans","name":"Indexes and query plans","skills":["index","composite index","query plan","selectivity","write tradeoff"]},
+        {"id":"sql-capstone","name":"Unfamiliar-schema capstone","skills":["schema inspection","multi-table query","aggregation","window function","safe mutation","index reasoning"]}
+      ],
+      "exercises": [
+        {"id":"sql-001","module":"sql-select-filter-sort","prompt":"List open tasks ordered by highest priority then oldest creation time. Return only id, title, priority, created_at.","proof":"query"},
+        {"id":"sql-002","module":"sql-aggregation","prompt":"For each repository, count open tasks and return only repositories with at least three open tasks.","proof":"query+explanation"},
+        {"id":"sql-003","module":"sql-aggregation","prompt":"Explain, then demonstrate, the difference between WHERE and HAVING using task status and grouped repository counts.","proof":"query+oral-explanation"},
+        {"id":"sql-004","module":"sql-joins","prompt":"Join tasks to projects and assignees. Diagnose how a many-to-many assignment table can multiply rows.","proof":"query+cardinality-explanation"},
+        {"id":"sql-005","module":"sql-joins","prompt":"Return every project even when it has zero tasks, with an open_task_count of zero.","proof":"query"},
+        {"id":"sql-006","module":"sql-null","prompt":"Find tasks without an assignee and produce a display owner using COALESCE without treating NULL as an empty string.","proof":"query+explanation"},
+        {"id":"sql-007","module":"sql-subqueries-ctes","prompt":"Using a CTE, find repositories whose average completed-task duration exceeds the global completed-task average.","proof":"query"},
+        {"id":"sql-008","module":"sql-window-functions","prompt":"Return the latest task event per task using ROW_NUMBER or an equivalent window pattern.","proof":"query+explanation"},
+        {"id":"sql-009","module":"sql-window-functions","prompt":"Rank repositories by open high-priority task count while preserving ties.","proof":"query"},
+        {"id":"sql-010","module":"sql-window-functions","prompt":"For each task, show its current event and previous event timestamp using LAG.","proof":"query"},
+        {"id":"sql-011","module":"sql-data-change","prompt":"Move a task and its assignment atomically to a new project/agent; show the transaction and rollback path.","proof":"transaction-script+explanation"},
+        {"id":"sql-012","module":"sql-modeling","prompt":"Design normalized tables for projects, tasks, agents, assignments, repositories, sprints, and task_events with keys and constraints.","proof":"DDL+relationship-explanation"},
+        {"id":"sql-013","module":"sql-indexes-plans","prompt":"Given frequent lookup by repository_id, status, and created_at, propose an index and explain read/write tradeoffs before checking the query plan.","proof":"DDL+plan-explanation"},
+        {"id":"sql-014","module":"sql-indexes-plans","prompt":"Explain why adding an index can speed reads but slow inserts and updates; identify one case where an index is unlikely to help.","proof":"oral-explanation"},
+        {"id":"sql-015","module":"sql-capstone","prompt":"From an unfamiliar schema, inspect relationships and produce one join, one aggregate, one CTE, one window query, one safe update transaction, and one index recommendation without AI assistance.","proof":"capstone-packet"}
+      ],
+      "masteryGates": [
+        "Write multi-table joins from an unfamiliar schema without AI assistance.",
+        "Explain join cardinality and diagnose duplicate-row explosions.",
+        "Use GROUP BY/HAVING, a CTE, and a window function correctly.",
+        "Handle NULL intentionally and explain three-valued comparison behavior.",
+        "Perform a data change inside a transaction with a rollback path.",
+        "Design normalized tables with keys, constraints, and a many-to-many bridge.",
+        "Recommend an index and explain its query-plan and write-cost tradeoffs."
+      ]
+    },
+    {
+      "id": "rust",
+      "priority": 2,
+      "target": "foundation-fluency",
+      "modules": [
+        {"id":"rust-types-functions","name":"Bindings, types, functions, expressions","skills":["let","mut","scalar types","functions","expressions"]},
+        {"id":"rust-structs-enums","name":"Structs, enums, pattern matching","skills":["struct","enum","match","if let"]},
+        {"id":"rust-ownership","name":"Ownership and moves","skills":["ownership","move","Copy","clone"]},
+        {"id":"rust-borrowing","name":"Borrowing and references","skills":["&T","&mut T","borrowing rules","slices"]},
+        {"id":"rust-option-result","name":"Option and Result","skills":["Option","Result","?","error propagation"]},
+        {"id":"rust-collections-iterators","name":"Collections and iterators","skills":["Vec","HashMap","iter","map","filter","collect"]},
+        {"id":"rust-traits-generics","name":"Traits and generics","skills":["trait","impl","generic bounds"]},
+        {"id":"rust-modules-tests","name":"Modules and tests","skills":["mod","pub","cargo test","unit tests","integration tests"]},
+        {"id":"rust-lifetimes","name":"Lifetime reasoning","skills":["lifetime annotation","borrow relationships"]},
+        {"id":"rust-concurrency","name":"Concurrency foundations","skills":["thread","Send","Sync","Arc","Mutex"]}
+      ],
+      "exercises": [
+        {"id":"rust-001","module":"rust-types-functions","prompt":"Write a function that parses a priority string into a numeric rank and returns a meaningful type.","proof":"code+test"},
+        {"id":"rust-002","module":"rust-structs-enums","prompt":"Model TaskStatus as an enum and render a user-facing label with match.","proof":"code+test"},
+        {"id":"rust-003","module":"rust-ownership","prompt":"Explain why moving a String invalidates the first binding and demonstrate one borrowing alternative.","proof":"code+oral-explanation"},
+        {"id":"rust-004","module":"rust-borrowing","prompt":"Write a function that receives a task title by reference and computes a derived value without taking ownership.","proof":"code+test"},
+        {"id":"rust-005","module":"rust-option-result","prompt":"Parse a task id and optional assignee from text, propagating errors with Result rather than panicking.","proof":"code+test"},
+        {"id":"rust-006","module":"rust-collections-iterators","prompt":"Group tasks by repository with HashMap and derive open counts using iterator adapters.","proof":"code+test"},
+        {"id":"rust-007","module":"rust-traits-generics","prompt":"Define a small Renderable trait and implement it for two task-domain types.","proof":"code+test"},
+        {"id":"rust-008","module":"rust-modules-tests","prompt":"Split a tiny task CLI domain into modules and add unit tests for parsing and status transitions.","proof":"code+cargo-test"},
+        {"id":"rust-009","module":"rust-lifetimes","prompt":"Write and explain a function returning one of two borrowed labels; add the minimal lifetime annotation when inference cannot express the relationship.","proof":"code+oral-explanation"},
+        {"id":"rust-010","module":"rust-concurrency","prompt":"Share a task counter across threads with Arc<Mutex<_>> and explain what Send and Sync protect conceptually.","proof":"code+test+oral-explanation"}
+      ],
+      "masteryGates": [
+        "Explain a String move and repair it with borrowing instead of reflexive cloning.",
+        "Use structs, enums, and match to model a small domain.",
+        "Use Option and Result without panic-driven control flow.",
+        "Write iterator-based transformations over Vec and HashMap.",
+        "Define and implement a trait with a useful generic bound.",
+        "Organize modules and pass cargo test.",
+        "Explain the purpose of lifetime annotations in a borrowed-return example."
+      ]
+    }
+  ],
+  "integrationProject": {
+    "id": "taskq",
+    "name": "taskq",
+    "goal": "Build a tiny Rust CLI backed by SQLite so SQL and Rust practice converge in one bounded project.",
+    "commands": ["taskq add \"Fix deployment validator\"", "taskq list", "taskq done 12", "taskq show 12"],
+    "phases": [
+      {"phase":1,"name":"Rust core","deliverables":["CLI argument parsing","Task struct","TaskStatus enum","Result-based errors","unit tests"]},
+      {"phase":2,"name":"SQLite storage","deliverables":["normalized schema","CRUD queries","foreign keys","transactional status changes"]},
+      {"phase":3,"name":"Analytical queries","deliverables":["open-task aggregation","latest-event window query","repository ranking"]},
+      {"phase":4,"name":"Defensibility review","deliverables":["no-AI reconstruction drill","query explanations","ownership/borrowing explanation","cargo test evidence"]}
+    ]
+  },
+  "weeklyCadence": [
+    {"day":"Monday","focus":"SQL foundations and retrieval practice"},
+    {"day":"Tuesday","focus":"Rust foundations"},
+    {"day":"Wednesday","focus":"SQL joins, aggregation, and schema reasoning"},
+    {"day":"Thursday","focus":"Rust foundations"},
+    {"day":"Friday","focus":"SQL advanced query challenge"},
+    {"day":"Weekend","focus":"60-90 minute taskq integration sprint"}
+  ],
+  "sessionTemplate": [
+    {"minutes":10,"activity":"closed-book review"},
+    {"minutes":25,"activity":"typed exercises"},
+    {"minutes":15,"activity":"build or repair something"},
+    {"minutes":5,"activity":"record confusion and next retrieval target"}
+  ],
+  "acceptanceContract": [
+    {"id":"ac-allocation","statement":"SQL receives 50% of deliberate practice, Rust 25%, and resume-claim maintenance 25% until priorities are intentionally revised."},
+    {"id":"ac-active-practice","statement":"Every session includes typed retrieval, query writing, code, or explanation from memory; reading alone cannot satisfy a session."},
+    {"id":"ac-sql-foundations","statement":"SQL coverage includes filtering, aggregation, joins, NULL, CTEs/subqueries, windows, safe mutation, modeling, indexes, and query plans."},
+    {"id":"ac-rust-foundations","statement":"Rust coverage includes types, structs/enums, ownership, borrowing, Option/Result, collections/iterators, traits/generics, modules/tests, lifetimes, and concurrency foundations."},
+    {"id":"ac-integration","statement":"The taskq capstone converges Rust and SQLite instead of creating two unrelated toy tracks."},
+    {"id":"ac-claim-defense","statement":"A resume-visible claim reaches defensible state only after no-AI reconstruction, explanation, and mastery-gate evidence."}
+  ]
+}
