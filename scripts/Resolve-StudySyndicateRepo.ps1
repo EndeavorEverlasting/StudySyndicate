@@ -23,13 +23,13 @@ function Resolve-CandidateRepo([string]$Candidate) {
     $resolved = Normalize-Path $Candidate
     if (-not $resolved) { return $null }
 
-    $top = (& git -C $resolved rev-parse --show-toplevel 2>$null)
-    if ($LASTEXITCODE -ne 0 -or -not $top) { return $null }
-    $top = $top.Trim()
+    $topRaw = (& git -C $resolved rev-parse --show-toplevel 2>$null)
+    if ($LASTEXITCODE -ne 0 -or -not $topRaw) { return $null }
+    $top = $topRaw.Trim()
 
-    $origin = (& git -C $top remote get-url origin 2>$null)
-    if ($LASTEXITCODE -ne 0 -or -not $origin) { return $null }
-    $origin = $origin.Trim() -replace '\\.git$', ''
+    $originRaw = (& git -C $top remote get-url origin 2>$null)
+    if ($LASTEXITCODE -ne 0 -or -not $originRaw) { return $null }
+    $origin = $originRaw.Trim() -replace '\.git$', ''
     if ($origin -notmatch $ExpectedRemotePattern) { return $null }
 
     return $top
@@ -61,12 +61,17 @@ if (-not $repoRoot) {
     throw "StudySyndicate repository not found. Searched:`n  - $searched`nExpected origin: https://github.com/$ExpectedRepository.git"
 }
 
-$head = (& git -C $repoRoot rev-parse HEAD).Trim()
+$headRaw = (& git -C $repoRoot rev-parse HEAD)
+if ($LASTEXITCODE -ne 0 -or -not $headRaw) { exit $(if ($LASTEXITCODE) { $LASTEXITCODE } else { 1 }) }
+$head = $headRaw.Trim()
+
+$branchRaw = (& git -C $repoRoot branch --show-current)
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-$branch = (& git -C $repoRoot branch --show-current).Trim()
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-$origin = (& git -C $repoRoot remote get-url origin).Trim()
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+$branch = if ($branchRaw) { $branchRaw.Trim() } else { '' }
+
+$originRaw = (& git -C $repoRoot remote get-url origin)
+if ($LASTEXITCODE -ne 0 -or -not $originRaw) { exit $(if ($LASTEXITCODE) { $LASTEXITCODE } else { 1 }) }
+$origin = $originRaw.Trim()
 
 $payload = [ordered]@{
     schema = 'studysyndicate.repo-location-proof.v1'
