@@ -1,7 +1,7 @@
 # Learning Event Cascade Workflow
 
 Use this workflow when a learner attempt, debugging session, explanation, experiment, or discovery should become
-durable evidence instead of being reduced to pass/fail.
+durable evidence and receive evidence-based partial credit instead of being reduced to pass/fail.
 
 ## Inputs
 
