@@ -27,6 +27,37 @@ Do not claim completion from intent, file creation, or inspection alone. Complet
 ### Learning evidence integrity
 For learning and study work, preserve learner-produced evidence before generating replacement answers. Award partial credit only for observed construction, application, debugging, explanation, or discovery, and record assistance as provenance rather than hiding it. AI/source output is scaffold or source evidence unless the learner independently reconstructs and transfers the idea. Cascade/derived credit may acknowledge exercised prerequisite or adjacent concepts, but it must never be silently converted into direct mastery evidence or public skill proof.
 
+### Gameful learning experience
+Study activities should feel like games to the learner, not like decorated forms. Leverage already-proven stable mechanics — premise-first objectives, bounded attempts, feedback, retries, progression, evidence, and study modes — as the substrate for gamification. Prefer clear objectives, immediate feedback, visible progress, progressive challenge, meaningful choices, replayability, and satisfying completion states. Game systems must amplify learning mechanics rather than replace them.
+
+## Gameful study experience doctrine
+
+Game feel is a product requirement for learner-facing study experiences, but it remains subordinate to evidence integrity and stable mechanics.
+
+### Stable mechanics before gamification
+Do not invent points, streaks, ranks, quests, badges, timers, lives, unlocks, or other reward systems to compensate for an unclear or unproven learning loop. First prove the underlying objective, action, feedback, retry, completion, and evidence mechanics. Then layer game presentation and progression on those stable mechanics.
+
+### Rewards are not mastery
+XP, points, badges, streaks, ranks, quests, unlocks, combo counters, completion effects, and similar game-state signals may represent participation, verified events, progress through a bounded activity, or motivational state. They must never be treated as independent mastery evidence, public skill proof, or a substitute for the learning evidence contract.
+
+### Make failure playable
+A failed attempt should normally produce a recoverable next move: specific feedback, a retry, a bounded hint, a smaller challenge, or another legitimate study action. Avoid dead ends and punitive mechanics that encourage hiding mistakes. Failure is part of the learning loop and should create another meaningful turn without corrupting evidence.
+
+### Honest game state
+Gamified presentation must not imply capability, execution support, correctness, mastery, or completion that the repository has not proven. Planned runners stay planned; catalog material stays distinct from mastery-ready packets; assisted work stays assisted. Visual celebration cannot raise the proof level.
+
+### Agency, progression, and replayability
+Where the underlying study contract supports it, prefer game-like structures such as missions, rounds, levels, challenge tiers, optional objectives, visible progress, score/feedback summaries, and replayable variants. Progression should arise from demonstrated activity and explicit rules rather than opaque manipulation.
+
+### No dark patterns
+Do not use deceptive scarcity, misleading loss framing, hidden penalties, coercive streak pressure, fabricated competition, or reward mechanics designed primarily to maximize time-on-task. Gamification should make deliberate practice more engaging, legible, and repeatable, not less honest.
+
+### Graceful fallback
+Gameful interfaces must preserve a usable lower-capability path when richer presentation or execution support is unavailable. The learning objective, attempt surface, feedback contract, and evidence boundary must remain intelligible without animation, advanced browser features, or a particular runtime.
+
+### Governance requirement for game-layer changes
+A sprint that adds or changes learner-facing gamification must identify the stable mechanic being amplified, the game mechanic being layered on it, the evidence/mastery boundary, and the validation that proves the game layer cannot fabricate completion or capability. Cosmetic game work that cannot name its underlying stable mechanic is furniture before floor.
+
 ## Instruction precedence
 
 When instructions conflict, apply them in this order:
