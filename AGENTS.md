@@ -24,6 +24,9 @@ Search for and reuse existing contracts, helpers, validators, scripts, naming co
 ### No completion without proof
 Do not claim completion from intent, file creation, or inspection alone. Completion requires named changes, executed validation, a commit SHA, and reported push or pull-request state at the highest proof level actually reached.
 
+### Learning evidence integrity
+For learning and study work, preserve learner-produced evidence before generating replacement answers. Award partial credit only for observed construction, application, debugging, explanation, or discovery, and record assistance as provenance rather than hiding it. AI/source output is scaffold or source evidence unless the learner independently reconstructs and transfers the idea. Cascade/derived credit may acknowledge exercised prerequisite or adjacent concepts, but it must never be silently converted into direct mastery evidence or public skill proof.
+
 ## Instruction precedence
 
 When instructions conflict, apply them in this order:

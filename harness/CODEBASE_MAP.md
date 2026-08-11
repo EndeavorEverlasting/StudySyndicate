@@ -4,7 +4,8 @@
 
 StudySyndicate is a local-first study system with contract-first study content plus a Vite/React/TypeScript
 Practice Workbench. The browser is a renderer over repository-owned study/harness authority rather than a
-second source of curriculum truth.
+second source of curriculum truth. Learning events are also modeled as evidence: direct facet credit,
+assistance provenance, bounded cascade recognition, and mastery boundaries are repository-owned contracts.
 
 ## Top-level structure
 
@@ -13,12 +14,12 @@ second source of curriculum truth.
 | `AGENTS.md` | Canonical governance contract. |
 | `README.md` | Human entry point, app commands, and study tracks. |
 | `.ai/` | Repository coordination ledger and bounded frontier. |
-| `docs/` | Study, domain, media, and practice doctrine. |
-| `content/` | Machine-readable study contracts and exercise packs. |
+| `docs/` | Study, domain, media, practice, and learning-evidence doctrine. |
+| `content/` | Machine-readable study contracts, exercise packs, and learning-evidence contracts. |
 | `practice/` | Known-good reference implementations. |
 | `src/` | React app, Practice Workbench UI, practice registry adapters, and domain contracts. |
-| `tests/` | Executable practice, harness, ledger, and workbench contract tests. |
-| `scripts/` | Validators, media tooling, ledger/frontier, repo locator, study checker, and harness CLI. |
+| `tests/` | Executable practice, harness, ledger, workbench, and learning-evidence tests. |
+| `scripts/` | Validators, media tooling, ledger/frontier, repo locator, study checker, evidence engine, and harness CLI. |
 | `harness/` | Operational map, workflows, registries, problem packets, skills, sources, and reports. |
 | `.github/workflows/` | Pull-request CI. |
 | `dist/` | Ignored Vite production build output. |
@@ -30,6 +31,10 @@ second source of curriculum truth.
 - Browser app: `src/main.tsx` -> `src/App.tsx`
 - Practice Workbench contract: `harness/practice-workbench.v1.json`
 - Practice Workbench workflow: `harness/workflows/PRACTICE_WORKBENCH.md`
+- Learning-evidence doctrine: `docs/LEARNING_EVIDENCE_DOCTRINE.md`
+- Learning-evidence contract: `content/learning/learning-evidence.v1.json`
+- Learning-event engine: `scripts/learning-evidence.py`
+- Learning-event workflow: `harness/workflows/LEARNING_EVENT_CASCADE.md`
 - Problem-packet contract: `harness/problems/problem-packet-contract.v1.json`
 - Two Sum packet: `harness/problems/two-sum.v1.json`
 - Software foundations pack: `content/software/sql-rust-foundations.v1.json`
@@ -53,12 +58,21 @@ npm run lint
 npm run build
 python scripts/validate-practice-workbench.py
 python tests/test_practice_workbench_contract.py
+python scripts/learning-evidence.py validate-contract
+python tests/test_learning_evidence_engine.py
 python scripts/harness.py validate --level quick
 python scripts/harness.py validate --level full
 ```
 
-`python scripts/harness.py validate --level full` is the repository convergence check and now includes
-application lint/build proof. A fresh checkout must install Node dependencies before full validation.
+`python scripts/harness.py validate --level full` is the repository convergence check and includes application
+lint/build proof. A fresh checkout must install Node dependencies before full validation.
+
+## Learning evidence boundary
+
+A learning event may earn direct partial credit for `construct`, `apply`, `debug`, `explain`, and `discover`.
+The recorded assistance band caps the event claim. Explicit prerequisite/adjacent relationships may receive
+bounded cascade recognition, but derived credit never counts toward mastery. One event can emit a mastery
+signal only; aggregate direct repetitions and transfer are required for a mastery claim.
 
 ## Execution boundary
 

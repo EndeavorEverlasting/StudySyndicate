@@ -1,0 +1,72 @@
+{
+  "schema": "study-syndicate/learning-evidence/v1",
+  "version": 1,
+  "purpose": "Preserve what a learner actually demonstrated, award bounded partial credit, and propagate acknowledgment without converting assistance or derived credit into mastery.",
+  "engineStages": [
+    {"id": "observation", "purpose": "Separate learner-produced behavior from source/agent material before scoring."},
+    {"id": "facet-credit", "purpose": "Convert observed construct/apply/debug/explain/discover quality into bounded direct credit."},
+    {"id": "assistance-boundary", "purpose": "Cap event-level credit and mastery signal by recorded assistance provenance."},
+    {"id": "cascade-recognition", "purpose": "Propagate bounded recognition to explicitly related concepts without creating mastery."},
+    {"id": "acknowledgement", "purpose": "Turn observed credit into plain-language evidence acknowledgment without inflation."},
+    {"id": "mastery-boundary", "purpose": "Emit only a single-rep signal; require aggregate direct evidence for mastery."},
+    {"id": "next-rep", "purpose": "Identify the weakest facet for the next direct practice event."}
+  ],
+  "principles": [
+    "Record evidence before labels.",
+    "Incorrect or incomplete final answers may still contain creditable construction, application, debugging, explanation, or discovery evidence.",
+    "Assistance is provenance, not shame; it limits the strongest claim that may be made from the event.",
+    "AI output is source or scaffold evidence unless the learner independently reconstructs and transfers the idea.",
+    "Cascade credit is acknowledgment-only and never counts as direct mastery evidence."
+  ],
+  "facets": [
+    {"id": "construct", "label": "Construct", "weight": 0.3, "description": "Reconstruct the idea, representation, algorithm, query, or procedure from memory."},
+    {"id": "apply", "label": "Apply", "weight": 0.3, "description": "Use the idea correctly on a concrete task, case, or input."},
+    {"id": "debug", "label": "Debug", "weight": 0.15, "description": "Localize, explain, or repair a failure using evidence."},
+    {"id": "explain", "label": "Explain", "weight": 0.15, "description": "Explain why the approach works, its constraints, or its tradeoffs."},
+    {"id": "discover", "label": "Discover", "weight": 0.1, "description": "Generate a useful question, connection, experiment, or novel inference."}
+  ],
+  "assistanceBands": [
+    {"id": "none", "maxEventCredit": 1.0, "masterySignalAllowed": true},
+    {"id": "docs", "maxEventCredit": 0.9, "masterySignalAllowed": true},
+    {"id": "hint", "maxEventCredit": 0.75, "masterySignalAllowed": false},
+    {"id": "ai-scaffold", "maxEventCredit": 0.5, "masterySignalAllowed": false},
+    {"id": "ai-answer", "maxEventCredit": 0.2, "masterySignalAllowed": false}
+  ],
+  "cascade": {
+    "maxFactor": 0.25,
+    "meaning": "Recognition that work on one concept exercised an explicitly declared prerequisite or adjacent concept.",
+    "countsTowardMastery": false
+  },
+  "mastery": {
+    "minimumDirectReps": 3,
+    "minimumUnassistedReps": 1,
+    "minimumFacetQuality": 0.8,
+    "requiredFacets": ["construct", "apply", "explain"],
+    "derivedCreditCounts": false,
+    "singleEventCanClaimMastery": false
+  },
+  "acknowledgementBands": [
+    {"id": "started", "minCredit": 0.0, "message": "A real attempt exists; preserve the evidence and identify the next smallest rep."},
+    {"id": "traction", "minCredit": 0.25, "message": "You demonstrated part of the process. Keep the earned facets and target the weakest missing facet next."},
+    {"id": "substantial", "minCredit": 0.5, "message": "This rep contains substantial demonstrated understanding, even if the final answer is incomplete."},
+    {"id": "strong-rep", "minCredit": 0.75, "message": "This is a strong direct rep. Mastery still requires repeated direct evidence and transfer."}
+  ],
+  "eventContract": {
+    "required": ["eventId", "conceptId", "assistance", "evidence"],
+    "evidenceItem": {"required": ["facet", "quality"], "qualityRange": [0.0, 1.0]},
+    "cascadeItem": {"required": ["conceptId", "relationWeight"], "relationWeightRange": [0.0, 1.0]}
+  },
+  "exampleEvent": {
+    "eventId": "example-two-sum-001",
+    "conceptId": "arrays.two-sum",
+    "assistance": "hint",
+    "evidence": [
+      {"facet": "construct", "quality": 0.8, "note": "Restated the lookup invariant."},
+      {"facet": "apply", "quality": 0.55, "note": "Correctly traced most of the sample."},
+      {"facet": "debug", "quality": 0.7, "note": "Caught accidental self-reuse."},
+      {"facet": "explain", "quality": 0.45, "note": "Explained the complement lookup partially."},
+      {"facet": "discover", "quality": 0.5, "note": "Asked how duplicates affect the map."}
+    ],
+    "cascade": [{"conceptId": "arrays.hash-map", "relationWeight": 0.8}]
+  }
+}
