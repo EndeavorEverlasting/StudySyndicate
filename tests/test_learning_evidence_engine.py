@@ -60,6 +60,14 @@ class LearningEvidenceEngineTests(unittest.TestCase):
         self.assertLessEqual(cascade["recognitionCredit"], result["eventCredit"] * 0.25)
         self.assertFalse(cascade["countsTowardMastery"])
 
+    def test_duplicate_cascade_concepts_are_rejected(self):
+        cascade = [
+            {"conceptId": "prerequisite-b", "relationWeight": 1.0},
+            {"conceptId": "prerequisite-b", "relationWeight": 1.0},
+        ]
+        with self.assertRaisesRegex(ValueError, "duplicate cascade conceptId"):
+            module.score_event(self.event(cascade=cascade), CONTRACT)
+
     def test_strong_direct_rep_can_emit_signal_but_not_mastery_claim(self):
         evidence = [
             {"facet": "construct", "quality": 0.9},
