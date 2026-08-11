@@ -15,16 +15,19 @@ ARTIFACTS = HARNESS / "artifact-registry.v1.json"
 VALIDATION = HARNESS / "validation-manifest.v1.json"
 SOURCE = HARNESS / "sources" / "parallaxport-claims.v1.json"
 LEARNING = ROOT / "content" / "learning" / "learning-evidence.v1.json"
+GUIDANCE = ROOT / "content" / "learning" / "study-guidance.v1.json"
 README = ROOT / "README.md"
 
 EXPECTED_COMPONENTS = {"codebaseMap", "workflowSpecs", "artifactRegistry", "validators", "hooks", "skills", "operatorReports", "sourceAdapters"}
 EXPECTED_CLAIMS = {"Python", "JavaScript", "TypeScript", "Java", "C", "Pandas", "NumPy", "Matplotlib", "React", "Django", "Flask", "Node.js", "PostgreSQL", "MySQL", "SQLite"}
-EXPECTED_WORKFLOWS = ["guided-study", "practice-workbench", "learning-event-cascade", "public-claim-to-study", "repo-change"]
+EXPECTED_WORKFLOWS = ["guided-study", "practice-workbench", "learning-event-cascade", "study-guidance-ingest", "public-claim-to-study", "repo-change"]
 EXPECTED_LEARNING_FACETS = ["construct", "apply", "debug", "explain", "discover"]
 EXPECTED_ASSISTANCE = ["none", "docs", "hint", "ai-scaffold", "ai-answer"]
 REQUIRED_QUICK_COMMANDS = {
     ("python", "scripts/learning-evidence.py", "validate-contract"),
     ("python", "tests/test_learning_evidence_engine.py"),
+    ("python", "scripts/study-guidance.py", "validate-contract"),
+    ("python", "tests/test_study_guidance.py"),
 }
 REQUIRED_FULL_COMMANDS = {
     ("bash", "scripts/validate-governance.sh"),
@@ -91,6 +94,7 @@ def main() -> int:
     validation = load(VALIDATION)
     source = load(SOURCE)
     learning = load(LEARNING)
+    guidance = load(GUIDANCE)
 
     if manifest.get("schema") != "study-syndicate/harness/v1":
         fail("unexpected harness schema")
@@ -140,6 +144,17 @@ def main() -> int:
     if engine_stages != ["observation", "facet-credit", "assistance-boundary", "cascade-recognition", "acknowledgement", "mastery-boundary", "next-rep"]:
         fail(f"learning evidence engine stages drifted: {engine_stages}")
 
+    if guidance.get("schema") != "study-syndicate/study-guidance/v1" or guidance.get("version") != 1:
+        fail("unexpected study guidance schema")
+    if "book" not in (guidance.get("resourceKinds") or []):
+        fail("study guidance must preserve books as first-class resources")
+    example = guidance.get("examplePacket") or {}
+    resources = example.get("resources") or []
+    if not any(item.get("kind") == "book" and item.get("title") for item in resources):
+        fail("study guidance example must prove book ingestion")
+    if "cascade" not in (guidance.get("triggerKinds") or []) or "application-iteration" not in (guidance.get("triggerKinds") or []):
+        fail("study guidance must accept cascade and application iteration triggers")
+
     if artifacts.get("schema") != "study-syndicate/artifact-registry/v1":
         fail("unexpected artifact registry schema")
     artifact_items = artifacts.get("artifacts") or []
@@ -160,7 +175,7 @@ def main() -> int:
     quick_commands = {tuple(item.get("argv") or []) for item in checks if item.get("tier") == "quick"}
     missing_quick = REQUIRED_QUICK_COMMANDS - quick_commands
     if missing_quick:
-        fail(f"quick validation missing learning-evidence commands: {sorted(missing_quick)}")
+        fail(f"quick validation missing learning commands: {sorted(missing_quick)}")
     full_commands = {tuple(item.get("argv") or []) for item in checks if item.get("tier") == "full"}
     missing_commands = REQUIRED_FULL_COMMANDS - full_commands
     if missing_commands:
@@ -211,6 +226,11 @@ def main() -> int:
         if literal not in learning_workflow:
             fail(f"learning event workflow missing {literal!r}")
 
+    guidance_workflow = (HARNESS / "workflows" / "STUDY_GUIDANCE_INGEST.md").read_text(encoding="utf-8")
+    for literal in ("books are first-class resources", "study-guidance.py derive", "LEARNING_EVENT_CASCADE.md", "EscapeHatch"):
+        if literal not in guidance_workflow:
+            fail(f"study guidance workflow missing {literal!r}")
+
     hooks = [
         (ROOT / ".githooks" / "pre-commit").read_text(encoding="utf-8"),
         (ROOT / ".githooks" / "pre-push").read_text(encoding="utf-8"),
@@ -221,7 +241,7 @@ def main() -> int:
     print(
         f"harness validation PASS: {len(component_paths)} component files, {len(workflows)} workflows, "
         f"{len(artifact_items)} artifacts, {len(checks)} checks, {len(claims)} ParallaxPort claims, "
-        f"{len(facet_ids)} learning facets"
+        f"{len(facet_ids)} learning facets, study guidance v{guidance['version']}"
     )
     return 0
 
