@@ -48,9 +48,14 @@ def validate_event(event: dict[str, Any], contract: dict[str, Any]) -> None:
         quality = item.get("quality")
         if not isinstance(quality, (int, float)) or isinstance(quality, bool) or not 0 <= quality <= 1:
             raise ValueError(f"facet quality must be between 0 and 1: {facet}")
+    seen_cascade: set[str] = set()
     for item in event.get("cascade", []):
-        if not item.get("conceptId"):
+        concept_id = item.get("conceptId")
+        if not concept_id:
             raise ValueError("cascade conceptId is required")
+        if concept_id in seen_cascade:
+            raise ValueError(f"duplicate cascade conceptId: {concept_id}")
+        seen_cascade.add(concept_id)
         weight = item.get("relationWeight")
         if not isinstance(weight, (int, float)) or isinstance(weight, bool) or not 0 <= weight <= 1:
             raise ValueError("cascade relationWeight must be between 0 and 1")
