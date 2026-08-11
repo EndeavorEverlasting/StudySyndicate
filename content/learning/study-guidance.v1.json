@@ -1,0 +1,36 @@
+{
+  "schema": "study-syndicate/study-guidance/v1",
+  "version": 1,
+  "purpose": "Accept durable guidance from trackers and learning cascades, preserve source provenance, and turn books and other resources into first-class study inputs without treating them as mastery evidence.",
+  "triggerKinds": ["requirements-gap", "application-iteration", "interview-feedback", "learning-event", "cascade", "manual"],
+  "resourceKinds": ["book", "documentation", "article", "course", "video", "repository", "problem-set"],
+  "resourceRelations": ["primary", "reference", "remediation", "stretch"],
+  "statusValues": ["queued", "active", "completed", "superseded"],
+  "packetContract": {
+    "required": ["guidanceId", "origin", "trigger", "iteration", "concepts", "resources", "status"],
+    "origin": {"required": ["system", "recordType", "recordId"]},
+    "trigger": {"required": ["kind", "reason"]},
+    "conceptItem": {"required": ["conceptId", "reason", "priority"], "priorityRange": [1, 5]},
+    "resourceItem": {"required": ["kind", "title", "relation"], "optional": ["author", "locator", "conceptIds", "note"]}
+  },
+  "derivationRules": [
+    "Every resource is preserved with its kind and provenance; books are never collapsed into generic notes.",
+    "Concepts create direct study targets; cascade concepts create derived scheduling targets only.",
+    "Resources may guide generated study material but do not count as learner evidence or mastery.",
+    "A later iteration may supersede a prior guidance packet without deleting its history.",
+    "Tracker-origin guidance must retain the originating opportunity/application record id so career gaps remain traceable."
+  ],
+  "examplePacket": {
+    "guidanceId": "guidance-example-sql-001",
+    "origin": {"system": "escapehatch", "recordType": "opportunity", "recordId": "opp-example"},
+    "trigger": {"kind": "requirements-gap", "reason": "The target role lists stronger SQL fluency than current evidence demonstrates.", "cascadeConceptIds": ["databases.relational-model"]},
+    "iteration": 1,
+    "concepts": [
+      {"conceptId": "sql.joins", "reason": "Practice joins used in operational reporting.", "priority": 5}
+    ],
+    "resources": [
+      {"kind": "book", "title": "Learning SQL", "author": "Alan Beaulieu", "relation": "primary", "conceptIds": ["sql.joins"], "note": "Use relevant chapters as guided source material; do not infer mastery from reading."}
+    ],
+    "status": "queued"
+  }
+}
