@@ -3,9 +3,7 @@
   "entrypoint": "harness/README.md",
   "governanceAuthority": "AGENTS.md",
   "components": {
-    "codebaseMap": [
-      "harness/CODEBASE_MAP.md"
-    ],
+    "codebaseMap": ["harness/CODEBASE_MAP.md"],
     "workflowSpecs": [
       "harness/WORKFLOW_SPECS.md",
       "harness/workflows/GUIDED_STUDY.md",
@@ -15,11 +13,12 @@
       "harness/problems/problem-packet-contract.v1.json",
       "harness/problems/two-sum.v1.json",
       "harness/practice-workbench.v1.json",
-      "harness/workflows/PRACTICE_WORKBENCH.md"
+      "harness/workflows/PRACTICE_WORKBENCH.md",
+      "docs/LEARNING_EVIDENCE_DOCTRINE.md",
+      "content/learning/learning-evidence.v1.json",
+      "harness/workflows/LEARNING_EVENT_CASCADE.md"
     ],
-    "artifactRegistry": [
-      "harness/artifact-registry.v1.json"
-    ],
+    "artifactRegistry": ["harness/artifact-registry.v1.json"],
     "validators": [
       "harness/validation-manifest.v1.json",
       "scripts/validate-harness.py",
@@ -29,64 +28,33 @@
       "tests/test_guided_problem_packet.py",
       "scripts/validate-practice-workbench.py",
       "tests/test_practice_workbench_contract.py",
+      "scripts/learning-evidence.py",
+      "tests/test_learning_evidence_engine.py",
       ".github/workflows/harness-infrastructure.yml",
       ".github/workflows/practice-workbench.yml"
     ],
-    "hooks": [
-      ".githooks/pre-commit",
-      ".githooks/pre-push"
-    ],
+    "hooks": [".githooks/pre-commit", ".githooks/pre-push"],
     "skills": [
       "harness/skills/documentation-lookup/SKILL.md",
       "harness/skills/guided-feedback/SKILL.md",
       "harness/skills/public-claim-intake/SKILL.md",
       "harness/skills/repo-location-recovery/SKILL.md",
-      "harness/skills/runner-adapter/SKILL.md"
+      "harness/skills/runner-adapter/SKILL.md",
+      "harness/skills/learning-event-credit/SKILL.md"
     ],
     "operatorReports": [
       "harness/reports/STATE.md",
-      "harness/reports/PARALLAXPORT_STUDY_FODDER.md"
+      "harness/reports/PARALLAXPORT_STUDY_FODDER.md",
+      "harness/reports/LEARNING_EVIDENCE_STATE.md"
     ],
-    "sourceAdapters": [
-      "harness/sources/parallaxport-claims.v1.json"
-    ]
+    "sourceAdapters": ["harness/sources/parallaxport-claims.v1.json"]
   },
   "workflows": [
-    {
-      "id": "guided-study",
-      "trigger": "The learner does not know how to begin, needs the problem premise recited, needs hints, or needs executable feedback.",
-      "entrypoint": "harness/workflows/GUIDED_STUDY.md",
-      "skillRefs": [
-        "harness/skills/documentation-lookup/SKILL.md",
-        "harness/skills/guided-feedback/SKILL.md"
-      ]
-    },
-    {
-      "id": "practice-workbench",
-      "trigger": "The learner wants a browser study session, a different language/facet, or a runner capability must be added without changing study authority.",
-      "entrypoint": "harness/workflows/PRACTICE_WORKBENCH.md",
-      "skillRefs": [
-        "harness/skills/runner-adapter/SKILL.md",
-        "harness/skills/documentation-lookup/SKILL.md",
-        "harness/skills/guided-feedback/SKILL.md"
-      ]
-    },
-    {
-      "id": "public-claim-to-study",
-      "trigger": "A technology or capability is presented publicly and should become study fodder.",
-      "entrypoint": "harness/workflows/PUBLIC_CLAIM_TO_STUDY.md",
-      "skillRefs": [
-        "harness/skills/public-claim-intake/SKILL.md"
-      ]
-    },
-    {
-      "id": "repo-change",
-      "trigger": "Tracked doctrine, pack, validator, harness, or reference material must change.",
-      "entrypoint": "harness/WORKFLOW_SPECS.md",
-      "skillRefs": [
-        "harness/skills/repo-location-recovery/SKILL.md"
-      ]
-    }
+    {"id": "guided-study", "trigger": "The learner does not know how to begin, needs the problem premise recited, needs hints, or needs executable feedback.", "entrypoint": "harness/workflows/GUIDED_STUDY.md", "skillRefs": ["harness/skills/documentation-lookup/SKILL.md", "harness/skills/guided-feedback/SKILL.md"]},
+    {"id": "practice-workbench", "trigger": "The learner wants a browser study session, a different language/facet, or a runner capability must be added without changing study authority.", "entrypoint": "harness/workflows/PRACTICE_WORKBENCH.md", "skillRefs": ["harness/skills/runner-adapter/SKILL.md", "harness/skills/documentation-lookup/SKILL.md", "harness/skills/guided-feedback/SKILL.md"]},
+    {"id": "learning-event-cascade", "trigger": "A learner attempt, debug session, explanation, experiment, or discovery should receive evidence-based partial credit and bounded cascade acknowledgment.", "entrypoint": "harness/workflows/LEARNING_EVENT_CASCADE.md", "skillRefs": ["harness/skills/learning-event-credit/SKILL.md", "harness/skills/guided-feedback/SKILL.md"]},
+    {"id": "public-claim-to-study", "trigger": "A technology or capability is presented publicly and should become study fodder.", "entrypoint": "harness/workflows/PUBLIC_CLAIM_TO_STUDY.md", "skillRefs": ["harness/skills/public-claim-intake/SKILL.md"]},
+    {"id": "repo-change", "trigger": "Tracked doctrine, pack, validator, harness, or reference material must change.", "entrypoint": "harness/WORKFLOW_SPECS.md", "skillRefs": ["harness/skills/repo-location-recovery/SKILL.md"]}
   ],
   "studyModes": {
     "guided": "The complete premise is presented first; hints, examples, decomposition, documentation, and feedback are allowed; does not satisfy mastery.",

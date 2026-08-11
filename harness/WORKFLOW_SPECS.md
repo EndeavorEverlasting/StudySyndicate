@@ -41,6 +41,18 @@ If the task comes from a technology publicly presented on ParallaxPort:
    - `mastery` — blank-file/no-AI reconstruction plus explanation and executable proof.
 5. Record the mode honestly. Guided success is progress, not failed mastery.
 
+## Learning-event selection
+
+Use `learning-event-cascade` when a learner has produced work worth preserving even if the final answer is
+wrong, incomplete, assisted, or exploratory.
+
+1. Preserve learner-produced evidence before replacing it with agent/source output.
+2. Read `docs/LEARNING_EVIDENCE_DOCTRINE.md`.
+3. Record an assistance band and observed facet qualities.
+4. Run `python scripts/learning-evidence.py score PATH_TO_EVENT.json`.
+5. Report earned facets, assistance provenance, event credit, cascade recognition, and the weakest next facet.
+6. Never convert cascade recognition or a single-event signal into mastery.
+
 ## Validate before commit
 
 Run:
@@ -54,7 +66,7 @@ git diff
 ```
 
 The full harness validation invokes the existing repository validators and executable tests registered
-in `harness/validation-manifest.v1.json`, including the repository-location self-test.
+in `harness/validation-manifest.v1.json`, including repository-location and learning-evidence proof.
 
 ## Handle failures
 
@@ -72,7 +84,8 @@ Do not respond to a red check by broad rewriting.
    run in the required environment.
 
 For study failures, use the feedback ladder in `harness/skills/guided-feedback/SKILL.md`; do not jump
-from confusion directly to copying the reference solution.
+from confusion directly to copying the reference solution. For evidence-scoring failures, repair the event
+packet or versioned learning-evidence contract rather than improvising an untracked scoring rule.
 
 ## Handoff
 
@@ -93,7 +106,9 @@ For study work, also include:
 - source claim or study track
 - mode (`guided`, `docs-assisted`, or `mastery`)
 - what was attempted from memory
-- hints/docs used
+- hints/docs/AI assistance used
+- event credit and earned facets when a learning event was recorded
+- direct vs derived/cascade evidence
 - smallest failing case or successful test evidence
 - next retrieval target
 

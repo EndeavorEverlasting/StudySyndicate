@@ -6,6 +6,7 @@ export type ActorKind =
   | 'response'
   | 'session'
   | 'attempt'
+  | 'learning-event'
   | 'media';
 
 export type RelationshipKind =
@@ -17,6 +18,8 @@ export type RelationshipKind =
   | 'conflicts-with'
   | 'attempted-in'
   | 'answered-by'
+  | 'evidences'
+  | 'reinforces'
   | 'uses-media';
 
 export type ComponentKind =
@@ -27,6 +30,8 @@ export type ComponentKind =
   | 'rubric'
   | 'schedule'
   | 'attempt-result'
+  | 'learning-evidence'
+  | 'acknowledgement'
   | 'provenance'
   | 'ui-state';
 
@@ -48,6 +53,9 @@ export type MediaLearningMode =
   | 'text-fallback';
 
 export type MediaOrigin = 'recorded' | 'generated' | 'imported';
+
+export type LearningFacet = 'construct' | 'apply' | 'debug' | 'explain' | 'discover';
+export type AssistanceBand = 'none' | 'docs' | 'hint' | 'ai-scaffold' | 'ai-answer';
 
 export interface TimestampedRecord {
   id: string;
@@ -147,6 +155,30 @@ export interface AttemptResultData {
   durationMs?: number;
   weakSignals?: string[];
   notes?: string;
+}
+
+export interface LearningEvidenceFacetData {
+  facet: LearningFacet;
+  quality: number;
+  credit: number;
+  note?: string;
+}
+
+export interface LearningEvidenceData {
+  assistance: AssistanceBand;
+  rawCredit: number;
+  eventCredit: number;
+  creditCap: number;
+  earnedFacets: LearningEvidenceFacetData[];
+  weakestFacet: { facet: LearningFacet; quality: number };
+  eventMasterySignal: boolean;
+  masteryClaimAllowed: false;
+}
+
+export interface AcknowledgementData {
+  band: 'started' | 'traction' | 'substantial' | 'strong-rep';
+  message: string;
+  derived?: boolean;
 }
 
 export interface ProvenanceData {

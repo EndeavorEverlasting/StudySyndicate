@@ -4,12 +4,16 @@ on:
   pull_request:
     paths:
       - "harness/**"
+      - "content/learning/**"
+      - "docs/LEARNING_EVIDENCE_DOCTRINE.md"
       - "scripts/harness.py"
       - "scripts/validate-harness.py"
       - "scripts/validate-practice-workbench.py"
+      - "scripts/learning-evidence.py"
       - "scripts/Resolve-StudySyndicateRepo.ps1"
       - "scripts/Test-RepoLocationRecovery.ps1"
       - "tests/test_practice-workbench_contract.py"
+      - "tests/test_learning_evidence_engine.py"
       - ".githooks/**"
       - ".github/workflows/harness-infrastructure.yml"
       - "src/**"

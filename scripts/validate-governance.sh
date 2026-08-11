@@ -23,6 +23,8 @@ required_literals=(
   "### One writer per branch"
   "### Reuse before replacing"
   "### No completion without proof"
+  "### Learning evidence integrity"
+  "Cascade/derived credit"
   "## Instruction precedence"
   "## Mandatory sprint declaration"
   "Proof ceiling"
