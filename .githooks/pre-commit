@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 set -eu
+python scripts/check-staged-artifacts.py
 python scripts/harness.py validate --level quick
 git diff --cached --check
