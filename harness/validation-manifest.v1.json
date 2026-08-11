@@ -7,11 +7,13 @@
     {"id":"practice-workbench-tests","tier":"quick","kind":"test","argv":["python","tests/test_practice_workbench_contract.py"],"required":true},
     {"id":"learning-evidence-contract","tier":"quick","kind":"contract","argv":["python","scripts/learning-evidence.py","validate-contract"],"required":true},
     {"id":"learning-evidence-tests","tier":"quick","kind":"test","argv":["python","tests/test_learning_evidence_engine.py"],"required":true},
+    {"id":"study-guidance-contract","tier":"quick","kind":"contract","argv":["python","scripts/study-guidance.py","validate-contract"],"required":true},
+    {"id":"study-guidance-tests","tier":"quick","kind":"test","argv":["python","tests/test_study_guidance.py"],"required":true},
     {"id":"repo-location-recovery","tier":"quick","kind":"harness","argv":["pwsh","-NoLogo","-NoProfile","-File","scripts/Test-RepoLocationRecovery.ps1"],"required":true},
     {"id":"repository-ledger-contract","tier":"quick","kind":"contract","argv":["python","scripts/validate-repo-ledger.py"],"required":true},
     {"id":"repository-ledger-frontier","tier":"quick","kind":"contract","argv":["python","scripts/get-repo-ledger-frontier.py","--json"],"required":true},
     {"id":"parallaxport-report-sync","tier":"quick","kind":"generated-artifact","argv":["python","scripts/harness.py","study-fodder","--check"],"required":true},
-    {"id":"harness-python-compile","tier":"quick","kind":"static","argv":["python","-m","py_compile","scripts/harness.py","scripts/validate-harness.py","scripts/study-problem.py","scripts/validate-practice-workbench.py","scripts/learning-evidence.py","scripts/repo_ledger.py","scripts/validate-repo-ledger.py","scripts/get-repo-ledger-frontier.py","tests/test_guided_problem_packet.py","tests/test_practice_workbench_contract.py","tests/test_learning_evidence_engine.py"],"required":true},
+    {"id":"harness-python-compile","tier":"quick","kind":"static","argv":["python","-m","py_compile","scripts/harness.py","scripts/validate-harness.py","scripts/study-problem.py","scripts/validate-practice-workbench.py","scripts/learning-evidence.py","scripts/study-guidance.py","scripts/repo_ledger.py","scripts/validate-repo-ledger.py","scripts/get-repo-ledger-frontier.py","tests/test_guided_problem_packet.py","tests/test_practice_workbench_contract.py","tests/test_learning_evidence_engine.py","tests/test_study_guidance.py"],"required":true},
     {"id":"governance","tier":"full","kind":"contract","argv":["bash","scripts/validate-governance.sh"],"required":true},
     {"id":"repository-ledger-contract-tests","tier":"full","kind":"test","argv":["python","tests/test_repo_ledger_contract.py"],"required":true},
     {"id":"repository-ledger-frontier-tests","tier":"full","kind":"test","argv":["python","tests/test_repo_ledger_frontier.py"],"required":true},
@@ -34,6 +36,7 @@
     "location":"Quick validation proves repository-location recovery.",
     "guidedProblemPackets":"Quick validation proves premise-first guided packet behavior.",
     "practiceWorkbench":"Quick validation proves multi-language/modal/drag-drop/runner contracts; full validation lints and builds the React app.",
-    "learningEvidence":"Quick validation proves deterministic partial credit, assistance caps, cascade recognition, acknowledgment, and the no-single-event-mastery boundary."
+    "learningEvidence":"Quick validation proves deterministic partial credit, assistance caps, cascade recognition, acknowledgment, and the no-single-event-mastery boundary.",
+    "studyGuidance":"Quick validation proves tracker/cascade guidance, books as first-class resources, iteration provenance, and resource/cascade exclusion from mastery."
   }
 }
