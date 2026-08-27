@@ -182,8 +182,13 @@ def actionable_tasks(tasks: list[Task]) -> list[Task]:
     return [task for task in tasks if derive_route(task) in {"EXECUTE", "DECOMPOSE"}]
 
 
+def frontier_tasks(tasks: list[Task]) -> list[Task]:
+    """Return agent work plus explicit operator gates that must remain visible at the default frontier."""
+    return [task for task in tasks if derive_route(task) in {"EXECUTE", "DECOMPOSE", "OPERATOR"}]
+
+
 def select_frontier(tasks: list[Task]) -> Task | None:
-    candidates = actionable_tasks(tasks)
+    candidates = frontier_tasks(tasks)
     if not candidates:
         return None
     return min(candidates, key=lambda task: (PRIORITY_RANK[task.priority], task.index))
@@ -218,11 +223,13 @@ def render_prompt(task: Task | None) -> str:
         return "LEDGER FRONTIER: EMPTY\nDo not invent work. Reconcile repository evidence before adding a new task."
     f = task.fields
     route = derive_route(task)
-    instruction = (
-        "EXECUTE THIS BOUNDED SPRINT. DO NOT ANALYZE OTHER LEDGER ITEMS."
-        if route == "EXECUTE"
-        else "DECOMPOSE THIS PARENT INTO BOUNDED CHILD SPRINTS. DO NOT IMPLEMENT THE PARENT."
-    )
+    instructions = {
+        "EXECUTE": "EXECUTE THIS BOUNDED SPRINT. DO NOT ANALYZE OTHER LEDGER ITEMS.",
+        "DECOMPOSE": "DECOMPOSE THIS PARENT INTO BOUNDED CHILD SPRINTS. DO NOT IMPLEMENT THE PARENT.",
+        "OPERATOR": "OPERATOR GATE. DO NOT INVENT OR IMPLEMENT A FEATURE. COMPLETE THE EXACT GATE OR PRESERVE IT AS USER-ONLY BLOCKED WORK.",
+        "BLOCKED": "BLOCKED GATE. DO NOT INVENT SUBSTITUTE WORK. ADVANCE ONLY THE NAMED DEPENDENCY OR RECORD THE BLOCKER.",
+    }
+    instruction = instructions.get(route, "RECONCILE THIS NON-ACTIONABLE LEDGER STATE BEFORE PROCEEDING.")
     return "\n".join([
         instruction, f"ROUTE: {route}", f"TASK ID: {task.id}", f"TITLE: {task.title}",
         f"STATUS: {f['Status']}", f"PRIORITY: {f['Priority']}", f"WORK CLASS: {f['Work class']}",
