@@ -16,6 +16,7 @@ TYPES = ROOT / "src" / "domain" / "factored.ts"
 VALIDATION = ROOT / "harness" / "validation-manifest.v1.json"
 HARNESS = ROOT / "harness" / "harness-manifest.v1.json"
 README = ROOT / "README.md"
+WORKFLOW = ROOT / ".github" / "workflows" / "harness-infrastructure.yml"
 
 
 class ValidationError(AssertionError):
@@ -79,6 +80,12 @@ def validate_contract(contract: dict[str, Any]) -> None:
         fail("CSV projection is missing required columns")
     if "projection" not in str(projection.get("authorityRule", "")).lower():
         fail("CSV must be explicitly subordinate to normalized JSON")
+    cell_safety = str(projection.get("cellSafety", ""))
+    if "canonical JSON remains unchanged" not in cell_safety or not all(prefix in cell_safety for prefix in ("=", "+", "-", "@")):
+        fail("CSV contract must preserve canonical JSON while neutralizing spreadsheet formula prefixes")
+    rules = "\n".join(str(item) for item in contract.get("rules") or [])
+    if "repeated videos reuse the source actor" not in rules or "every playlist occurrence" not in rules:
+        fail("source-import contract must preserve repeated playlist occurrences without duplicating actors")
 
 
 def validate_repo_surfaces() -> None:
@@ -102,6 +109,11 @@ def validate_repo_surfaces() -> None:
     for literal in ("## YouTube Playlist Source Ingestion", "source-ingest-youtube.py", "yt-dlp.yt-dlp", ".csv"):
         if literal not in readme:
             fail(f"README missing source-ingestion navigation: {literal}")
+
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+    for literal in ("scripts/source-ingest-youtube.py", "scripts/validate-source-ingestion.py", "tests/test_youtube_source_ingestion.py"):
+        if literal not in workflow:
+            fail(f"harness workflow does not trigger for source-ingestion surface: {literal}")
 
 
 def main() -> int:
