@@ -89,7 +89,7 @@ $dirty = @(& git -C $RepositoryPath status --porcelain=v1)
 Assert-NativeSuccess 'Inspect canonical checkout status'
 $branchRaw = & git -C $RepositoryPath branch --show-current
 Assert-NativeSuccess 'Inspect canonical checkout branch'
-$branch = ([string]$branchRaw).Trim()
+$branch = if ($null -eq $branchRaw) { '' } else { ([string]$branchRaw).Trim() }
 $currentHeadRaw = & git -C $RepositoryPath rev-parse HEAD
 Assert-NativeSuccess 'Inspect canonical checkout HEAD'
 $currentHead = ([string]$currentHeadRaw).Trim()
