@@ -69,6 +69,28 @@ class FrontierTests(unittest.TestCase):
         )
         self.assertEqual("SSQ-002", repo_ledger.select_frontier(tasks).id)
 
+    def test_operator_gate_is_selected_when_it_is_the_frontier(self):
+        tasks = self.parse(
+            block("SSQ-001", "P0", "BOUNDED", "DONE", repo_ledger.TERMINAL_ACTION),
+            block("SSQ-002", "P0", "BOUNDED", "OPERATOR", "obtain the exact operator proof"),
+        )
+        selected = repo_ledger.select_frontier(tasks)
+        self.assertIsNotNone(selected)
+        assert selected is not None
+        self.assertEqual("SSQ-002", selected.id)
+        self.assertEqual("OPERATOR", repo_ledger.derive_route(selected))
+
+    def test_higher_priority_operator_gate_preempts_lower_priority_agent_work(self):
+        tasks = self.parse(
+            block("SSQ-001", "P1", "BOUNDED"),
+            block("SSQ-002", "P0", "BOUNDED", "OPERATOR", "obtain the exact operator proof"),
+        )
+        selected = repo_ledger.select_frontier(tasks)
+        self.assertIsNotNone(selected)
+        assert selected is not None
+        self.assertEqual("SSQ-002", selected.id)
+        self.assertEqual("OPERATOR", repo_ledger.derive_route(selected))
+
     def test_prompt_is_self_contained_and_anti_rumination(self):
         task = self.parse(block("SSQ-001", "P0", "BOUNDED"))[0]
         prompt = repo_ledger.render_prompt(task)
@@ -78,6 +100,14 @@ class FrontierTests(unittest.TestCase):
         self.assertIn("ACCEPTANCE GATE:", prompt)
         self.assertIn("FIRST ACTION:", prompt)
         self.assertIn("STOP RULE:", prompt)
+
+    def test_operator_prompt_is_explicit_gate_not_decomposition(self):
+        task = self.parse(block("SSQ-001", "P0", "BOUNDED", "OPERATOR", "obtain the exact operator proof"))[0]
+        prompt = repo_ledger.render_prompt(task)
+        self.assertIn("OPERATOR GATE", prompt)
+        self.assertIn("ROUTE: OPERATOR", prompt)
+        self.assertIn("CURRENT GATE:", prompt)
+        self.assertNotIn("DECOMPOSE THIS PARENT", prompt)
 
     def test_empty_frontier(self):
         done = block("SSQ-001", "P0", "BOUNDED", "DONE", repo_ledger.TERMINAL_ACTION)
