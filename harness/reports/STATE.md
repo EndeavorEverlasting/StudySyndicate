@@ -1,6 +1,6 @@
 # Operator State Report
 
-Status refreshed for the canonical-path and exact-candidate promotion floor on 2026-08-26.
+Status refreshed for the bounded SQL runner proof floor on 2026-08-26.
 
 ## Working
 
@@ -25,22 +25,30 @@ Status refreshed for the canonical-path and exact-candidate promotion floor on 2
 - Two Sum is rendered from its canonical problem packet rather than copied into UI prose.
 - SQL and Rust foundation exercises are discoverable from their canonical study pack.
 - Python, Rust, SQL, C, JavaScript, TypeScript, Java, and Lua have explicit runner kinds and statuses.
+- Python Two Sum feedback is externally available through `scripts/study-problem.py`.
+- SQL is externally available through `scripts/sql-runner.py`: every invocation uses a fresh in-memory SQLite
+  database, emits normalized JSON `ExecutionOutcome`, enforces a finite timeout, and denies `ATTACH`, `DETACH`,
+  and `PRAGMA`. The browser exposes the command but does not execute learner SQL directly.
+- SQL adapter proof on candidate `ca51c31ad86f0f78d3a3ae9d520735c5146ad11e` passed success, guest-error,
+  timeout, and attachment-denial tests in Practice Workbench workflow `33037110899`; full registered harness
+  workflow `33037110990` also passed on that exact candidate.
 - Guest-code failure is a host-boundary contract: exceptions, panics, compiler errors, database errors,
   process failures, and timeouts normalize to `ExecutionOutcome`; they do not become React-shell crashes.
 - ParallaxPort public skill claims remain versioned study fodder rather than mastery proof.
 
 ## Deliberately capability-gated
 
-- The browser does not directly execute learner code in this sprint.
-- Python Two Sum executable feedback remains available through `scripts/study-problem.py` outside the browser.
-- Rust, SQL, C, JavaScript, TypeScript, Java, and Lua runner adapters are registered but remain `planned`
+- The browser does not directly execute learner code at this floor.
+- Rust, C, JavaScript, TypeScript, Java, and Lua runner adapters are registered but remain `planned`
   until each adapter has runtime-specific timeout/failure proof.
 - JavaScript/TypeScript are not implemented with `eval` or `new Function`; a dedicated sandbox contract is
   required before browser execution is marked available.
+- The SQL adapter proves bounded SQLite execution and failure normalization, not semantic correctness against
+  every exercise prompt and not learner mastery.
 - No external production hosting/deployment contract exists yet. `main` promotion is repository integration,
   not hosted deployment, and a successful GitHub promotion does not prove the Windows local checkout/use path.
 - Application E2E at this floor proves the built Vite preview HTTP path and referenced JavaScript asset; it
-  does not claim interactive browser, IndexedDB, or Windows `npm run dev` proof.
+  does not claim interactive browser, IndexedDB, clipboard, or Windows `npm run dev` proof.
 - ParallaxPort claim refresh remains explicit rather than live-scraped.
 - Tracked Git hooks remain opt-in.
 
@@ -53,8 +61,9 @@ Status refreshed for the canonical-path and exact-candidate promotion floor on 2
 - Do not issue repo-relative commands until canonical repository identity has been proven after a terminal restart.
 - A green GitHub merge proves `REMOTE_INTEGRATED`, not `DEV_CHECKOUT_CURRENT`, `PROD_PATH_CURRENT`, or `ENTRYPOINT_PROVED`.
 - A green harness does not substitute for the separate application E2E required by the promotion contract.
-- A language in the Practice Workbench selector does **not** mean the runner is available.
-- Do not let guest exceptions/panics escape into React event handlers.
+- A language in the Practice Workbench selector does **not** mean the runner is available; use its registered status.
+- Do not let guest exceptions/panics/database errors escape into React event handlers.
+- Do not weaken the SQL trust boundary by attaching filesystem databases or enabling unrestricted PRAGMA access.
 - Do not shorten a problem packet until the premise loses inputs, output, guarantees, or example context.
 - Drag-and-drop changes panel presentation only; it must not alter mastery or runner semantics.
 - Do not promote an exercise-catalog prompt to `mastery` until it is converted into a premise-first packet.
@@ -63,6 +72,6 @@ Status refreshed for the canonical-path and exact-candidate promotion floor on 2
 
 ## Next proof target
 
-After the promotion pipeline is provider-proven and the Windows path-input receipt is observed, the existing
-repository frontier remains authoritative for the next feature sprint. Do not replace that frontier with this
-state report.
+After the SQL runner change is integrated through the exact-candidate promotion contract, refresh the canonical
+Windows checkout and observe the external SQL command there. The repository frontier remains authoritative for
+the next feature sprint; do not replace that frontier with this state report.
