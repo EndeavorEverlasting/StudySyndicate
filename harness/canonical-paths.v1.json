@@ -1,0 +1,109 @@
+{
+  "schema": "study-syndicate/canonical-paths/v1",
+  "repository": "EndeavorEverlasting/StudySyndicate",
+  "repositoryRemote": "https://github.com/EndeavorEverlasting/StudySyndicate.git",
+  "precedence": [
+    "tracked-profile-contract",
+    "explicit-profile-selection",
+    "native-os-special-folder-resolution",
+    "verified-existing-checkout-evidence"
+  ],
+  "profiles": [
+    {
+      "key": "windows-desktop-dev",
+      "purpose": "Primary Windows operator development and local-use profile.",
+      "match": {
+        "os": "windows",
+        "githubActions": false
+      },
+      "development": {
+        "classification": "CLONE",
+        "base": "known-folder:Desktop",
+        "segments": [
+          "Dev",
+          "StudySyndicate"
+        ],
+        "mutable": true
+      },
+      "use": {
+        "classification": "CLONE",
+        "relation": "same-as-development",
+        "entrypoint": [
+          "npm",
+          "run",
+          "dev"
+        ],
+        "productionDeployment": "none-separate-at-this-floor"
+      },
+      "worktree": {
+        "classification": "WORKTREE_ROOT",
+        "base": "known-folder:Desktop",
+        "segments": [
+          "Dev",
+          "StudySyndicate-worktrees"
+        ],
+        "nestedBelowDevelopment": false
+      },
+      "cloudPolicy": {
+        "desktopSource": "os-known-folder",
+        "silentOneDriveFallback": false
+      }
+    },
+    {
+      "key": "github-actions",
+      "purpose": "Provider validation profile; never a workstation deployment path.",
+      "match": {
+        "environment": {
+          "GITHUB_ACTIONS": "true"
+        }
+      },
+      "development": {
+        "classification": "CLONE",
+        "base": "workflow-checkout",
+        "mutable": false
+      },
+      "use": {
+        "classification": "CLONE",
+        "relation": "same-as-development",
+        "entrypoint": [
+          "python",
+          "scripts/harness.py",
+          "validate",
+          "--level",
+          "full"
+        ],
+        "productionDeployment": "not-applicable"
+      },
+      "worktree": null,
+      "cloudPolicy": {
+        "desktopSource": "not-applicable",
+        "silentOneDriveFallback": false
+      }
+    }
+  ],
+  "driftPolicy": {
+    "acceptedCanonicalStatus": "CANONICAL + PROVED",
+    "nonCanonicalCheckoutStatus": "NONCANONICAL + PRESERVE",
+    "missingCanonicalStatus": "MISSING",
+    "conflictStatus": "CONFLICT",
+    "unknownStatus": "UNKNOWN",
+    "forbidSilentFallback": true,
+    "forbidSecondMutableCheckoutWhenCanonicalUsable": true,
+    "preserveDirtyUnpushedUniqueWork": true
+  },
+  "pathInputReceipt": {
+    "required": [
+      "platform",
+      "profileKey",
+      "desktopKnownFolder",
+      "oneDriveState",
+      "canonicalDevelopmentPath",
+      "canonicalUsePath",
+      "canonicalWorktreeRoot",
+      "observedPath",
+      "observedRepoRoot",
+      "status",
+      "evidenceSources"
+    ]
+  }
+}

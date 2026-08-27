@@ -1,0 +1,207 @@
+name: Promote Exact Candidate
+
+on:
+  pull_request:
+    types: [ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: studysyndicate-promote-main
+  cancel-in-progress: false
+
+jobs:
+  authorize:
+    name: Authorize exact candidate
+    runs-on: ubuntu-latest
+    outputs:
+      candidate_sha: ${{ steps.identity.outputs.candidate_sha }}
+      base_sha: ${{ steps.identity.outputs.base_sha }}
+      pr_number: ${{ steps.identity.outputs.pr_number }}
+    steps:
+      - name: Reject unauthorized promotion request
+        id: identity
+        env:
+          REPOSITORY: ${{ github.repository }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          ACTOR: ${{ github.actor }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          DRAFT: ${{ github.event.pull_request.draft }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          test "$ACTOR" = "$REPOSITORY_OWNER" || { echo "promotion actor is not repository owner"; exit 1; }
+          test "$PR_AUTHOR" = "$REPOSITORY_OWNER" || { echo "PR author is not repository owner"; exit 1; }
+          test "$HEAD_REPOSITORY" = "$REPOSITORY" || { echo "cross-repository head is not promotable"; exit 1; }
+          test "$BASE_REF" = "main" || { echo "unauthorized promotion target: $BASE_REF"; exit 1; }
+          test "$DRAFT" = "false" || { echo "PR must be ready for review"; exit 1; }
+          [[ "$HEAD_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "malformed candidate SHA"; exit 1; }
+          [[ "$BASE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "malformed base SHA"; exit 1; }
+          echo "candidate_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          echo "base_sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+
+  validate:
+    name: Validate exact candidate
+    needs: authorize
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Check out exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.authorize.outputs.candidate_sha }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Recheck candidate identity before validation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_HEAD: ${{ needs.authorize.outputs.candidate_sha }}
+          PR_NUMBER: ${{ needs.authorize.outputs.pr_number }}
+        run: |
+          set -euo pipefail
+          mkdir -p .promotion
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > .promotion/candidate-before-validation.json
+          python scripts/promotion.py check-candidate \
+            --input .promotion/candidate-before-validation.json \
+            --expected-head "$EXPECTED_HEAD" \
+            --repository "$GITHUB_REPOSITORY" \
+            --base main
+
+      - name: Run canonical harness E2E
+        run: python scripts/harness.py validate --level full
+
+      - name: Run application E2E through built HTTP entrypoint
+        run: |
+          mkdir -p .promotion
+          python scripts/application-e2e.py --receipt .promotion/application-e2e.json
+
+      - name: Upload application proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: application-e2e-proof
+          path: .promotion/application-e2e.json
+          if-no-files-found: error
+          retention-days: 14
+
+  promote:
+    name: Promote exact candidate to main
+    needs: [authorize, validate]
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Recheck candidate immediately before mutation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_HEAD: ${{ needs.authorize.outputs.candidate_sha }}
+          PR_NUMBER: ${{ needs.authorize.outputs.pr_number }}
+        run: |
+          set -euo pipefail
+          mkdir -p .promotion
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > .promotion/candidate-before-merge.json
+          CURRENT_HEAD="$(jq -r '.head.sha' .promotion/candidate-before-merge.json)"
+          CURRENT_REPO="$(jq -r '.head.repo.full_name' .promotion/candidate-before-merge.json)"
+          CURRENT_BASE="$(jq -r '.base.ref' .promotion/candidate-before-merge.json)"
+          CURRENT_STATE="$(jq -r '.state' .promotion/candidate-before-merge.json)"
+          CURRENT_DRAFT="$(jq -r '.draft' .promotion/candidate-before-merge.json)"
+          test "$CURRENT_HEAD" = "$EXPECTED_HEAD" || { echo "candidate moved after validation"; exit 1; }
+          test "$CURRENT_REPO" = "$GITHUB_REPOSITORY" || { echo "candidate repository changed"; exit 1; }
+          test "$CURRENT_BASE" = "main" || { echo "candidate target changed"; exit 1; }
+          test "$CURRENT_STATE" = "open" || { echo "candidate is no longer open"; exit 1; }
+          test "$CURRENT_DRAFT" = "false" || { echo "candidate returned to draft"; exit 1; }
+
+      - name: Merge with expected-head guard
+        id: merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_HEAD: ${{ needs.authorize.outputs.candidate_sha }}
+          PR_NUMBER: ${{ needs.authorize.outputs.pr_number }}
+        run: |
+          set -euo pipefail
+          jq -n --arg sha "$EXPECTED_HEAD" '{merge_method:"squash",sha:$sha}' > .promotion/merge-request.json
+          gh api \
+            --method PUT \
+            "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/merge" \
+            --input .promotion/merge-request.json \
+            > .promotion/merge-response.json
+          test "$(jq -r '.merged' .promotion/merge-response.json)" = "true" || {
+            cat .promotion/merge-response.json
+            exit 1
+          }
+          MERGE_SHA="$(jq -r '.sha' .promotion/merge-response.json)"
+          [[ "$MERGE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "merge response missing merge SHA"; exit 1; }
+          echo "merge_sha=$MERGE_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Prove post-promotion containment
+        env:
+          MERGE_SHA: ${{ steps.merge.outputs.merge_sha }}
+        run: |
+          set -euo pipefail
+          git init .promotion/post-proof
+          git -C .promotion/post-proof remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git -C .promotion/post-proof fetch --depth=64 origin main
+          git -C .promotion/post-proof merge-base --is-ancestor "$MERGE_SHA" origin/main
+
+      - name: Download application proof
+        uses: actions/download-artifact@v4
+        with:
+          name: application-e2e-proof
+          path: .promotion/application-proof
+
+      - name: Check out refreshed integrated main for receipt writer
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          path: .promotion/integrated
+
+      - name: Set up Python for receipt writer
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Write promotion receipt from preserved provider evidence
+        run: |
+          set -euo pipefail
+          python .promotion/integrated/scripts/promotion.py write-receipt \
+            --candidate .promotion/candidate-before-merge.json \
+            --application .promotion/application-proof/application-e2e.json \
+            --merge .promotion/merge-response.json \
+            --run-id "$GITHUB_RUN_ID" \
+            --actor "$GITHUB_ACTOR" \
+            --event "pull_request.ready_for_review" \
+            --output .promotion/promotion-receipt.json \
+            --contained
+          cat .promotion/promotion-receipt.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload promotion receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: promotion-receipt
+          path: .promotion/promotion-receipt.json
+          if-no-files-found: error
+          retention-days: 30
