@@ -10,12 +10,15 @@ if (-not (Test-Path -LiteralPath $resolver -PathType Leaf)) {
 }
 
 function Assert-Resolution([string]$StartPath) {
-    $arguments = @('-StartPath', $StartPath, '-Json')
+    $parameters = @{
+        StartPath = $StartPath
+        Json = $true
+    }
     if ($env:GITHUB_ACTIONS -ne 'true' -and -not $IsWindows) {
-        $arguments += @('-ProfileKey', 'github-actions')
+        $parameters.ProfileKey = 'github-actions'
     }
 
-    $json = & $resolver @arguments
+    $json = & $resolver @parameters
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     $payload = $json | ConvertFrom-Json
 
