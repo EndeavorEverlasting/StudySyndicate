@@ -1,0 +1,40 @@
+name: Windows SQL Field Proof
+
+on:
+  pull_request:
+    paths:
+      - "scripts/Invoke-StudySyndicateSqlFieldProof.ps1"
+      - "scripts/Resolve-StudySyndicateRepo.ps1"
+      - "scripts/validate-practice-workbench.py"
+      - "scripts/sql-runner.py"
+      - "tests/test_sql_field_proof_contract.py"
+      - "tests/test_sql_runner.py"
+      - "harness/canonical-paths.v1.json"
+      - "harness/practice-workbench.v1.json"
+      - ".github/workflows/windows-sql-field-proof.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  provider-windows-proof:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate field-proof contract
+        run: python tests/test_sql_field_proof_contract.py
+
+      - name: Exercise exact-head field-proof entrypoint
+        shell: pwsh
+        run: >-
+          pwsh -NoLogo -NoProfile -File scripts/Invoke-StudySyndicateSqlFieldProof.ps1
+          -RepositoryPath "$env:GITHUB_WORKSPACE" -TargetRef HEAD -SkipFetch -ProviderValidation
