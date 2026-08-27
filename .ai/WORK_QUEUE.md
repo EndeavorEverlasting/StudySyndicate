@@ -57,6 +57,6 @@ Canonical terminal action: `none; no safe actionable work remains`
 - **References:** `harness/workflows/PRACTICE_WORKBENCH.md`, `scripts/sql-runner.py`, `tests/test_sql_runner.py`, `harness/practice-workbench.v1.json`
 - **Acceptance gate:** one adapter has targeted pass/failure/timeout tests; guest exceptions/errors normalize to registered `ExecutionOutcome`; the React shell remains recoverable; owning validator plus npm run lint and npm run build pass; runner status matches observed runtime proof
 - **Gate:** none
-- **Last proof:** commit:ca51c31ad86f0f78d3a3ae9d520735c5146ad11e workflow:33037110899 proved Practice Workbench validator, contract tests, SQL runner tests, Oxlint, Vite build, and diff whitespace; workflow:33037110990 proved the full registered harness on the same exact candidate
+- **Last proof:** commit:c3711d81c358a7e77bbc36afe58dda08974ac528 workflow:33037590036 proved Practice Workbench validator, contract tests, 11 SQL runner boundary/regression cases, Oxlint, Vite build, and diff whitespace; workflow:33037590037 proved the repository ledger/frontier contract on Ubuntu and Windows; workflow:33037590068 proved the full registered harness on the same exact candidate
 - **Next action:** none; no safe actionable work remains
-- **Updated:** 2026-08-26T23:43:00-04:00
+- **Updated:** 2026-08-26T23:52:00-04:00
