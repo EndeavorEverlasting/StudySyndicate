@@ -41,7 +41,7 @@ This keeps the system flexible: a flashcard, PMP concept, source note, rubric, r
 | `derived-from` | study actor → `source` | Provenance for generated or user-created material. |
 | `tests` | `prompt` → `concept` | The prompt evaluates understanding of a concept. |
 | `explains` | `response` → `concept` | The response teaches or clarifies a concept. |
-| `contains` | parent actor → child actor | Ordered composition such as source sections, card groups, or exercise sets. |
+| `contains` | parent actor → child actor | Ordered composition such as source sections, playlist videos, card groups, or exercise sets. |
 | `depends-on` | `concept` → `concept` | Prerequisite or enabling knowledge. |
 | `conflicts-with` | actor → actor | Marks ambiguity, contradiction, duplicate material, or content needing review. |
 | `attempted-in` | `attempt` → `session` | Places an attempt inside a study session. |
@@ -53,6 +53,7 @@ This keeps the system flexible: a flashcard, PMP concept, source note, rubric, r
 | Component | Attaches To | Purpose |
 | --- | --- | --- |
 | `text-content` | actor or relationship | Markdown/plain text body, prompt text, explanation, transcript, alt/caption text, or note. |
+| `source-ref` | `source` actor | Stable provider locator and external identity plus source-specific metadata such as collection order, duration, channel, thumbnail, upload date, views, or availability. |
 | `media-ref` | `media` actor | Durable local file/blob handle, media kind, MIME type, SHA-256, byte length, origin, dimensions/duration, accessibility metadata, and optional voice provenance. |
 | `media-usage` | `uses-media` relationship | Role, learning mode, sequence, playback range/rate, and autoplay preference for one attachment context. |
 | `pmp-map` | `concept` or `prompt` | PMP domain, task, process group, knowledge area, or competency tags. |
@@ -61,6 +62,22 @@ This keeps the system flexible: a flashcard, PMP concept, source note, rubric, r
 | `attempt-result` | `attempt` | Grade, confidence, duration, mistakes, and weak-area signals. |
 | `provenance` | any actor/component | Creation source, import id, author, timestamp, and revision metadata. |
 | `ui-state` | learner-owned actor | Lightweight local preferences only; never primary study data. |
+
+## Source metadata and imports
+
+External references enter StudySyndicate as `source` actors rather than provider-specific actor kinds. A
+playlist and its videos, for example, are all sources: ordered `contains` relationships preserve membership,
+`source-ref` components preserve provider identity and locators, `text-content` carries descriptions or notes,
+and `provenance` records the import and extractor revision.
+
+Provider-specific extraction remains outside the domain model. The YouTube playlist adapter delegates page
+parsing and continuation behavior to `yt-dlp`; StudySyndicate owns only normalization into its factored source
+records and deterministic JSON/CSV export. The machine-readable contract lives at
+[`content/learning/source-import.v1.json`](../content/learning/source-import.v1.json), with donor authority
+pinned in [`harness/sources/youtube-playlist-donor.v1.json`](../harness/sources/youtube-playlist-donor.v1.json).
+
+Imported resources are study fodder and provenance. Their presence, metadata, or completion status is not a
+learner attempt and must not be promoted into mastery evidence.
 
 ## Durable media nodes
 
@@ -112,6 +129,7 @@ export type RelationshipKind =
 
 export type ComponentKind =
   | 'text-content'
+  | 'source-ref'
   | 'media-ref'
   | 'media-usage'
   | 'pmp-map'
