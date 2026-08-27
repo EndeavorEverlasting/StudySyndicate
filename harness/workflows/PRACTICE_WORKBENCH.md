@@ -20,10 +20,12 @@ not imply a runnable environment. Every adapter must normalize guest failures in
 and must keep the host shell alive.
 
 The first proven database-session adapter is `sql-session`, implemented by `scripts/sql-runner.py`.
-It runs a learner-authored `.sql` file in a fresh in-memory SQLite database, emits one JSON
-`ExecutionOutcome` on stdout, interrupts work after a finite timeout, and denies `ATTACH`, `DETACH`,
-and `PRAGMA` so the practice session cannot adopt a filesystem-backed database. The browser never
-executes the SQL directly; download the attempt and use:
+It runs a learner-authored `.sql` file in a fresh in-memory SQLite database and emits one JSON
+`ExecutionOutcome` on stdout. The adapter starts its finite execution deadline before statement parsing,
+reads at most 256 KiB of learner input, limits serialized cells to 8 KiB and the final row payload to
+64 KiB, caps result rows, and denies `ATTACH`, `DETACH`, and `PRAGMA` so the practice session cannot
+adopt a filesystem-backed database. The browser never executes the SQL directly; download the attempt
+and use:
 
 ```text
 python scripts/sql-runner.py PATH_TO_ATTEMPT.sql
@@ -31,6 +33,8 @@ python scripts/sql-runner.py PATH_TO_ATTEMPT.sql
 
 A successful adapter result proves that the SQL script executed in that bounded SQLite session. It
 does not prove that the query satisfies an exercise prompt or that the learner has reached mastery.
+A `truncated` result is still execution evidence, but the learner should narrow the query before using
+that result for explanation or debugging evidence.
 
 For embedded Lua specifically, a Lua error is expected to cross the guest boundary as an exception;
 the embedding host catches it and returns a `runtime-error` outcome. Rust panics, Python exceptions,
