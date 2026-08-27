@@ -19,7 +19,7 @@ assistance provenance, bounded cascade recognition, and mastery boundaries are r
 | `practice/` | Known-good reference implementations. |
 | `src/` | React app, Practice Workbench UI, practice registry adapters, and domain contracts. |
 | `tests/` | Executable practice, harness, ledger, workbench, learning-evidence, and promotion tests. |
-| `scripts/` | Validators, media tooling, ledger/frontier, canonical path resolver, promotion policy/E2E, study checker, evidence engine, and harness CLI. |
+| `scripts/` | Validators, local runner adapters, media tooling, ledger/frontier, canonical path resolver, promotion policy/E2E, study checker, evidence engine, and harness CLI. |
 | `harness/` | Operational map, path/promotion contracts, workflows, registries, problem packets, skills, sources, and reports. |
 | `.github/workflows/` | Pull-request validation plus guarded exact-candidate main promotion. |
 | `dist/` | Ignored Vite production build output. |
@@ -37,6 +37,7 @@ assistance provenance, bounded cascade recognition, and mastery boundaries are r
 - Application HTTP E2E: `scripts/application-e2e.py`
 - Practice Workbench contract: `harness/practice-workbench.v1.json`
 - Practice Workbench workflow: `harness/workflows/PRACTICE_WORKBENCH.md`
+- SQL external database-session runner: `scripts/sql-runner.py`
 - Learning-evidence doctrine: `docs/LEARNING_EVIDENCE_DOCTRINE.md`
 - Learning-evidence contract: `content/learning/learning-evidence.v1.json`
 - Learning-event engine: `scripts/learning-evidence.py`
@@ -65,7 +66,8 @@ python scripts/validate-canonical-paths.py
 python scripts/validate-promotion.py
 python tests/test_promotion_contract.py
 python scripts/validate-practice-workbench.py
-python tests/test_practice-workbench_contract.py
+python tests/test_practice_workbench_contract.py
+python tests/test_sql_runner.py
 python scripts/learning-evidence.py validate-contract
 python tests/test_learning_evidence_engine.py
 python scripts/harness.py validate --level quick
@@ -98,6 +100,11 @@ The app does not infer executable capability from the selected language. Runner 
 semantics come from `harness/practice-workbench.v1.json`. Guest throws/panics/compiler failures/database
 errors/process failures/timeouts become normalized outcomes at the adapter boundary. The React host remains
 mounted and recoverable.
+
+SQL is the first proven `database-session` adapter: `scripts/sql-runner.py` executes a downloaded learner
+attempt in a fresh in-memory SQLite session, emits JSON `ExecutionOutcome`, uses a finite progress-handler
+timeout, and denies `ATTACH`, `DETACH`, and `PRAGMA`. This runtime proof does not grade exercise semantics or
+establish learner mastery.
 
 No browser `eval`/`new Function` learner-code execution is approved at this floor.
 
