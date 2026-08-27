@@ -8,11 +8,16 @@
     "studyGuidance": "local-study-exports/study-guidance-YYYYMMDD-HHMM-<origin>.json",
     "sourceImport": "local-study-exports/youtube-playlist-<playlist-id>.json",
     "sourceImportCsv": "local-study-exports/youtube-playlist-<playlist-id>.csv",
-    "mediaBundle": "media-bundles/<study-id>-YYYYMMDD.study-media.zip"
+    "mediaBundle": "media-bundles/<study-id>-YYYYMMDD.study-media.zip",
+    "promotionReceipt": "GitHub Actions artifact promotion-receipt/promotion-receipt.json"
   },
   "artifacts": [
     {"id":"practice-workbench-build","kind":"ignored-build-artifact","path":"dist/","source":"src/ + harness/practice-workbench.v1.json + canonical study packs","generate":["npm","run","build"],"validate":["npm","run","build"]},
-    {"id":"repo-location-proof","kind":"operator-terminal-proof","path":"stdout","source":"Git top-level root plus canonical origin","generate":["pwsh","-NoLogo","-NoProfile","-File","scripts/Resolve-StudySyndicateRepo.ps1","-Json"],"validate":["pwsh","-NoLogo","-NoProfile","-File","scripts/Test-RepoLocationRecovery.ps1"]},
+    {"id":"canonical-path-contract","kind":"tracked-contract","path":"harness/canonical-paths.v1.json","source":"machine/profile-aware development/use/worktree location authority","generate":null,"validate":["python","scripts/validate-canonical-paths.py"]},
+    {"id":"repo-location-proof","kind":"operator-terminal-proof","path":"stdout","source":"harness/canonical-paths.v1.json + OS/profile inputs + canonical Git origin","generate":["pwsh","-NoLogo","-NoProfile","-File","scripts/Resolve-StudySyndicateRepo.ps1","-Json"],"validate":["python","scripts/validate-canonical-paths.py"]},
+    {"id":"promotion-contract","kind":"tracked-contract","path":"harness/promotion-contract.v1.json","source":"exact-candidate main promotion authority","generate":null,"validate":["python","scripts/validate-promotion.py"]},
+    {"id":"application-e2e-proof","kind":"provider-runtime-artifact","path":"GitHub Actions artifact: application-e2e-proof/application-e2e.json","source":"exact candidate dist/ served through npm run preview","generate":["python","scripts/application-e2e.py","--receipt",".promotion/application-e2e.json"],"validate":["python","scripts/validate-promotion.py"]},
+    {"id":"promotion-receipt","kind":"provider-runtime-artifact","path":"GitHub Actions artifact: promotion-receipt/promotion-receipt.json","source":".github/workflows/promote-main.yml exact candidate, required gates, merge response, and containment proof","generate":".github/workflows/promote-main.yml","validate":["python","scripts/validate-promotion.py"]},
     {"id":"parallaxport-study-fodder","kind":"tracked-report","path":"harness/reports/PARALLAXPORT_STUDY_FODDER.md","source":"harness/sources/parallaxport-claims.v1.json","generate":["python","scripts/harness.py","study-fodder"],"validate":["python","scripts/harness.py","study-fodder","--check"]},
     {"id":"harness-state","kind":"tracked-report","path":"harness/reports/STATE.md","generate":null,"validate":["python","scripts/validate-harness.py"]},
     {"id":"learning-evidence-contract","kind":"tracked-contract","path":"content/learning/learning-evidence.v1.json","source":"docs/LEARNING_EVIDENCE_DOCTRINE.md","generate":null,"validate":["python","scripts/learning-evidence.py","validate-contract"]},
