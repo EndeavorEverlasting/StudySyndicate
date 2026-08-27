@@ -60,3 +60,20 @@ Canonical terminal action: `none; no safe actionable work remains`
 - **Last proof:** commit:c3711d81c358a7e77bbc36afe58dda08974ac528 workflow:33037590036 proved Practice Workbench validator, contract tests, 11 SQL runner boundary/regression cases, Oxlint, Vite build, and diff whitespace; workflow:33037590037 proved the repository ledger/frontier contract on Ubuntu and Windows; workflow:33037590068 proved the full registered harness on the same exact candidate
 - **Next action:** none; no safe actionable work remains
 - **Updated:** 2026-08-26T23:52:00-04:00
+
+## SSQ-004 — Verify integrated SQL runner on the canonical Windows checkout
+
+- **Status:** OPERATOR
+- **Priority:** P0
+- **Work class:** BOUNDED
+- **Owner:** windows-operator-20260827
+- **Branch / PR:** `main` / #20 integrated
+- **Scope:** prove that the integrated SQL Practice Workbench adapter is present and executable from the repository-owned canonical Windows checkout or a preservation-first worktree pinned to the integrated main SHA; capture canonical-path resolution, workbench validation, SQL runner regression tests, registered runner identity, and one live `SELECT 1` outcome
+- **Forbidden:** treating the pasted proof command as executed evidence; inventing `FIELD_PROOF=PASS`; overwriting dirty or separately owned Windows work; force-resetting or force-pulling the canonical checkout; using a noncanonical fallback clone; adding the next feature sprint before this runtime gate is dispositioned
+- **Dependencies:** SSQ-003
+- **References:** `scripts/Resolve-StudySyndicateRepo.ps1`, `scripts/validate-practice-workbench.py`, `scripts/sql-runner.py`, `tests/test_sql_runner.py`, `harness/canonical-paths.v1.json`, `harness/practice-workbench.v1.json`, `harness/reports/STATE.md`
+- **Acceptance gate:** operator evidence shows `FIELD_PROOF=PASS`, proves integrated SHA `62872f9f442582b076e79f94d046fe4d4792126d` is contained in refreshed `origin/main`, uses the canonical checkout or preservation-first isolated worktree, passes the owning workbench validator and SQL runner tests, resolves `sql-session` to `scripts/sql-runner.py`, and returns a strict JSON `passed` outcome whose first result value is `1`
+- **Gate:** inaccessible Windows workstation runtime; no `FIELD_PROOF=PASS` output was supplied in the current evidence, so repository/provider proof cannot establish canonical local-use execution
+- **Last proof:** merge:62872f9f442582b076e79f94d046fe4d4792126d workflow:33037724126 proved remote exact-candidate promotion, full harness, application HTTP E2E, containment, and promotion receipt; operator-proof:missing
+- **Next action:** obtain the exact Windows field-proof output from the repository-owned canonical-path command and record `FIELD_PROOF=PASS` plus the observed proof mode and SHA before creating the next feature task
+- **Updated:** 2026-08-27T09:59:00-04:00
