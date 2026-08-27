@@ -73,8 +73,13 @@ def main() -> int:
         fail("SQL runner must bind the registered JSON stdout adapter")
     if not isinstance(sql_runner.get("timeoutMsDefault"), int) or sql_runner["timeoutMsDefault"] <= 0:
         fail("SQL runner must register a finite positive timeout")
-    if "in-memory SQLite" not in sql_runner.get("trustBoundary", ""):
-        fail("SQL runner must disclose its in-memory trust boundary")
+    for key in ("maxInputBytes", "maxResultBytes", "maxCellBytes"):
+        if not isinstance(sql_runner.get(key), int) or sql_runner[key] <= 0:
+            fail(f"SQL runner must register a positive {key} resource budget")
+    if sql_runner["maxCellBytes"] > sql_runner["maxResultBytes"]:
+        fail("SQL cell budget cannot exceed the total result budget")
+    if "in-memory SQLite" not in sql_runner.get("trustBoundary", "") or "budgets" not in sql_runner.get("trustBoundary", ""):
+        fail("SQL runner must disclose its in-memory and resource-budget trust boundary")
 
     lua = next(item for item in languages if item["id"] == "lua")
     if lua["runner"].get("kind") != "embedded-host" or "host catches" not in lua["runner"].get("exceptionModel", ""):
