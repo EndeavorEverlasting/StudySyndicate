@@ -8,6 +8,14 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+trap {
+    $position = [string]$_.InvocationInfo.PositionMessage
+    $stack = [string]$_.ScriptStackTrace
+    [Console]::Error.WriteLine("StudySyndicate SQL field proof FAIL: $($_.Exception.Message)")
+    if (-not [string]::IsNullOrWhiteSpace($position)) { [Console]::Error.WriteLine($position) }
+    if (-not [string]::IsNullOrWhiteSpace($stack)) { [Console]::Error.WriteLine($stack) }
+    exit 1
+}
 
 function Get-DefaultRepositoryPath {
     if ($env:GITHUB_ACTIONS -eq 'true' -and -not [string]::IsNullOrWhiteSpace($env:GITHUB_WORKSPACE)) {
