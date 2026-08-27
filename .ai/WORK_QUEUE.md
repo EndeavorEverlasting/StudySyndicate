@@ -67,13 +67,13 @@ Canonical terminal action: `none; no safe actionable work remains`
 - **Priority:** P0
 - **Work class:** BOUNDED
 - **Owner:** windows-operator-20260827
-- **Branch / PR:** `fix/windows-sql-field-proof-entrypoint-20260827` / #22 repair; #20 SQL integration
+- **Branch / PR:** `main` / #22 integrated
 - **Scope:** prove that the integrated SQL Practice Workbench adapter is present and executable from the repository-owned canonical Windows checkout or a preservation-first worktree pinned to refreshed `origin/main`; capture canonical-path resolution, workbench validation, SQL runner regression tests, registered runner identity, and one live `SELECT 1` outcome through the repository-owned single field-proof entrypoint
 - **Forbidden:** treating pasted commands as executed evidence; inventing `FIELD_PROOF=PASS`; requiring a multi-statement interactive `if`/`else` paste; overwriting dirty or separately owned Windows work; force-resetting or force-pulling the canonical checkout; using a noncanonical fallback clone; allowing provider CI to masquerade as workstation proof; adding the next feature sprint before this runtime gate is dispositioned
 - **Dependencies:** SSQ-003
 - **References:** `scripts/Invoke-StudySyndicateSqlFieldProof.ps1`, `scripts/Resolve-StudySyndicateRepo.ps1`, `scripts/validate-practice-workbench.py`, `scripts/sql-runner.py`, `tests/test_sql_field_proof_contract.py`, `tests/test_sql_runner.py`, `harness/canonical-paths.v1.json`, `harness/practice-workbench.v1.json`, `harness/reports/STATE.md`
 - **Acceptance gate:** operator evidence from `scripts/Invoke-StudySyndicateSqlFieldProof.ps1` shows `FIELD_PROOF=PASS`, proves SQL integration `62872f9f442582b076e79f94d046fe4d4792126d` is contained in the exact refreshed target SHA, uses the canonical checkout or preservation-first isolated worktree, passes the owning workbench validator and SQL runner tests, resolves `sql-session` to `scripts/sql-runner.py`, and returns a strict JSON `passed` outcome whose first result value is `1`
 - **Gate:** inaccessible Windows workstation runtime; the 2026-08-27 operator attempt proved remote ancestry but failed before field execution because an interactive PowerShell `else` was submitted as a separate statement, so no `FIELD_PROOF=PASS` exists yet
-- **Last proof:** merge:45206f4ee5551136a2c8c966905721d7e5d39c0a workflow:33080513483 proved SSQ-004 routing plus remote full harness/application E2E/promotion; operator-proof:interactive-paste-failed-before-field-execution
+- **Last proof:** merge:bf135467bc2d3a93fc66caa5e67aea4e97e7a566 workflow:33093146754 proved the single-entrypoint repair through exact-candidate full harness, application HTTP E2E, guarded merge, containment, and promotion receipt; workflow:33092935741 proved the same field-proof entrypoint on a Windows provider runner with workbench validation, 11 SQL regression cases, registered adapter resolution, and `SELECT 1`, emitting only `PROVIDER_FIELD_PROOF=PASS`; operator-proof:interactive-paste-failed-before-field-execution
 - **Next action:** execute `scripts/Invoke-StudySyndicateSqlFieldProof.ps1` as one PowerShell file invocation from the canonical Windows environment and record its `FIELD_PROOF=PASS`, proof mode, and exact target SHA before creating the next feature task
-- **Updated:** 2026-08-27T12:12:00-04:00
+- **Updated:** 2026-08-27T12:27:00-04:00
