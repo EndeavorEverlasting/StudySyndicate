@@ -24,6 +24,7 @@ export type RelationshipKind =
 
 export type ComponentKind =
   | 'text-content'
+  | 'source-ref'
   | 'media-ref'
   | 'media-usage'
   | 'pmp-map'
@@ -86,6 +87,21 @@ export interface Component<TData = unknown> extends TimestampedRecord {
 export interface TextContentData {
   format: 'markdown' | 'plain-text';
   body: string;
+}
+
+export interface SourceRefData {
+  sourceKind: string;
+  provider: string;
+  locator: string;
+  externalId: string;
+  parentExternalId?: string;
+  playlistIndex?: number;
+  durationSeconds?: number;
+  channelId?: string;
+  thumbnailUrl?: string;
+  uploadDate?: string;
+  viewCount?: number;
+  availability?: string;
 }
 
 export interface VoiceMetadata {
