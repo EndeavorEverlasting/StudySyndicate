@@ -35,6 +35,13 @@ export default function App() {
   )
   const language = getLanguage(session.languageId)
   const facet = workbenchSpec.facets.find((item) => item.id === session.facetId) ?? workbenchSpec.facets[0]
+  const externalCommand =
+    target.id === 'two-sum' && language.id === 'python'
+      ? 'python scripts/study-problem.py check two-sum PATH_TO_ATTEMPT.py'
+      : language.id === 'sql'
+        ? 'python scripts/sql-runner.py PATH_TO_ATTEMPT.sql'
+        : null
+  const externalCommandLabel = language.id === 'sql' ? 'Copy SQL runner' : 'Copy Python checker'
 
   const startSession = (next: PracticeSession) => {
     const nextTarget = practiceTargets.find((item) => item.id === next.targetId) ?? practiceTargets[0]
@@ -61,16 +68,15 @@ export default function App() {
   }
 
   const copyExternalCommand = async () => {
-    if (target.id !== 'two-sum' || language.id !== 'python') return
-    const command = 'python scripts/study-problem.py check two-sum PATH_TO_ATTEMPT.py'
+    if (!externalCommand) return
     try {
       if (!navigator.clipboard) throw new Error('Clipboard API is unavailable in this browser context.')
-      await navigator.clipboard.writeText(command)
+      await navigator.clipboard.writeText(externalCommand)
       setOutcome({
         status: 'unsupported',
         runnerId: language.runner.id,
-        summary: 'Python checker command copied.',
-        detail: command,
+        summary: `${language.label} external runner command copied.`,
+        detail: externalCommand,
         recoverable: true,
       })
     } catch (error) {
@@ -126,8 +132,8 @@ export default function App() {
         <div className="workspace-actions">
           <button type="button" className="primary-button" onClick={requestFeedback}>Check capability</button>
           <button type="button" className="secondary-button" onClick={downloadDraft}>Download attempt</button>
-          {target.id === 'two-sum' && language.id === 'python' && (
-            <button type="button" className="secondary-button" onClick={copyExternalCommand}>Copy Python checker</button>
+          {externalCommand && (
+            <button type="button" className="secondary-button" onClick={copyExternalCommand}>{externalCommandLabel}</button>
           )}
         </div>
       </section>
