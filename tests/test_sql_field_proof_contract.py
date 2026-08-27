@@ -25,6 +25,11 @@ class SqlFieldProofContractTests(unittest.TestCase):
         self.assertNotIn("reset --hard", self.source)
         self.assertNotIn("pull --force", self.source)
 
+    def test_detached_head_is_normalized_without_null_trim(self):
+        self.assertIn("$null -eq $branchRaw", self.source)
+        self.assertIn("{ '' } else { ([string]$branchRaw).Trim() }", self.source)
+        self.assertNotIn("$branch = ([string]$branchRaw).Trim()", self.source)
+
     def test_exact_target_and_required_sql_integration_are_proved(self):
         self.assertIn("merge-base --is-ancestor", self.source)
         self.assertIn("62872f9f442582b076e79f94d046fe4d4792126d", self.source)
