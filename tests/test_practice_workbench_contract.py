@@ -19,6 +19,18 @@ class PracticeWorkbenchContractTests(unittest.TestCase):
                 self.assertIn(runner["status"], {"external-host-available", "available-in-browser", "planned", "unavailable"})
                 self.assertTrue(runner["exceptionModel"])
 
+    def test_sql_runner_is_bound_to_proven_local_adapter(self):
+        sql = next(item for item in SPEC["languages"] if item["id"] == "sql")
+        runner = sql["runner"]
+        self.assertEqual(runner["id"], "sql-session")
+        self.assertEqual(runner["kind"], "database-session")
+        self.assertEqual(runner["status"], "external-host-available")
+        self.assertEqual(runner["adapter"], "scripts/sql-runner.py")
+        self.assertEqual(runner["protocol"], "json-stdout")
+        self.assertGreater(runner["timeoutMsDefault"], 0)
+        self.assertIn("in-memory SQLite", runner["trustBoundary"])
+        self.assertIn("interrupted queries", runner["exceptionModel"])
+
     def test_lua_error_is_host_caught_not_ui_crash(self):
         lua = next(item for item in SPEC["languages"] if item["id"] == "lua")
         self.assertEqual(lua["runner"]["kind"], "embedded-host")
