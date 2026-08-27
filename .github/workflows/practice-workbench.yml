@@ -13,7 +13,9 @@ on:
       - "harness/workflows/PRACTICE_WORKBENCH.md"
       - "harness/skills/runner-adapter/SKILL.md"
       - "scripts/validate-practice-workbench.py"
+      - "scripts/sql-runner.py"
       - "tests/test_practice_workbench_contract.py"
+      - "tests/test_sql_runner.py"
       - ".github/workflows/practice-workbench.yml"
 
 permissions:
@@ -46,6 +48,9 @@ jobs:
 
       - name: Test workbench contracts
         run: python tests/test_practice_workbench_contract.py
+
+      - name: Test SQL runner adapter
+        run: python tests/test_sql_runner.py
 
       - name: Lint app
         run: npm run lint
