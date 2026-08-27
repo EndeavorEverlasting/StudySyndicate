@@ -1,0 +1,94 @@
+{
+  "schema": "study-syndicate/promotion-contract/v1",
+  "repository": "EndeavorEverlasting/StudySyndicate",
+  "target": {
+    "kind": "default-branch",
+    "branch": "main",
+    "mergeMethod": "squash",
+    "unauthorizedTargets": "reject"
+  },
+  "trigger": {
+    "event": "pull_request",
+    "activityType": "ready_for_review",
+    "authorizationGesture": "operator marks a draft PR ready for review",
+    "requiredAuthor": "repository-owner",
+    "requiredHeadRepository": "same-repository",
+    "requiredBase": "main"
+  },
+  "candidateIdentity": {
+    "requireOpenPullRequest": true,
+    "requireSameRepositoryHead": true,
+    "requireBase": "main",
+    "require40HexExpectedHead": true,
+    "recheckImmediatelyBeforeMutation": true,
+    "mergeApiMustReceiveExpectedHeadSha": true
+  },
+  "gates": [
+    {
+      "id": "harness-full",
+      "classification": "REQUIRED",
+      "kind": "harness-e2e",
+      "command": [
+        "python",
+        "scripts/harness.py",
+        "validate",
+        "--level",
+        "full"
+      ],
+      "candidateScoped": true
+    },
+    {
+      "id": "application-http-smoke",
+      "classification": "REQUIRED",
+      "kind": "application-e2e",
+      "command": [
+        "python",
+        "scripts/application-e2e.py",
+        "--receipt",
+        ".promotion/application-e2e.json"
+      ],
+      "candidateScoped": true,
+      "requiresPriorBuild": true
+    }
+  ],
+  "permissions": {
+    "validation": [
+      "contents:read",
+      "pull-requests:read"
+    ],
+    "promotion": [
+      "contents:write",
+      "pull-requests:write"
+    ],
+    "separateWriteJob": true,
+    "adminBypassForbidden": true
+  },
+  "concurrency": {
+    "group": "studysyndicate-promote-main",
+    "cancelInProgress": false
+  },
+  "recursionGuard": {
+    "writerTrigger": "pull_request.ready_for_review-only",
+    "mergePushDoesNotRetriggerWriter": true,
+    "headSynchronizeRequiresFreshReadyForReviewGesture": true
+  },
+  "artifactProof": {
+    "applicationReceipt": "application-e2e-proof",
+    "promotionReceipt": "promotion-receipt",
+    "recordDistDigest": true,
+    "recordProviderRunId": true,
+    "recordCandidateHead": true,
+    "recordBaseSha": true,
+    "recordMergeSha": true
+  },
+  "postPromotion": {
+    "refreshTarget": true,
+    "containment": "git merge-base --is-ancestor <merge_sha> origin/main",
+    "remoteIntegrationDoesNotProveLocalDeployment": true
+  },
+  "proofCeiling": {
+    "providerWorkflowRunRequiredForPipelineRuntimeProof": true,
+    "windowsCanonicalPathRequiresWindowsOperatorReceipt": true,
+    "browserInteractionBeyondHttpSmoke": "not-proven-at-this-floor"
+  }
+}
