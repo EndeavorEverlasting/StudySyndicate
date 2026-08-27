@@ -29,7 +29,7 @@
       "scripts/study-problem.py",
       "tests/test_guided_problem_packet.py",
       "scripts/validate-practice-workbench.py",
-      "tests/test_practice-workbench_contract.py",
+      "tests/test_practice_workbench_contract.py",
       "scripts/learning-evidence.py",
       "tests/test_learning_evidence_engine.py",
       "scripts/study-guidance.py",
