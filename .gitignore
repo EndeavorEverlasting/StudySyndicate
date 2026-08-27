@@ -45,6 +45,7 @@ tmp/
 # Test artifacts
 playwright-report/
 test-results/
+.promotion/
 
 # Local study exports and binary media bundles
 local-study-exports/
