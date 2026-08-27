@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sqlite3
 import time
 from pathlib import Path
@@ -23,6 +24,10 @@ MAX_SQLITE_VALUE_BYTES = 64 * 1024
 MAX_DETAIL_CHARS = 8000
 
 
+class StatementSplitTimeout(RuntimeError):
+    pass
+
+
 def outcome(status: str, summary: str, detail: str, *, data: dict[str, Any] | None = None) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "status": status,
@@ -36,18 +41,74 @@ def outcome(status: str, summary: str, detail: str, *, data: dict[str, Any] | No
     return payload
 
 
-def split_statements(script: str) -> list[str]:
+def split_statements(script: str, deadline: float) -> list[str]:
+    """Split at SQLite-complete top-level semicolons without rescanning quoted semicolons."""
     statements: list[str] = []
-    buffer: list[str] = []
-    for char in script:
-        buffer.append(char)
+    start = 0
+    index = 0
+    quote_close: str | None = None
+    line_comment = False
+    block_comment = False
+
+    while index < len(script):
+        if index % 256 == 0 and time.monotonic() >= deadline:
+            raise StatementSplitTimeout
+
+        char = script[index]
+        next_char = script[index + 1] if index + 1 < len(script) else ""
+
+        if line_comment:
+            if char in "\r\n":
+                line_comment = False
+            index += 1
+            continue
+
+        if block_comment:
+            if char == "*" and next_char == "/":
+                block_comment = False
+                index += 2
+            else:
+                index += 1
+            continue
+
+        if quote_close is not None:
+            if char == quote_close:
+                if quote_close in {"'", '"', "`"} and next_char == quote_close:
+                    index += 2
+                    continue
+                quote_close = None
+            index += 1
+            continue
+
+        if char == "-" and next_char == "-":
+            line_comment = True
+            index += 2
+            continue
+        if char == "/" and next_char == "*":
+            block_comment = True
+            index += 2
+            continue
+        if char in {"'", '"', "`"}:
+            quote_close = char
+            index += 1
+            continue
+        if char == "[":
+            quote_close = "]"
+            index += 1
+            continue
+
         if char == ";":
-            candidate = "".join(buffer)
+            candidate = script[start : index + 1]
             if sqlite3.complete_statement(candidate):
                 if candidate.strip():
                     statements.append(candidate.strip())
-                buffer = []
-    tail = "".join(buffer).strip()
+                start = index + 1
+            if time.monotonic() >= deadline:
+                raise StatementSplitTimeout
+
+        index += 1
+
+    tail = script[start:].strip()
     if tail:
         statements.append(tail)
     return statements
@@ -62,8 +123,13 @@ def bounded_text(value: str, max_bytes: int = MAX_CELL_BYTES) -> tuple[str, bool
 
 
 def bounded_json_value(value: Any) -> tuple[Any, bool]:
-    if value is None or isinstance(value, (int, float)):
+    if value is None or isinstance(value, int):
         return value, False
+    if isinstance(value, float):
+        if math.isfinite(value):
+            return value, False
+        label = "NaN" if math.isnan(value) else ("Infinity" if value > 0 else "-Infinity")
+        return {"nonFiniteFloat": label}, False
     if isinstance(value, str):
         return bounded_text(value)
     if isinstance(value, bytes):
@@ -79,7 +145,7 @@ def bounded_json_value(value: Any) -> tuple[Any, bool]:
 
 
 def install_authorizer(connection: sqlite3.Connection) -> None:
-    denied = {
+    denied_actions = {
         code
         for code in (
             getattr(sqlite3, "SQLITE_ATTACH", None),
@@ -88,15 +154,21 @@ def install_authorizer(connection: sqlite3.Connection) -> None:
         )
         if code is not None
     }
+    function_action = getattr(sqlite3, "SQLITE_FUNCTION", None)
 
     def authorize(
         action_code: int,
-        _arg1: str | None,
-        _arg2: str | None,
+        arg1: str | None,
+        arg2: str | None,
         _db: str | None,
         _trigger: str | None,
     ) -> int:
-        return sqlite3.SQLITE_DENY if action_code in denied else sqlite3.SQLITE_OK
+        if action_code in denied_actions:
+            return sqlite3.SQLITE_DENY
+        function_name = (arg2 or arg1 or "").lower()
+        if function_action is not None and action_code == function_action and function_name == "load_extension":
+            return sqlite3.SQLITE_DENY
+        return sqlite3.SQLITE_OK
 
     connection.set_authorizer(authorize)
 
@@ -115,7 +187,6 @@ def execute_sql(script: str, timeout_ms: int) -> dict[str, Any]:
     timed_out = False
 
     connection = sqlite3.connect(":memory:", isolation_level=None)
-    connection.enable_load_extension(False)
     if hasattr(connection, "setlimit"):
         connection.setlimit(sqlite3.SQLITE_LIMIT_LENGTH, MAX_SQLITE_VALUE_BYTES)
         connection.setlimit(sqlite3.SQLITE_LIMIT_COLUMN, MAX_COLUMNS)
@@ -130,7 +201,11 @@ def execute_sql(script: str, timeout_ms: int) -> dict[str, Any]:
 
     connection.set_progress_handler(interrupt_expired_query, 1000)
 
-    statements = split_statements(script)
+    try:
+        statements = split_statements(script, deadline)
+    except StatementSplitTimeout:
+        connection.close()
+        return timeout_outcome(timeout_ms, "input parsing")
     if time.monotonic() >= deadline:
         connection.close()
         return timeout_outcome(timeout_ms, "input parsing")
@@ -160,7 +235,9 @@ def execute_sql(script: str, timeout_ms: int) -> dict[str, Any]:
                 truncated = True
                 truncation_reason = "column-limit"
 
-            result_bytes = len(json.dumps(last_columns, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+            result_bytes = len(
+                json.dumps(last_columns, ensure_ascii=False, allow_nan=False, separators=(",", ":")).encode("utf-8")
+            )
             if result_bytes > MAX_RESULT_BYTES:
                 return outcome(
                     "failed",
@@ -181,7 +258,9 @@ def execute_sql(script: str, timeout_ms: int) -> dict[str, Any]:
                     bounded_row.append(encoded_value)
                     cell_truncated = cell_truncated or value_was_truncated
 
-                row_bytes = len(json.dumps(bounded_row, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+                row_bytes = len(
+                    json.dumps(bounded_row, ensure_ascii=False, allow_nan=False, separators=(",", ":")).encode("utf-8")
+                )
                 if result_bytes + row_bytes > MAX_RESULT_BYTES:
                     truncated = True
                     truncation_reason = "result-byte-budget"
@@ -266,7 +345,7 @@ def main() -> int:
     else:
         script, read_failure = read_attempt(path)
         payload = read_failure if read_failure is not None else execute_sql(script or "", args.timeout_ms)
-    print(json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")))
+    print(json.dumps(payload, ensure_ascii=False, allow_nan=False, sort_keys=True, separators=(",", ":")))
     return 0
 
 
