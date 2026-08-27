@@ -15,6 +15,7 @@ APP = ROOT / "src" / "App.tsx"
 MODAL = ROOT / "src" / "components" / "PracticeModal.tsx"
 CATALOG = ROOT / "src" / "practice" / "catalog.ts"
 EXECUTION = ROOT / "src" / "practice" / "execution.ts"
+SQL_RUNNER = ROOT / "scripts" / "sql-runner.py"
 WORKFLOW = ROOT / "harness" / "workflows" / "PRACTICE_WORKBENCH.md"
 SKILL = ROOT / "harness" / "skills" / "runner-adapter" / "SKILL.md"
 
@@ -64,6 +65,17 @@ def main() -> int:
             if not runner.get(key):
                 fail(f"language {language.get('id')} missing runner {key}")
 
+    sql = next(item for item in languages if item["id"] == "sql")
+    sql_runner = sql["runner"]
+    if sql_runner.get("kind") != "database-session" or sql_runner.get("status") != "external-host-available":
+        fail("SQL runner must be an explicitly available external database session")
+    if sql_runner.get("adapter") != "scripts/sql-runner.py" or sql_runner.get("protocol") != "json-stdout":
+        fail("SQL runner must bind the registered JSON stdout adapter")
+    if not isinstance(sql_runner.get("timeoutMsDefault"), int) or sql_runner["timeoutMsDefault"] <= 0:
+        fail("SQL runner must register a finite positive timeout")
+    if "in-memory SQLite" not in sql_runner.get("trustBoundary", ""):
+        fail("SQL runner must disclose its in-memory trust boundary")
+
     lua = next(item for item in languages if item["id"] == "lua")
     if lua["runner"].get("kind") != "embedded-host" or "host catches" not in lua["runner"].get("exceptionModel", ""):
         fail("Lua must explicitly model guest error -> host catch")
@@ -100,7 +112,7 @@ def main() -> int:
         if not scripts.get(script):
             fail(f"package.json missing {script} script")
 
-    source_paths = [APP, MODAL, CATALOG, EXECUTION, WORKFLOW, SKILL]
+    source_paths = [APP, MODAL, CATALOG, EXECUTION, SQL_RUNNER, WORKFLOW, SKILL]
     for path in source_paths:
         if not path.is_file():
             fail(f"missing workbench surface: {path.relative_to(ROOT)}")
@@ -113,6 +125,9 @@ def main() -> int:
     for literal in ("draggable", "onDrop", "premise-panel", "workspace-panel", "feedback-panel", "anchor.remove()", "URL.revokeObjectURL(url), 1000"):
         if literal not in app:
             fail(f"App missing required UI mechanic: {literal}")
+    for literal in ("python scripts/sql-runner.py PATH_TO_ATTEMPT.sql", "Copy SQL runner"):
+        if literal not in app:
+            fail(f"App missing SQL external-runner affordance: {literal}")
     for literal in ('role="dialog"', "Study target", "Facet", "Language / environment", "Study mode", "handleTargetChange", "masteryBlocked && draft.mode === 'mastery'"):
         if literal not in modal:
             fail(f"modal missing session safety/control: {literal}")
@@ -135,7 +150,7 @@ def main() -> int:
     print(
         "practice workbench validation PASS: "
         f"{len(languages)} languages, {len(facets)} facets, "
-        f"{len(spec.get('sourceTracks') or [])} source tracks, host-safe execution boundary"
+        f"{len(spec.get('sourceTracks') or [])} source tracks, SQL host runner, host-safe execution boundary"
     )
     return 0
 
