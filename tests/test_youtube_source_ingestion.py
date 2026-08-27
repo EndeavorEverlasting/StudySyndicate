@@ -66,6 +66,49 @@ class YoutubeSourceIngestionTests(unittest.TestCase):
         self.assertIn("with commas,\nand a newline", rows[1]["description"])
         self.assertEqual(rows[1]["donor_commit"], "94eba4c156af080e87caf10cf8ffbea03bd17407")
 
+    def test_repeated_video_preserves_occurrences_without_duplicate_actor(self):
+        raw = json.loads(json.dumps(self.raw))
+        repeated = dict(raw["entries"][0])
+        repeated["playlist_index"] = 3
+        raw["entries"].append(repeated)
+        document = INGEST.normalize_playlist(
+            raw,
+            requested_url=raw["webpage_url"],
+            extractor_version="2026.08.19",
+            mode="full",
+            captured_at="2026-08-26T21:00:00Z",
+        )
+        video_actors = [item for item in document["actors"] if item["id"] == "source:youtube:video:videoA001"]
+        self.assertEqual(len(video_actors), 1)
+        occurrences = [rel for rel in document["relationships"] if rel["toActorId"] == "source:youtube:video:videoA001"]
+        self.assertEqual([rel["order"] for rel in occurrences], [1, 3])
+        self.assertEqual(len({rel["id"] for rel in occurrences}), 2)
+        rows = INGEST.csv_rows(document)
+        self.assertEqual([row["playlist_index"] for row in rows if row["video_id"] == "videoA001"], [1, 3])
+
+    def test_csv_neutralizes_spreadsheet_formulas_without_changing_json(self):
+        raw = json.loads(json.dumps(self.raw))
+        raw["entries"][0]["title"] = "=HYPERLINK(\"https://example.invalid\",\"click\")"
+        raw["entries"][0]["channel"] = "+SUM(1,1)"
+        raw["entries"][0]["description"] = "@danger"
+        document = INGEST.normalize_playlist(
+            raw,
+            requested_url=raw["webpage_url"],
+            extractor_version="2026.08.19",
+            mode="full",
+            captured_at="2026-08-26T21:00:00Z",
+        )
+        actor = next(item for item in document["actors"] if item["id"] == "source:youtube:video:videoA001")
+        self.assertTrue(actor["label"].startswith("="))
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "playlist.csv"
+            INGEST.write_csv(document, path)
+            with path.open("r", encoding="utf-8-sig", newline="") as handle:
+                row = next(csv.DictReader(handle))
+        self.assertTrue(row["title"].startswith("'="))
+        self.assertTrue(row["channel"].startswith("'+"))
+        self.assertTrue(row["description"].startswith("'@"))
+
     def test_command_never_downloads_media(self):
         full = INGEST.build_yt_dlp_command("yt-dlp", "https://example.invalid/playlist", "full")
         flat = INGEST.build_yt_dlp_command("yt-dlp", "https://example.invalid/playlist", "flat")
