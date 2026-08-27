@@ -29,11 +29,13 @@
       "scripts/study-problem.py",
       "tests/test_guided_problem_packet.py",
       "scripts/validate-practice-workbench.py",
-      "tests/test_practice_workbench_contract.py",
+      "tests/test_practice-workbench_contract.py",
       "scripts/learning-evidence.py",
       "tests/test_learning_evidence_engine.py",
       "scripts/study-guidance.py",
       "tests/test_study_guidance.py",
+      "scripts/validate-source-ingestion.py",
+      "tests/test_youtube_source_ingestion.py",
       ".github/workflows/harness-infrastructure.yml",
       ".github/workflows/practice-workbench.yml"
     ],
@@ -51,7 +53,12 @@
       "harness/reports/PARALLAXPORT_STUDY_FODDER.md",
       "harness/reports/LEARNING_EVIDENCE_STATE.md"
     ],
-    "sourceAdapters": ["harness/sources/parallaxport-claims.v1.json"]
+    "sourceAdapters": [
+      "harness/sources/parallaxport-claims.v1.json",
+      "harness/sources/youtube-playlist-donor.v1.json",
+      "content/learning/source-import.v1.json",
+      "scripts/source-ingest-youtube.py"
+    ]
   },
   "workflows": [
     {"id": "guided-study", "trigger": "The learner does not know how to begin, needs the problem premise recited, needs hints, or needs executable feedback.", "entrypoint": "harness/workflows/GUIDED_STUDY.md", "skillRefs": ["harness/skills/documentation-lookup/SKILL.md", "harness/skills/guided-feedback/SKILL.md"]},
