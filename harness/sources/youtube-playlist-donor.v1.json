@@ -1,0 +1,97 @@
+{
+  "schema": "study-syndicate/cross-repo-contribution/v1",
+  "version": 1,
+  "consumer": {
+    "repository": "EndeavorEverlasting/StudySyndicate",
+    "targetLayer": "source ingestion adapter + factored source records",
+    "outputContract": "content/learning/source-import.v1.json"
+  },
+  "donors": [
+    {
+      "id": "yt-dlp",
+      "repository": "yt-dlp/yt-dlp",
+      "commit": "94eba4c156af080e87caf10cf8ffbea03bd17407",
+      "license": "Unlicense",
+      "disposition": "ADOPT",
+      "authority": "runtime extraction and YouTube parser behavior",
+      "authoritativePaths": [
+        "yt_dlp/extractor/youtube/_tab.py"
+      ],
+      "capabilities": [
+        "playlist enumeration",
+        "continuation handling",
+        "normalized video metadata",
+        "JSON serialization"
+      ],
+      "runtimeCommand": "yt-dlp",
+      "compatibility": {
+        "requiredFlags": ["--skip-download", "--dump-single-json"],
+        "flatModeFlag": "--flat-playlist",
+        "versionPolicy": "Record the runtime yt-dlp version in every import; this manifest pins the inspected implementation rather than claiming all later versions are equivalent."
+      },
+      "mustNotCopy": [
+        "YouTube HTML parsers",
+        "InnerTube continuation logic",
+        "site-specific extractor implementation"
+      ],
+      "proofCeiling": "Source-level extraction mechanics inspected at the pinned commit; live playlist behavior remains runtime proof."
+    },
+    {
+      "id": "tubearchivist",
+      "repository": "tubearchivist/tubearchivist",
+      "commit": "1f480944013a406b9e4d28725f529564c43afc3b",
+      "license": "GPL-3.0",
+      "disposition": "REFERENCE_ONLY",
+      "authority": "reference pattern for converting yt-dlp results into durable local playlist/video records",
+      "authoritativePaths": [
+        "backend/playlist/src/index.py",
+        "backend/download/src/yt_dlp_handler.py"
+      ],
+      "capabilities": [
+        "normalize external extraction into local records",
+        "preserve playlist order and membership",
+        "refresh local metadata without replacing extractor authority"
+      ],
+      "mustNotCopy": [
+        "GPL source code",
+        "Elasticsearch persistence stack",
+        "download/archive subsystem"
+      ],
+      "proofCeiling": "Reference-only mechanism; no source copied into StudySyndicate."
+    },
+    {
+      "id": "newpipe-extractor",
+      "repository": "TeamNewPipe/NewPipeExtractor",
+      "commit": "9d31e09745354423a7f01a13d9d55b86fdc23601",
+      "license": "GPL-3.0",
+      "disposition": "REFERENCE_ONLY",
+      "authority": "reference pattern for continuation and large-playlist regression coverage",
+      "authoritativePaths": [
+        "extractor/src/test/java/org/schabi/newpipe/extractor/services/youtube/YoutubePlaylistExtractorTest.java"
+      ],
+      "capabilities": [
+        "continuation regression tests",
+        "large-playlist test cases",
+        "unavailable playlist failure cases"
+      ],
+      "mustNotCopy": [
+        "GPL source code",
+        "Java extractor implementation"
+      ],
+      "proofCeiling": "Reference-only validation pattern; StudySyndicate owns its adapter tests."
+    }
+  ],
+  "ownership": {
+    "youtubeParsing": "yt-dlp/yt-dlp",
+    "studySourceSchema": "EndeavorEverlasting/StudySyndicate:content/learning/source-import.v1.json",
+    "adapter": "EndeavorEverlasting/StudySyndicate:scripts/source-ingest-youtube.py",
+    "csvProjection": "EndeavorEverlasting/StudySyndicate:content/learning/source-import.v1.json#csvProjection",
+    "consumerValidation": "EndeavorEverlasting/StudySyndicate:scripts/validate-source-ingestion.py + tests/test_youtube_source_ingestion.py"
+  },
+  "collisionBoundaries": [
+    "StudySyndicate never parses YouTube page structures itself.",
+    "CSV is a projection of the canonical normalized JSON records, not a second metadata authority.",
+    "Media bundle transport remains owned by scripts/media-bundle.py and is not replaced by source ingestion.",
+    "Source imports are study fodder/provenance and do not become mastery evidence."
+  ]
+}

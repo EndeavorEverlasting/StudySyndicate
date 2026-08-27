@@ -1,0 +1,80 @@
+{
+  "schema": "study-syndicate/source-import-contract/v1",
+  "version": 1,
+  "outputSchema": "study-syndicate/source-import/v1",
+  "purpose": "Normalize external study sources into StudySyndicate factored source actors while preserving extractor provenance and offering a spreadsheet-ready CSV projection.",
+  "authority": {
+    "domainModel": "src/domain/factored.ts",
+    "extractorDonorManifest": "harness/sources/youtube-playlist-donor.v1.json",
+    "adapter": "scripts/source-ingest-youtube.py"
+  },
+  "recordContract": {
+    "topLevelRequired": [
+      "schema",
+      "importId",
+      "capturedAt",
+      "provider",
+      "playlistActorId",
+      "actors",
+      "relationships",
+      "components",
+      "extraction"
+    ],
+    "actorKinds": [
+      "source"
+    ],
+    "relationshipKinds": [
+      "contains"
+    ],
+    "componentKinds": [
+      "source-ref",
+      "text-content",
+      "provenance"
+    ],
+    "sourceKinds": [
+      "playlist",
+      "video"
+    ],
+    "sourceRefRequired": [
+      "sourceKind",
+      "provider",
+      "locator",
+      "externalId"
+    ]
+  },
+  "csvProjection": {
+    "rowKind": "video-source",
+    "encoding": "utf-8-sig",
+    "columns": [
+      "import_id",
+      "playlist_id",
+      "playlist_title",
+      "playlist_url",
+      "playlist_index",
+      "video_id",
+      "title",
+      "url",
+      "channel",
+      "channel_id",
+      "duration_seconds",
+      "upload_date",
+      "view_count",
+      "availability",
+      "thumbnail_url",
+      "description",
+      "extractor",
+      "extractor_version",
+      "donor_commit"
+    ],
+    "authorityRule": "CSV is a projection derived from the normalized JSON actor/component/relationship graph. CSV never becomes a competing source schema.",
+    "cellSafety": "String cells beginning with =, +, -, or @ are prefixed with an apostrophe in CSV only; canonical JSON remains unchanged."
+  },
+  "rules": [
+    "The external extractor owns site-specific parsing; the adapter only invokes it and normalizes returned fields.",
+    "The playlist and each distinct video are source actors; every playlist occurrence is preserved by a unique ordered contains relationship, so repeated videos reuse the source actor without losing positions.",
+    "Descriptions are text-content components; provider locators and durable external identifiers are source-ref components.",
+    "Every import records the runtime extractor version and the pinned donor commit used as the reference floor.",
+    "Source imports can seed study fodder but are not learner attempts, learning evidence, or mastery proof.",
+    "Generated JSON/CSV belong under local-study-exports by default and must not be committed as repository truth."
+  ]
+}
