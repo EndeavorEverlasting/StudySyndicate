@@ -1,6 +1,6 @@
 # Operator State Report
 
-Status refreshed for the bounded SQL runner proof floor on 2026-08-26.
+Status refreshed for the reviewed bounded SQL runner proof floor on 2026-08-26.
 
 ## Working
 
@@ -27,11 +27,15 @@ Status refreshed for the bounded SQL runner proof floor on 2026-08-26.
 - Python, Rust, SQL, C, JavaScript, TypeScript, Java, and Lua have explicit runner kinds and statuses.
 - Python Two Sum feedback is externally available through `scripts/study-problem.py`.
 - SQL is externally available through `scripts/sql-runner.py`: every invocation uses a fresh in-memory SQLite
-  database, emits normalized JSON `ExecutionOutcome`, enforces a finite timeout, and denies `ATTACH`, `DETACH`,
-  and `PRAGMA`. The browser exposes the command but does not execute learner SQL directly.
-- SQL adapter proof on candidate `ca51c31ad86f0f78d3a3ae9d520735c5146ad11e` passed success, guest-error,
-  timeout, and attachment-denial tests in Practice Workbench workflow `33037110899`; full registered harness
-  workflow `33037110990` also passed on that exact candidate.
+  database, emits strict normalized JSON `ExecutionOutcome`, enforces a finite execution/parsing deadline,
+  reads at most 256 KiB of learner input, bounds individual values before serialization, caps serialized row
+  payload at 64 KiB, and denies `ATTACH`, `DETACH`, `PRAGMA`, and the `load_extension` SQL function. The browser
+  exposes the command but does not execute learner SQL directly.
+- Reviewed SQL adapter proof on candidate `c3711d81c358a7e77bbc36afe58dda08974ac528` passed 11 boundary and
+  regression cases in Practice Workbench workflow `33037590036`, including success, guest error, execution
+  timeout, semicolon-heavy parsing, invalid UTF-8, load-extension denial, strict non-finite JSON, input budget,
+  cell budget, result budget, and attachment denial. Repository ledger workflow `33037590037` passed on Ubuntu
+  and Windows, and full registered harness workflow `33037590068` passed on that exact candidate.
 - Guest-code failure is a host-boundary contract: exceptions, panics, compiler errors, database errors,
   process failures, and timeouts normalize to `ExecutionOutcome`; they do not become React-shell crashes.
 - ParallaxPort public skill claims remain versioned study fodder rather than mastery proof.
@@ -63,7 +67,8 @@ Status refreshed for the bounded SQL runner proof floor on 2026-08-26.
 - A green harness does not substitute for the separate application E2E required by the promotion contract.
 - A language in the Practice Workbench selector does **not** mean the runner is available; use its registered status.
 - Do not let guest exceptions/panics/database errors escape into React event handlers.
-- Do not weaken the SQL trust boundary by attaching filesystem databases or enabling unrestricted PRAGMA access.
+- Do not weaken the SQL trust boundary by attaching filesystem databases, enabling unrestricted PRAGMA access,
+  restoring optional load-extension APIs, removing input/result budgets, or emitting non-standard JSON numbers.
 - Do not shorten a problem packet until the premise loses inputs, output, guarantees, or example context.
 - Drag-and-drop changes panel presentation only; it must not alter mastery or runner semantics.
 - Do not promote an exercise-catalog prompt to `mastery` until it is converted into a premise-first packet.
