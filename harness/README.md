@@ -5,19 +5,21 @@ This directory is the operational entry point for agents and operators. It does 
 
 ## If the shell lost the repository
 
-If Git says `fatal: not a git repository`, do not assume the clone is missing and do not create a second clone immediately. Recover the durable root first with `harness/workflows/REPO_LOCATION_RECOVERY.md`.
+If Git says `fatal: not a git repository`, do not assume the clone is missing and do not create a second clone immediately. Start with `harness/canonical-paths.v1.json` and `harness/workflows/REPO_LOCATION_RECOVERY.md`.
 
-The common Windows durable path is `C:\Users\<user>\Desktop\Dev\StudySyndicate`. A shell at `C:\Users\<user>\Dev` or `C:\Users\<user>` is outside that repository even though the folder names look similar. A detached `%TEMP%\StudySyndicate-*` worktree is also not the durable clone.
+For the Windows operator profile, the durable rule is **Windows Desktop Known Folder -> `Dev\StudySyndicate`**. Resolve Desktop with `Environment.SpecialFolder.Desktop`; do not assume `%USERPROFILE%\Desktop` and do not rewrite the location under OneDrive unless Windows has actually redirected the Desktop Known Folder there. Parallel worktrees belong under the sibling `Dev\StudySyndicate-worktrees` root, not in another durable clone.
 
-Once this checkout is reachable, the tracked resolver can prove the root and run ledger intake without depending on the current directory:
+Once this checkout is reachable, the tracked resolver proves the selected profile, canonical path, Git origin, branch, and HEAD and can run quick intake without depending on the current directory:
 
 ```powershell
 pwsh -NoLogo -NoProfile -File scripts/Resolve-StudySyndicateRepo.ps1 -RunHarness
 ```
 
+A noncanonical checkout is evidence to preserve and inspect, not fallback authority.
+
 ## First five minutes
 
-1. Prove the repository root. If location is uncertain, use `harness/workflows/REPO_LOCATION_RECOVERY.md` first.
+1. Prove the repository root. If location is uncertain, use `harness/canonical-paths.v1.json` and `harness/workflows/REPO_LOCATION_RECOVERY.md` first.
 2. Read `AGENTS.md`.
 3. Run `python scripts/get-repo-ledger-frontier.py --prompt` before free-form planning.
 4. If the packet says `EXECUTE`, work only that bounded task. If it says `DECOMPOSE`, create bounded child tasks before implementation. If it says `EMPTY`, do not invent work.
@@ -41,10 +43,14 @@ available; `harness/practice-workbench.v1.json` owns that capability state.
 - `.ai/WORK_QUEUE.md` — canonical repository coordination ledger; implementation truth remains in repository-owned evidence surfaces.
 - `.ai/README.md` — ledger intake, routes, authority/version pins, and weak-model rules.
 - `scripts/get-repo-ledger-frontier.py` — deterministic one-task frontier and copy/paste sprint packet generator.
-- `scripts/Resolve-StudySyndicateRepo.ps1` — canonical-origin repository locator for shell/worktree recovery.
+- `harness/canonical-paths.v1.json` — machine/profile-aware development, use, and worktree path authority.
+- `scripts/Resolve-StudySyndicateRepo.ps1` — executable canonical-path/profile resolver and path-input receipt generator.
 - `CODEBASE_MAP.md` — repository layout, entry points, commands, and current build/deploy floor.
 - `WORKFLOW_SPECS.md` — task pickup, failure handling, validation, and handoff.
-- `workflows/REPO_LOCATION_RECOVERY.md` — recovery workflow for wrong-directory and detached-worktree traps.
+- `workflows/REPO_LOCATION_RECOVERY.md` — fail-closed recovery workflow for wrong-directory and worktree/path-drift traps.
+- `harness/promotion-contract.v1.json` — exact-candidate promotion authority for `main`.
+- `workflows/PROMOTION.md` — provider promotion graph, proof levels, permissions, and failure handoff.
+- `.github/workflows/promote-main.yml` — GitHub orchestration that validates and promotes only the exact authorized candidate.
 - `workflows/PRACTICE_WORKBENCH.md` — browser practice workflow and execution-capability boundary.
 - `practice-workbench.v1.json` — language, facet, panel, and runner-capability contract.
 - `harness-manifest.v1.json` — machine-readable component inventory and workflow selector.
@@ -69,8 +75,11 @@ python scripts/harness.py workflows
 python scripts/harness.py start guided-study
 python scripts/harness.py start practice-workbench
 python scripts/harness.py study-fodder
+python scripts/validate-canonical-paths.py
+python scripts/validate-promotion.py
+python tests/test_promotion_contract.py
 python scripts/validate-practice-workbench.py
-python tests/test_practice_workbench_contract.py
+python tests/test_practice-workbench_contract.py
 npm run lint
 npm run build
 python scripts/harness.py validate --level quick
@@ -80,7 +89,9 @@ python scripts/harness.py validate --level full
 Windows location proof:
 
 ```powershell
-pwsh -NoLogo -NoProfile -File scripts/Resolve-StudySyndicateRepo.ps1 -Json
+$Desktop = [Environment]::GetFolderPath([Environment+SpecialFolder]::Desktop)
+$Repo = Join-Path $Desktop 'Dev\StudySyndicate'
+& (Join-Path $Repo 'scripts\Resolve-StudySyndicateRepo.ps1') -StartPath (Get-Location).Path -Json
 ```
 
 Install the tracked hooks only when you intentionally want this checkout to use them:
@@ -88,6 +99,12 @@ Install the tracked hooks only when you intentionally want this checkout to use 
 ```bash
 git config core.hooksPath .githooks
 ```
+
+## Promotion proof is separate from workstation deployment
+
+Marking an owner-authored same-repository draft PR ready for review is the explicit promotion gesture at this floor. `Promote Exact Candidate` then pins the PR head SHA, runs the canonical full harness, runs a distinct application HTTP E2E through the built Vite preview entrypoint, rechecks the candidate immediately before mutation, squash-merges with the expected-head guard, proves containment in refreshed `main`, and emits a promotion receipt.
+
+That provider receipt proves remote integration only. It does not prove the Windows canonical development checkout is current, that the same-path local use role has consumed the version, or that `npm run dev` has been observed on the workstation.
 
 ## Runner capability is explicit
 
