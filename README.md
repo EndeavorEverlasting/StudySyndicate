@@ -74,6 +74,46 @@ sessions, attempts, and media; connect them through typed relationships; and att
 scheduling, provenance, and UI details as components. See [`docs/DOMAIN_MODEL.md`](docs/DOMAIN_MODEL.md)
 and [`src/domain/factored.ts`](src/domain/factored.ts).
 
+## YouTube Playlist Source Ingestion
+
+YouTube playlists can become first-class study fodder without making StudySyndicate maintain a second
+YouTube scraper. `yt-dlp` owns YouTube page parsing and continuation behavior; StudySyndicate invokes that
+extractor, records its runtime version, and normalizes the result into the repository's generic `source`
+actors, ordered `contains` relationships, `source-ref` metadata, descriptions, and provenance.
+
+On Windows, install the extractor when needed with:
+
+```powershell
+winget install --id yt-dlp.yt-dlp -e
+```
+
+Then import a playlist with one command:
+
+```bash
+python scripts/source-ingest-youtube.py "https://www.youtube.com/playlist?list=PLAYLIST_ID"
+```
+
+The default full mode does not download video media. It writes both canonical normalized JSON and a
+spreadsheet-ready UTF-8 CSV projection under the ignored `local-study-exports/` directory:
+
+- `local-study-exports/youtube-playlist-<playlist-id>.json`
+- `local-study-exports/youtube-playlist-<playlist-id>.csv`
+
+Use `--mode flat` for a faster playlist census when full per-video metadata is unnecessary. The CSV is a
+projection of the normalized JSON contract, not an independent source schema. The contract and pinned donor
+references live in [`content/learning/source-import.v1.json`](content/learning/source-import.v1.json) and
+[`harness/sources/youtube-playlist-donor.v1.json`](harness/sources/youtube-playlist-donor.v1.json).
+
+Validate the contribution without network access using the committed synthetic fixture:
+
+```bash
+python scripts/validate-source-ingestion.py
+python tests/test_youtube_source_ingestion.py
+```
+
+Imported sources can seed study guidance and later concept/exercise derivation, but source metadata itself is
+not learner evidence and does not imply mastery.
+
 ## Multimodal Media and Voice Nodes
 
 Audio, images, and video are first-class reusable `media` actors. A flashcard attaches them through
@@ -175,7 +215,7 @@ Validate the workbench contract with:
 
 ```bash
 python scripts/validate-practice-workbench.py
-python tests/test_practice-workbench_contract.py
+python tests/test_practice_workbench_contract.py
 ```
 
 ## Operational Harness
@@ -251,6 +291,7 @@ Key operational/application paths include:
 - `scripts/validate-practice-workbench.py` — cross-file workbench validator.
 - `tests/test_practice_workbench_contract.py` — language/runner/modal/drag-drop contract tests.
 - `docs/DOMAIN_MODEL.md` / `src/domain/factored.ts` — factored study-domain authority.
+- `content/learning/source-import.v1.json` / `scripts/source-ingest-youtube.py` — external source normalization and YouTube adapter boundary.
 - `docs/MULTIMODAL_MEDIA.md` / `content/media/multimodal-media-contract.v1.json` — media authority.
 - `docs/PMP_STUDY_SYSTEM.md` / `content/pmp/mvp-spec.v1.json` — PMP study-system authority.
 - `docs/software/SQL_RUST_FOUNDATIONS.md` / `content/software/sql-rust-foundations.v1.json` — SQL/Rust authority.
