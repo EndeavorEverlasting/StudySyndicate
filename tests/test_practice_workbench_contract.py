@@ -28,7 +28,11 @@ class PracticeWorkbenchContractTests(unittest.TestCase):
         self.assertEqual(runner["adapter"], "scripts/sql-runner.py")
         self.assertEqual(runner["protocol"], "json-stdout")
         self.assertGreater(runner["timeoutMsDefault"], 0)
+        self.assertEqual(runner["maxInputBytes"], 256 * 1024)
+        self.assertEqual(runner["maxResultBytes"], 64 * 1024)
+        self.assertEqual(runner["maxCellBytes"], 8 * 1024)
         self.assertIn("in-memory SQLite", runner["trustBoundary"])
+        self.assertIn("budgets", runner["trustBoundary"])
         self.assertIn("interrupted queries", runner["exceptionModel"])
 
     def test_lua_error_is_host_caught_not_ui_crash(self):
