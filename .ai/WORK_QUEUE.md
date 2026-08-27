@@ -46,17 +46,17 @@ Canonical terminal action: `none; no safe actionable work remains`
 
 ## SSQ-003 — Prove the first real Practice Workbench execution adapter
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P0
 - **Work class:** BOUNDED
-- **Owner:** unclaimed
-- **Branch / PR:** none / none
+- **Owner:** sqlite-practice-runner-20260826
+- **Branch / PR:** `feat/sqlite-practice-runner-20260826` / #20
 - **Scope:** implement exactly one runner adapter behind `harness/practice-workbench.v1.json`; prove success, guest failure normalization, and timeout/cancellation while keeping the host shell usable; update only that runner status after proof
 - **Forbidden:** implementing multiple language runners in one sprint; direct browser `eval` or `new Function`; cloud execution service; secrets; weakening the premise-first packet or mastery contracts; unrelated curriculum rewrites
 - **Dependencies:** SSQ-001, SSQ-002
-- **References:** `harness/workflows/PRACTICE_WORKBENCH.md`, `src/practice/execution.ts`, `harness/practice-workbench.v1.json`
+- **References:** `harness/workflows/PRACTICE_WORKBENCH.md`, `scripts/sql-runner.py`, `tests/test_sql_runner.py`, `harness/practice-workbench.v1.json`
 - **Acceptance gate:** one adapter has targeted pass/failure/timeout tests; guest exceptions/errors normalize to registered `ExecutionOutcome`; the React shell remains recoverable; owning validator plus npm run lint and npm run build pass; runner status matches observed runtime proof
 - **Gate:** none
-- **Last proof:** commit:752da1ae46d60a4b5b62d553e51314dba905fb2c establishes the tested host-safe UI/runner contract; no runtime adapter proof exists yet
-- **Next action:** create one registered runner adapter with finite timeout/cancellation, add pass/failure/timeout tests, and update only that runner status after observed runtime proof
-- **Updated:** 2026-08-10T19:18:00-04:00
+- **Last proof:** commit:c3711d81c358a7e77bbc36afe58dda08974ac528 workflow:33037590036 proved Practice Workbench validator, contract tests, 11 SQL runner boundary/regression cases, Oxlint, Vite build, and diff whitespace; workflow:33037590037 proved the repository ledger/frontier contract on Ubuntu and Windows; workflow:33037590068 proved the full registered harness on the same exact candidate
+- **Next action:** none; no safe actionable work remains
+- **Updated:** 2026-08-26T23:52:00-04:00
