@@ -248,58 +248,58 @@ def normalize_playlist(
         video_id = str(entry.get("id", "")).strip()
         if not video_id:
             fail(f"playlist entry {offset} is missing a video id")
-        if video_id in seen_ids:
-            fail(f"playlist contains duplicate video id {video_id!r}")
-        seen_ids.add(video_id)
 
         actor_id = f"source:youtube:video:{video_id}"
-        title = str(entry.get("title") or video_id).strip()
-        actors.append(
-            {
-                "id": actor_id,
-                "kind": "source",
-                "label": title,
-                "createdAt": captured,
-                "updatedAt": captured,
-            }
-        )
-
         playlist_index = int_or_none(entry.get("playlist_index")) or offset
-        source_ref: dict[str, Any] = {
-            "sourceKind": "video",
-            "provider": YT_PROVIDER,
-            "locator": canonical_video_url(entry),
-            "externalId": video_id,
-            "parentExternalId": playlist_id,
-            "playlistIndex": playlist_index,
-        }
-        optional = {
-            "durationSeconds": int_or_none(entry.get("duration")),
-            "channelId": entry.get("channel_id") or entry.get("uploader_id"),
-            "thumbnailUrl": thumbnail_url(entry),
-            "uploadDate": entry.get("upload_date") or entry.get("release_date"),
-            "viewCount": int_or_none(entry.get("view_count")),
-            "availability": entry.get("availability"),
-        }
-        for key, value in optional.items():
-            if value not in (None, ""):
-                source_ref[key] = value
 
-        author = str(entry.get("channel") or entry.get("uploader") or "").strip() or None
-        add_source_components(
-            components,
-            actor_id,
-            captured,
-            source_ref,
-            import_id=import_id,
-            author=author,
-            extractor_version=extractor_version,
-            description=entry.get("description") if isinstance(entry.get("description"), str) else None,
-            provenance_source_id=playlist_actor_id,
-        )
+        if video_id not in seen_ids:
+            seen_ids.add(video_id)
+            title = str(entry.get("title") or video_id).strip()
+            actors.append(
+                {
+                    "id": actor_id,
+                    "kind": "source",
+                    "label": title,
+                    "createdAt": captured,
+                    "updatedAt": captured,
+                }
+            )
+
+            source_ref: dict[str, Any] = {
+                "sourceKind": "video",
+                "provider": YT_PROVIDER,
+                "locator": canonical_video_url(entry),
+                "externalId": video_id,
+                "parentExternalId": playlist_id,
+            }
+            optional = {
+                "durationSeconds": int_or_none(entry.get("duration")),
+                "channelId": entry.get("channel_id") or entry.get("uploader_id"),
+                "thumbnailUrl": thumbnail_url(entry),
+                "uploadDate": entry.get("upload_date") or entry.get("release_date"),
+                "viewCount": int_or_none(entry.get("view_count")),
+                "availability": entry.get("availability"),
+            }
+            for key, value in optional.items():
+                if value not in (None, ""):
+                    source_ref[key] = value
+
+            author = str(entry.get("channel") or entry.get("uploader") or "").strip() or None
+            add_source_components(
+                components,
+                actor_id,
+                captured,
+                source_ref,
+                import_id=import_id,
+                author=author,
+                extractor_version=extractor_version,
+                description=entry.get("description") if isinstance(entry.get("description"), str) else None,
+                provenance_source_id=playlist_actor_id,
+            )
+
         relationships.append(
             {
-                "id": f"relationship:contains:{playlist_id}:{video_id}",
+                "id": f"relationship:contains:{playlist_id}:{offset}:{video_id}",
                 "kind": "contains",
                 "fromActorId": playlist_actor_id,
                 "toActorId": actor_id,
@@ -376,7 +376,7 @@ def csv_rows(document: dict[str, Any]) -> list[dict[str, Any]]:
             "playlist_id": playlist_ref.get("externalId", ""),
             "playlist_title": playlist_actor.get("label", ""),
             "playlist_url": playlist_ref.get("locator", ""),
-            "playlist_index": ref.get("playlistIndex", rel.get("order", "")),
+            "playlist_index": rel.get("order", ""),
             "video_id": ref.get("externalId", ""),
             "title": actor.get("label", ""),
             "url": ref.get("locator", ""),
@@ -401,14 +401,25 @@ def write_json(document: dict[str, Any], path: Path) -> None:
     path.write_text(json.dumps(document, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
+def spreadsheet_safe_cell(value: Any) -> Any:
+    """Neutralize formula-like strings in CSV only; canonical JSON remains unchanged."""
+    if isinstance(value, str) and value.startswith(("=", "+", "-", "@")):
+        return "'" + value
+    return value
+
+
 def write_csv(document: dict[str, Any], path: Path) -> None:
     columns = load_contract()["csvProjection"]["columns"]
     rows = csv_rows(document)
+    safe_rows = [
+        {key: spreadsheet_safe_cell(value) for key, value in row.items()}
+        for row in rows
+    ]
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8-sig", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=columns, extrasaction="raise")
         writer.writeheader()
-        writer.writerows(rows)
+        writer.writerows(safe_rows)
 
 
 def build_yt_dlp_command(executable: str, url: str, mode: str) -> list[str]:
