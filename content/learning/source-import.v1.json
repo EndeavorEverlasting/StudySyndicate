@@ -20,11 +20,27 @@
       "components",
       "extraction"
     ],
-    "actorKinds": ["source"],
-    "relationshipKinds": ["contains"],
-    "componentKinds": ["source-ref", "text-content", "provenance"],
-    "sourceKinds": ["playlist", "video"],
-    "sourceRefRequired": ["sourceKind", "provider", "locator", "externalId"]
+    "actorKinds": [
+      "source"
+    ],
+    "relationshipKinds": [
+      "contains"
+    ],
+    "componentKinds": [
+      "source-ref",
+      "text-content",
+      "provenance"
+    ],
+    "sourceKinds": [
+      "playlist",
+      "video"
+    ],
+    "sourceRefRequired": [
+      "sourceKind",
+      "provider",
+      "locator",
+      "externalId"
+    ]
   },
   "csvProjection": {
     "rowKind": "video-source",
@@ -50,11 +66,12 @@
       "extractor_version",
       "donor_commit"
     ],
-    "authorityRule": "CSV is a projection derived from the normalized JSON actor/component/relationship graph. CSV never becomes a competing source schema."
+    "authorityRule": "CSV is a projection derived from the normalized JSON actor/component/relationship graph. CSV never becomes a competing source schema.",
+    "cellSafety": "String cells beginning with =, +, -, or @ are prefixed with an apostrophe in CSV only; canonical JSON remains unchanged."
   },
   "rules": [
     "The external extractor owns site-specific parsing; the adapter only invokes it and normalizes returned fields.",
-    "The playlist and each video are source actors; ordered contains relationships preserve playlist membership.",
+    "The playlist and each distinct video are source actors; every playlist occurrence is preserved by a unique ordered contains relationship, so repeated videos reuse the source actor without losing positions.",
     "Descriptions are text-content components; provider locators and durable external identifiers are source-ref components.",
     "Every import records the runtime extractor version and the pinned donor commit used as the reference floor.",
     "Source imports can seed study fodder but are not learner attempts, learning evidence, or mastery proof.",
