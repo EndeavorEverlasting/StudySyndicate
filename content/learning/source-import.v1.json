@@ -2,7 +2,7 @@
   "schema": "study-syndicate/source-import-contract/v1",
   "version": 1,
   "outputSchema": "study-syndicate/source-import/v1",
-  "purpose": "Normalize external study sources into StudySyndicate factored source actors while preserving extractor provenance and offering a spreadsheet-ready CSV projection.",
+  "purpose": "Normalize external YouTube study sources into StudySyndicate factored source actors while preserving extractor provenance, ordered occurrences, completeness, and a spreadsheet-ready CSV projection.",
   "authority": {
     "domainModel": "src/domain/factored.ts",
     "extractorDonorManifest": "harness/sources/youtube-playlist-donor.v1.json",
@@ -14,10 +14,15 @@
       "importId",
       "capturedAt",
       "provider",
+      "inputKind",
+      "rootActorId",
       "playlistActorId",
       "actors",
       "relationships",
+      "occurrences",
       "components",
+      "completeness",
+      "inputCensus",
       "extraction"
     ],
     "actorKinds": [
@@ -33,6 +38,12 @@
     ],
     "sourceKinds": [
       "playlist",
+      "source-list",
+      "video"
+    ],
+    "inputKinds": [
+      "playlist",
+      "url-list",
       "video"
     ],
     "sourceRefRequired": [
@@ -40,17 +51,45 @@
       "provider",
       "locator",
       "externalId"
+    ],
+    "occurrenceRequired": [
+      "id",
+      "position",
+      "positionSource",
+      "sourceActorId",
+      "externalId",
+      "status",
+      "tombstone"
+    ],
+    "positionSources": [
+      "playlist_index",
+      "encounter_order",
+      "input_order"
+    ],
+    "occurrenceStatuses": [
+      "AVAILABLE",
+      "UNAVAILABLE"
+    ],
+    "completenessStates": [
+      "COMPLETE",
+      "PARTIAL",
+      "EMPTY_CONFIRMED",
+      "EMPTY_UNPROVEN",
+      "FAILED"
     ]
   },
   "csvProjection": {
-    "rowKind": "video-source",
+    "rowKind": "source-occurrence",
     "encoding": "utf-8-sig",
     "columns": [
       "import_id",
+      "input_kind",
       "playlist_id",
       "playlist_title",
       "playlist_url",
       "playlist_index",
+      "position_source",
+      "occurrence_status",
       "video_id",
       "title",
       "url",
@@ -62,19 +101,44 @@
       "availability",
       "thumbnail_url",
       "description",
+      "completeness_state",
       "extractor",
       "extractor_version",
       "donor_commit"
     ],
-    "authorityRule": "CSV is a projection derived from the normalized JSON actor/component/relationship graph. CSV never becomes a competing source schema.",
+    "authorityRule": "CSV is a projection derived from the normalized JSON actor/component/occurrence graph. CSV never becomes a competing source schema.",
     "cellSafety": "String cells beginning with =, +, -, or @ are prefixed with an apostrophe in CSV only; canonical JSON remains unchanged."
+  },
+  "inputCensus": {
+    "appliesTo": "explicit ordered URL lists",
+    "requiredFields": [
+      "occurrenceCount",
+      "uniqueVideoCount",
+      "uniqueVideoIds",
+      "repeatedVideoIds",
+      "unparseableEntries"
+    ],
+    "identityRule": "Tracking/share parameters such as si do not create a new video identity; repeated input occurrences retain every original position."
+  },
+  "pathSafety": {
+    "defaultOutputRoot": "local-study-exports",
+    "protectedInputs": [
+      "the --input-json fixture/saved extractor response when supplied",
+      "content/learning/source-import.v1.json",
+      "harness/sources/youtube-playlist-donor.v1.json"
+    ],
+    "rule": "Resolve protected input and generated output paths before writing. Reject equal resolved paths before any write."
   },
   "rules": [
     "The external extractor owns site-specific parsing; the adapter only invokes it and normalizes returned fields.",
-    "The playlist and each distinct video are source actors; every playlist occurrence is preserved by a unique ordered contains relationship, so repeated videos reuse the source actor without losing positions.",
+    "A single video is valid input and does not require an invented playlist container.",
+    "The playlist or explicit source-list container and each distinct video are source actors; every observed occurrence is preserved, so repeated videos reuse the source actor without losing positions.",
+    "Unavailable or null collection slots remain occurrence tombstones and contribute to PARTIAL or FAILED completeness rather than silently shrinking occurrence count.",
+    "Prefer extractor playlist_index when present; otherwise use encounter order and record positionSource. Explicit URL lists use input_order.",
     "Descriptions are text-content components; provider locators and durable external identifiers are source-ref components.",
     "Every import records the runtime extractor version and the pinned donor commit used as the reference floor.",
     "Source imports can seed study fodder but are not learner attempts, learning evidence, or mastery proof.",
-    "Generated JSON/CSV belong under local-study-exports by default and must not be committed as repository truth."
+    "Generated JSON/CSV belong under local-study-exports by default and must not be committed as repository truth.",
+    "CSV is derived from canonical JSON, uses utf-8-sig, and neutralizes spreadsheet formula prefixes without modifying canonical JSON values."
   ]
 }
