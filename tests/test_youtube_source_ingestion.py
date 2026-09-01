@@ -41,7 +41,7 @@ class YoutubeSourceIngestionTests(unittest.TestCase):
             captured_at="2026-08-26T21:00:00Z",
         )
 
-    def test_factored_records_preserve_playlist_order_and_position_source(self):
+    def test_factored_records_preserve_playlist_order_metadata_and_fallback_source(self):
         self.assertEqual(self.document["schema"], "study-syndicate/source-import/v1")
         self.assertEqual(self.document["inputKind"], "playlist")
         self.assertEqual(self.document["playlistActorId"], "source:youtube:playlist:PL_TEST_123")
@@ -52,6 +52,41 @@ class YoutubeSourceIngestionTests(unittest.TestCase):
             ["encounter_order", "encounter_order"],
         )
         self.assertEqual(self.document["completeness"]["state"], "COMPLETE")
+        refs = {
+            item["ownerId"]: item["data"]
+            for item in self.document["components"]
+            if item["kind"] == "source-ref"
+        }
+        playlist_ref = refs["source:youtube:playlist:PL_TEST_123"]
+        self.assertEqual(playlist_ref["channelId"], "UC_PLAYLIST_OWNER")
+        self.assertEqual(refs["source:youtube:video:videoA001"]["durationSeconds"], 615)
+        self.assertEqual(
+            refs["source:youtube:video:videoB002"]["thumbnailUrl"],
+            "https://i.ytimg.com/vi/videoB002/maxresdefault.jpg",
+        )
+        rows = INGEST.csv_rows(self.document)
+        self.assertEqual(rows[1]["donor_commit"], "94eba4c156af080e87caf10cf8ffbea03bd17407")
+        self.assertIn("東京", rows[1]["description"])
+        self.assertIn('embedded "quote"', rows[1]["description"])
+
+    def test_playlist_index_is_preferred_when_extractor_supplies_it(self):
+        raw = json.loads(json.dumps(self.raw))
+        raw["entries"][0]["playlist_index"] = 11
+        raw["entries"][1]["playlist_index"] = 17
+        document = INGEST.normalize_collection(
+            raw,
+            requested_url=raw["webpage_url"],
+            extractor_version="2026.08.19",
+            mode="full",
+            captured_at="2026-08-26T21:00:00Z",
+        )
+        self.assertEqual([item["position"] for item in document["occurrences"]], [11, 17])
+        self.assertEqual(
+            [item["positionSource"] for item in document["occurrences"]],
+            ["playlist_index", "playlist_index"],
+        )
+        self.assertEqual([rel["order"] for rel in document["relationships"]], [11, 17])
+        self.assertEqual([rel["positionSource"] for rel in document["relationships"]], ["playlist_index", "playlist_index"])
 
     def test_explicit_packet_corpus_census_is_26_occurrences_24_unique(self):
         corpus = json.loads(URL_CORPUS.read_text(encoding="utf-8"))["urls"]
