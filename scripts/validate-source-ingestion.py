@@ -161,8 +161,9 @@ def validate_repo_surfaces() -> None:
             fail(f"README missing source-ingestion navigation: {literal}")
 
     run_sheet = RUN_SHEET.read_text(encoding="utf-8")
-    for literal in ("multiple video URLs", "completeness", "path collision", "local-study-exports", "--input-json", "PowerShell"):
-        if literal not in run_sheet:
+    run_sheet_lower = run_sheet.lower()
+    for literal in ("multiple video urls", "completeness", "path collision", "local-study-exports", "--input-json", "powershell"):
+        if literal not in run_sheet_lower:
             fail(f"YouTube source run sheet missing {literal!r}")
 
     workflow = WORKFLOW.read_text(encoding="utf-8")
