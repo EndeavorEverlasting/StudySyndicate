@@ -2,6 +2,9 @@
 param(
     [string]$StartPath = (Get-Location).Path,
     [string]$ProfileKey,
+    [ValidateSet('ACTIVE','QUIESCED','OFFLINE','UNKNOWN')]
+    [string]$ProdUseState = 'UNKNOWN',
+    [switch]$RequireMutationSafe,
     [switch]$Json,
     [switch]$RunHarness
 )
@@ -143,6 +146,66 @@ function Paths-Equal([string]$Left, [string]$Right) {
     }
 }
 
+function Path-IsWithin([string]$Candidate, [string]$Root) {
+    if ([string]::IsNullOrWhiteSpace($Candidate) -or [string]::IsNullOrWhiteSpace($Root)) { return $false }
+    try {
+        $candidateFull = [IO.Path]::GetFullPath($Candidate).TrimEnd([char[]]@('\','/'))
+        $rootFull = [IO.Path]::GetFullPath($Root).TrimEnd([char[]]@('\','/'))
+        if (Paths-Equal $candidateFull $rootFull) { return $true }
+        $comparison = if ($IsWindows) { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+        return $candidateFull.StartsWith($rootFull + [IO.Path]::DirectorySeparatorChar, $comparison)
+    }
+    catch {
+        return $false
+    }
+}
+
+function Get-ExecutionContextReceipt {
+    $platform = if ($IsWindows) { 'windows' } elseif ($IsLinux) { 'linux' } elseif ($IsMacOS) { 'macos' } else { 'unknown' }
+    $shell = if ($PSVersionTable.PSEdition -eq 'Core') { 'pwsh' } else { 'powershell' }
+    $target = if ($env:GITHUB_ACTIONS -eq 'true') { 'CI' } else { 'local' }
+    $pathSemantics = if ($IsWindows) { 'windows-drive-letter-backslash' } else { 'posix-root-slash' }
+    $fsSemantics = if ($IsWindows) { 'case-insensitive-by-default; symlink/junctions-material' } else { 'case-sensitive-by-default; symlinks/mounts-material' }
+
+    return [ordered]@{
+        terminalSurface = [string]$Host.Name
+        shellInterpreter = $shell
+        platform = $platform
+        runtimeBoundary = "PowerShell/$($PSVersionTable.PSVersion) $($PSVersionTable.PSEdition)"
+        executionTarget = $target
+        pathSemantics = $pathSemantics
+        filesystemSemantics = $fsSemantics
+    }
+}
+
+function Find-ActiveUseConsumer([string]$CanonicalPath) {
+    if (-not $IsWindows -or [string]::IsNullOrWhiteSpace($CanonicalPath)) { return $null }
+    try {
+        $escaped = [regex]::Escape([IO.Path]::GetFullPath($CanonicalPath).TrimEnd([char[]]@('\','/')))
+        $processes = @(Get-CimInstance Win32_Process -ErrorAction Stop | Where-Object {
+            $commandLine = [string]$_.CommandLine
+            -not [string]::IsNullOrWhiteSpace($commandLine) -and
+            $commandLine -match $escaped -and
+            $commandLine -match '(?i)(npm|node|vite|studysyndicate)'
+        })
+        if ($processes.Count -gt 0) {
+            return [ordered]@{
+                count = $processes.Count
+                processIds = @($processes | ForEach-Object { [int]$_.ProcessId })
+                evidence = 'Win32_Process command line references canonical use path and npm/node/vite/StudySyndicate'
+            }
+        }
+    }
+    catch {
+        return [ordered]@{
+            count = $null
+            processIds = @()
+            evidence = "consumer inspection unavailable: $($_.Exception.Message)"
+        }
+    }
+    return $null
+}
+
 $profile = Get-Profile $ProfileKey
 $desktopKnownFolder = Get-DesktopKnownFolder
 $canonicalDevelopmentPath = Resolve-ProfilePath $profile.development $desktopKnownFolder
@@ -153,6 +216,7 @@ if ($profile.use.relation -ne 'same-as-development') {
 $canonicalUsePath = $canonicalDevelopmentPath
 $canonicalWorktreeRoot = Resolve-ProfilePath $profile.worktree $desktopKnownFolder
 $oneDriveState = Get-OneDriveState $desktopKnownFolder
+$executionContextReceipt = Get-ExecutionContextReceipt
 
 $observedPath = Normalize-ExistingPath $StartPath
 $observedRepoRoot = Get-RepositoryRoot $StartPath
@@ -164,7 +228,8 @@ $safeNextAction = ''
 $evidenceSources = @(
     'harness/canonical-paths.v1.json',
     'native environment/profile selection',
-    'Git origin identity check'
+    'Git origin identity check',
+    'PowerShell runtime execution-context receipt'
 )
 
 if ($profile.key -eq 'windows-desktop-dev') {
@@ -208,7 +273,15 @@ if ($canonicalRepoRoot) {
 }
 
 $observedClassification = if ($observedRepoRoot) {
-    if (Paths-Equal $observedRepoRoot $canonicalDevelopmentPath) { 'CLONE' } else { 'CLONE_NONCANONICAL' }
+    if (Paths-Equal $observedRepoRoot $canonicalDevelopmentPath) {
+        'CLONE'
+    }
+    elseif (Path-IsWithin $observedRepoRoot $canonicalWorktreeRoot) {
+        'WORKTREE'
+    }
+    else {
+        'CLONE_NONCANONICAL'
+    }
 }
 elseif ($observedPath) {
     'NON_REPOSITORY_PATH'
@@ -217,10 +290,47 @@ else {
     'UNKNOWN'
 }
 
+$activeConsumer = Find-ActiveUseConsumer $canonicalUsePath
+$prodUseStateSource = 'unproved-default'
+$resolvedProdUseState = 'UNKNOWN'
+if ($profile.key -eq 'github-actions') {
+    $resolvedProdUseState = 'OFFLINE'
+    $prodUseStateSource = 'profile-not-a-workstation-deployment'
+}
+elseif ($activeConsumer -and $activeConsumer.count -gt 0) {
+    $resolvedProdUseState = 'ACTIVE'
+    $prodUseStateSource = 'process-evidence'
+    $evidenceSources += [string]$activeConsumer.evidence
+}
+elseif ($PSBoundParameters.ContainsKey('ProdUseState')) {
+    $resolvedProdUseState = $ProdUseState
+    $prodUseStateSource = 'explicit-operator-assertion'
+    $evidenceSources += "explicit production-use state assertion: $ProdUseState"
+}
+elseif ($activeConsumer -and $null -eq $activeConsumer.count) {
+    $resolvedProdUseState = 'UNKNOWN'
+    $prodUseStateSource = 'consumer-inspection-unavailable'
+    $evidenceSources += [string]$activeConsumer.evidence
+}
+
+$mutationSafety = 'NOT_APPLICABLE'
+if ($profile.use.relation -eq 'same-as-development' -and $profile.development.mutable -eq $true) {
+    switch ($resolvedProdUseState) {
+        'QUIESCED' { $mutationSafety = 'SAFE_SAME_PATH_QUIESCED' }
+        'OFFLINE' { $mutationSafety = 'SAFE_SAME_PATH_OFFLINE' }
+        'ACTIVE' { $mutationSafety = 'BLOCKED_ACTIVE_PRODUCTION' }
+        default { $mutationSafety = 'BLOCKED_UNKNOWN_PRODUCTION' }
+    }
+}
+
+if ($status -eq 'CANONICAL + PROVED' -and $mutationSafety -like 'BLOCKED_*') {
+    $safeNextAction = "Production/use shares '$canonicalUsePath' with development and PROD_USE_STATE=$resolvedProdUseState. Do not mutate that path in place; quiesce the consumer or isolate candidate work under '$canonicalWorktreeRoot'."
+}
+
 $payload = [ordered]@{
     schema = 'studysyndicate.path-input-receipt.v1'
     repository = $expectedRepository
-    platform = $(if ($IsWindows) { 'windows' } elseif ($IsLinux) { 'linux' } elseif ($IsMacOS) { 'macos' } else { 'unknown' })
+    platform = [string]$executionContextReceipt.platform
     profileKey = [string]$profile.key
     desktopKnownFolder = $desktopKnownFolder
     oneDriveState = $oneDriveState
@@ -230,6 +340,11 @@ $payload = [ordered]@{
     pathRelation = [string]$profile.use.relation
     entrypoint = @($profile.use.entrypoint)
     productionDeployment = [string]$profile.use.productionDeployment
+    executionContext = $executionContextReceipt
+    prodUseState = $resolvedProdUseState
+    prodUseStateSource = $prodUseStateSource
+    activeConsumerEvidence = $activeConsumer
+    mutationSafety = $mutationSafety
     observedPath = $observedPath
     observedRepoRoot = $observedRepoRoot
     observedClassification = $observedClassification
@@ -251,9 +366,13 @@ else {
     Write-Host "USE=$canonicalUsePath"
     Write-Host "WORKTREES=$canonicalWorktreeRoot"
     Write-Host "ENTRYPOINT=$(@($payload.entrypoint) -join ' ')"
+    Write-Host "EXECUTION_TARGET=$($executionContextReceipt.executionTarget)"
+    Write-Host "SHELL=$($executionContextReceipt.shellInterpreter)"
     Write-Host "OBSERVED=$observedPath"
     Write-Host "OBSERVED_REPO=$observedRepoRoot"
     Write-Host "ONEDRIVE_STATE=$oneDriveState"
+    Write-Host "PROD_USE_STATE=$resolvedProdUseState"
+    Write-Host "MUTATION_SAFETY=$mutationSafety"
     Write-Host "NEXT=$safeNextAction"
 }
 
@@ -262,7 +381,16 @@ if ($status -ne 'CANONICAL + PROVED') {
     exit 2
 }
 
+if ($RequireMutationSafe -and $mutationSafety -like 'BLOCKED_*') {
+    Write-Error "StudySyndicate production-use mutation guard failed closed: PROD_USE_STATE=$resolvedProdUseState; MUTATION_SAFETY=$mutationSafety. $safeNextAction"
+    exit 3
+}
+
 if ($RunHarness) {
+    if ($mutationSafety -like 'BLOCKED_*' -and $profile.use.relation -eq 'same-as-development') {
+        Write-Error "RunHarness is blocked because the canonical checkout is also the use path and production-use state is not mutation-safe. Re-run from an approved worktree or prove QUIESCED/OFFLINE state."
+        exit 3
+    }
     & python (Join-Path $canonicalRepoRoot 'scripts/harness.py') validate --level quick
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
