@@ -38,6 +38,18 @@ function Assert-Resolution([string]$StartPath) {
         throw 'Use path must equal development path at this floor.'
     }
 
+    foreach ($field in @('terminalSurface','shellInterpreter','platform','runtimeBoundary','executionTarget','pathSemantics','filesystemSemantics')) {
+        if ([string]::IsNullOrWhiteSpace([string]$payload.executionContext.$field)) {
+            throw "Execution context receipt missing '$field'."
+        }
+    }
+    if ([string]::IsNullOrWhiteSpace([string]$payload.prodUseState)) {
+        throw 'Resolver did not emit prodUseState.'
+    }
+    if ([string]::IsNullOrWhiteSpace([string]$payload.mutationSafety)) {
+        throw 'Resolver did not emit mutationSafety.'
+    }
+
     if ($payload.profileKey -eq 'github-actions') {
         $expected = (Resolve-Path -LiteralPath $repoRoot).Path
         $actual = (Resolve-Path -LiteralPath $payload.canonicalDevelopmentPath).Path
@@ -47,10 +59,13 @@ function Assert-Resolution([string]$StartPath) {
         if ($payload.oneDriveState -ne 'NOT_APPLICABLE') {
             throw "Provider profile must report OneDrive NOT_APPLICABLE, got $($payload.oneDriveState)"
         }
+        if ($payload.prodUseState -ne 'OFFLINE') {
+            throw "Provider profile must report production use OFFLINE, got $($payload.prodUseState)"
+        }
     }
 }
 
 Assert-Resolution $repoRoot
 Assert-Resolution (Join-Path $repoRoot 'harness/skills')
 
-Write-Host 'repo location recovery PASS: tracked profile contract resolves one canonical checkout and rejects fallback authority'
+Write-Host 'repo location recovery PASS: tracked profile resolves one checkout, emits execution context + prodUseState, and rejects fallback authority'
