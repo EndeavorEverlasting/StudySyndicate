@@ -4,7 +4,7 @@
   "repositoryRemote": "https://github.com/EndeavorEverlasting/StudySyndicate.git",
   "precedence": [
     "tracked-profile-contract",
-    "explicit-profile-selection",
+    "authorized-machine-profile-override",
     "native-os-special-folder-resolution",
     "verified-existing-checkout-evidence"
   ],
@@ -33,7 +33,12 @@
           "run",
           "dev"
         ],
-        "productionDeployment": "none-separate-at-this-floor"
+        "productionDeployment": "none-separate-at-this-floor",
+        "consumerStateRequiredBeforeMutation": true,
+        "safeMutationStates": [
+          "QUIESCED",
+          "OFFLINE"
+        ]
       },
       "worktree": {
         "classification": "WORKTREE_ROOT",
@@ -72,7 +77,9 @@
           "--level",
           "full"
         ],
-        "productionDeployment": "not-applicable"
+        "productionDeployment": "not-applicable",
+        "consumerStateRequiredBeforeMutation": false,
+        "safeMutationStates": []
       },
       "worktree": null,
       "cloudPolicy": {
@@ -89,7 +96,33 @@
     "unknownStatus": "UNKNOWN",
     "forbidSilentFallback": true,
     "forbidSecondMutableCheckoutWhenCanonicalUsable": true,
-    "preserveDirtyUnpushedUniqueWork": true
+    "preserveDirtyUnpushedUniqueWork": true,
+    "unknownProductionUseBlocksSamePathMutation": true,
+    "activeProductionUseBlocksInPlaceMutation": true
+  },
+  "executionContextReceipt": {
+    "required": [
+      "terminalSurface",
+      "shellInterpreter",
+      "platform",
+      "runtimeBoundary",
+      "executionTarget",
+      "pathSemantics",
+      "filesystemSemantics"
+    ]
+  },
+  "productionUseState": {
+    "states": [
+      "ACTIVE",
+      "QUIESCED",
+      "OFFLINE",
+      "UNKNOWN"
+    ],
+    "defaultWhenNotProved": "UNKNOWN",
+    "samePathMutationAllowedOnlyWhen": [
+      "QUIESCED",
+      "OFFLINE"
+    ]
   },
   "pathInputReceipt": {
     "required": [
@@ -103,7 +136,10 @@
       "observedPath",
       "observedRepoRoot",
       "status",
-      "evidenceSources"
+      "evidenceSources",
+      "executionContext",
+      "prodUseState",
+      "mutationSafety"
     ]
   }
 }
