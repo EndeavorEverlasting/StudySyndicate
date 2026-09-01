@@ -17,6 +17,7 @@ VALIDATION = ROOT / "harness" / "validation-manifest.v1.json"
 HARNESS = ROOT / "harness" / "harness-manifest.v1.json"
 README = ROOT / "README.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "harness-infrastructure.yml"
+URL_CORPUS = ROOT / "tests" / "fixtures" / "youtube-url-corpus.json"
 
 
 class ValidationError(AssertionError):
@@ -69,28 +70,99 @@ def validate_contract(contract: dict[str, Any]) -> None:
         fail("unexpected source-import contract schema/version")
     if contract.get("outputSchema") != "study-syndicate/source-import/v1":
         fail("unexpected normalized output schema")
+
     record = contract.get("recordContract") or {}
     if record.get("actorKinds") != ["source"] or "contains" not in (record.get("relationshipKinds") or []):
         fail("source import must use source actors with ordered contains relationships")
     if not {"source-ref", "text-content", "provenance"} <= set(record.get("componentKinds") or []):
         fail("source import component contract is incomplete")
+    if set(record.get("sourceKinds") or []) != {"playlist", "source-list", "video"}:
+        fail("source import must support playlist, explicit source-list, and video source kinds")
+    if set(record.get("inputKinds") or []) != {"playlist", "url-list", "video"}:
+        fail("source import input kinds drifted")
+    required_top = {
+        "inputKind",
+        "rootActorId",
+        "playlistActorId",
+        "occurrences",
+        "completeness",
+        "inputCensus",
+    }
+    if not required_top <= set(record.get("topLevelRequired") or []):
+        fail("normalized source contract is missing occurrence/completeness top-level fields")
+    occurrence_required = {"id", "position", "positionSource", "sourceActorId", "externalId", "status", "tombstone"}
+    if not occurrence_required <= set(record.get("occurrenceRequired") or []):
+        fail("occurrence tombstone contract is incomplete")
+    if set(record.get("positionSources") or []) != {"playlist_index", "encounter_order", "input_order"}:
+        fail("position source vocabulary drifted")
+    if set(record.get("completenessStates") or []) != {
+        "COMPLETE",
+        "PARTIAL",
+        "EMPTY_CONFIRMED",
+        "EMPTY_UNPROVEN",
+        "FAILED",
+    }:
+        fail("completeness vocabulary drifted")
+
     projection = contract.get("csvProjection") or {}
-    required = {"playlist_id", "playlist_index", "video_id", "title", "url", "channel", "duration_seconds", "extractor_version", "donor_commit"}
-    if not required <= set(projection.get("columns") or []):
-        fail("CSV projection is missing required columns")
+    required_columns = {
+        "input_kind",
+        "playlist_id",
+        "playlist_index",
+        "position_source",
+        "occurrence_status",
+        "video_id",
+        "title",
+        "url",
+        "channel",
+        "duration_seconds",
+        "completeness_state",
+        "extractor_version",
+        "donor_commit",
+    }
+    if not required_columns <= set(projection.get("columns") or []):
+        fail("CSV projection is missing required occurrence/completeness columns")
+    if projection.get("encoding") != "utf-8-sig":
+        fail("spreadsheet CSV projection must remain utf-8-sig")
     if "projection" not in str(projection.get("authorityRule", "")).lower():
         fail("CSV must be explicitly subordinate to normalized JSON")
     cell_safety = str(projection.get("cellSafety", ""))
     if "canonical JSON remains unchanged" not in cell_safety or not all(prefix in cell_safety for prefix in ("=", "+", "-", "@")):
         fail("CSV contract must preserve canonical JSON while neutralizing spreadsheet formula prefixes")
+
+    census = contract.get("inputCensus") or {}
+    if not {"occurrenceCount", "uniqueVideoCount", "uniqueVideoIds", "repeatedVideoIds", "unparseableEntries"} <= set(census.get("requiredFields") or []):
+        fail("explicit URL-list census contract is incomplete")
+    if "si" not in str(census.get("identityRule", "")):
+        fail("URL-list identity contract must reject share/tracking parameters as identity")
+
+    path_safety = contract.get("pathSafety") or {}
+    if path_safety.get("defaultOutputRoot") != "local-study-exports":
+        fail("repository-owned source output root drifted")
+    if "Reject equal resolved paths" not in str(path_safety.get("rule", "")):
+        fail("source import path collision rule is missing")
+
     rules = "\n".join(str(item) for item in contract.get("rules") or [])
-    if "repeated videos reuse the source actor" not in rules or "every playlist occurrence" not in rules:
-        fail("source-import contract must preserve repeated playlist occurrences without duplicating actors")
+    for literal in (
+        "single video is valid input",
+        "repeated videos reuse the source actor",
+        "occurrence tombstones",
+        "playlist_index",
+        "local-study-exports",
+    ):
+        if literal.lower() not in rules.lower():
+            fail(f"source-import rules missing {literal!r}")
 
 
 def validate_repo_surfaces() -> None:
     types = TYPES.read_text(encoding="utf-8")
-    for literal in ("'source-ref'", "export interface SourceRefData", "sourceKind: string", "locator: string"):
+    for literal in (
+        "'source-ref'",
+        "export interface SourceRefData",
+        "sourceKind: string",
+        "locator: string",
+        "positionSource?:",
+    ):
         if literal not in types:
             fail(f"factored domain types missing {literal!r}")
 
@@ -101,17 +173,38 @@ def validate_repo_surfaces() -> None:
             fail(f"validation manifest missing {command}")
 
     source_adapters = set((load(HARNESS).get("components") or {}).get("sourceAdapters") or [])
-    for path in ("harness/sources/youtube-playlist-donor.v1.json", "content/learning/source-import.v1.json", "scripts/source-ingest-youtube.py"):
+    for path in (
+        "harness/sources/youtube-playlist-donor.v1.json",
+        "content/learning/source-import.v1.json",
+        "scripts/source-ingest-youtube.py",
+    ):
         if path not in source_adapters:
             fail(f"harness sourceAdapters missing {path}")
 
+    corpus = load(URL_CORPUS)
+    urls = corpus.get("urls") or []
+    if corpus.get("schema") != "study-syndicate/test-youtube-url-corpus/v1" or len(urls) != 26:
+        fail("YouTube URL corpus regression fixture must preserve the supplied 26 occurrences")
+
     readme = README.read_text(encoding="utf-8")
-    for literal in ("## YouTube Playlist Source Ingestion", "source-ingest-youtube.py", "yt-dlp.yt-dlp", ".csv"):
+    for literal in (
+        "## YouTube Source Ingestion",
+        "source-ingest-youtube.py",
+        "yt-dlp.yt-dlp",
+        "multiple video URLs",
+        "completeness",
+        "path collision",
+    ):
         if literal not in readme:
             fail(f"README missing source-ingestion navigation: {literal}")
 
     workflow = WORKFLOW.read_text(encoding="utf-8")
-    for literal in ("scripts/source-ingest-youtube.py", "scripts/validate-source-ingestion.py", "tests/test_youtube_source_ingestion.py"):
+    for literal in (
+        "scripts/source-ingest-youtube.py",
+        "scripts/validate-source-ingestion.py",
+        "tests/test_youtube_source_ingestion.py",
+        '"tests/fixtures/**"',
+    ):
         if literal not in workflow:
             fail(f"harness workflow does not trigger for source-ingestion surface: {literal}")
 
@@ -121,7 +214,10 @@ def main() -> int:
         validate_donor_manifest(load(DONOR))
         validate_contract(load(CONTRACT))
         validate_repo_surfaces()
-        print("source ingestion validation PASS: pinned donor authority, normalized JSON contract, CSV projection, adapter registration")
+        print(
+            "source ingestion validation PASS: pinned yt-dlp authority, playlist/video/url-list normalization, "
+            "occurrence completeness, path safety, CSV projection"
+        )
         return 0
     except (ValidationError, OSError, UnicodeDecodeError) as exc:
         print(f"source ingestion validation FAIL: {exc}", file=sys.stderr)
