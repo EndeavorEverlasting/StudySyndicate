@@ -367,16 +367,23 @@ def normalize_collection(
     components: list[dict[str, Any]] = []
     relationships: list[dict[str, Any]] = []
     occurrences: list[dict[str, Any]] = []
+    root_source_ref: dict[str, Any] = {
+        "sourceKind": source_kind,
+        "provider": YT_PROVIDER,
+        "locator": collection_locator(raw, requested_url, collection_id, source_kind),
+        "externalId": collection_id,
+    }
+    root_channel_id = raw.get("channel_id") or raw.get("uploader_id")
+    if root_channel_id:
+        root_source_ref["channelId"] = str(root_channel_id)
+    root_thumbnail = thumbnail_url(raw)
+    if root_thumbnail:
+        root_source_ref["thumbnailUrl"] = root_thumbnail
     add_source_components(
         components,
         root_actor_id,
         captured,
-        {
-            "sourceKind": source_kind,
-            "provider": YT_PROVIDER,
-            "locator": collection_locator(raw, requested_url, collection_id, source_kind),
-            "externalId": collection_id,
-        },
+        root_source_ref,
         import_id=import_id,
         author=str(raw.get("channel") or raw.get("uploader") or "").strip() or None,
         extractor_version=extractor_version,
