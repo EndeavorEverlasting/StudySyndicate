@@ -6,7 +6,8 @@
   "authority": {
     "domainModel": "src/domain/factored.ts",
     "extractorDonorManifest": "harness/sources/youtube-playlist-donor.v1.json",
-    "adapter": "scripts/source-ingest-youtube.py"
+    "adapter": "scripts/source-ingest-youtube.py",
+    "runSheet": "docs/YOUTUBE_SOURCE_INGESTION.md"
   },
   "recordContract": {
     "topLevelRequired": [
