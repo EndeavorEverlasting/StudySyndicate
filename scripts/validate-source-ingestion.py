@@ -16,6 +16,7 @@ TYPES = ROOT / "src" / "domain" / "factored.ts"
 VALIDATION = ROOT / "harness" / "validation-manifest.v1.json"
 HARNESS = ROOT / "harness" / "harness-manifest.v1.json"
 README = ROOT / "README.md"
+RUN_SHEET = ROOT / "docs" / "YOUTUBE_SOURCE_INGESTION.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "harness-infrastructure.yml"
 URL_CORPUS = ROOT / "tests" / "fixtures" / "youtube-url-corpus.json"
 
@@ -70,6 +71,9 @@ def validate_contract(contract: dict[str, Any]) -> None:
         fail("unexpected source-import contract schema/version")
     if contract.get("outputSchema") != "study-syndicate/source-import/v1":
         fail("unexpected normalized output schema")
+    authority = contract.get("authority") or {}
+    if authority.get("runSheet") != "docs/YOUTUBE_SOURCE_INGESTION.md":
+        fail("source-import contract must bind the canonical operator run sheet")
 
     record = contract.get("recordContract") or {}
     if record.get("actorKinds") != ["source"] or "contains" not in (record.get("relationshipKinds") or []):
@@ -80,14 +84,7 @@ def validate_contract(contract: dict[str, Any]) -> None:
         fail("source import must support playlist, explicit source-list, and video source kinds")
     if set(record.get("inputKinds") or []) != {"playlist", "url-list", "video"}:
         fail("source import input kinds drifted")
-    required_top = {
-        "inputKind",
-        "rootActorId",
-        "playlistActorId",
-        "occurrences",
-        "completeness",
-        "inputCensus",
-    }
+    required_top = {"inputKind", "rootActorId", "playlistActorId", "occurrences", "completeness", "inputCensus"}
     if not required_top <= set(record.get("topLevelRequired") or []):
         fail("normalized source contract is missing occurrence/completeness top-level fields")
     occurrence_required = {"id", "position", "positionSource", "sourceActorId", "externalId", "status", "tombstone"}
@@ -95,30 +92,13 @@ def validate_contract(contract: dict[str, Any]) -> None:
         fail("occurrence tombstone contract is incomplete")
     if set(record.get("positionSources") or []) != {"playlist_index", "encounter_order", "input_order"}:
         fail("position source vocabulary drifted")
-    if set(record.get("completenessStates") or []) != {
-        "COMPLETE",
-        "PARTIAL",
-        "EMPTY_CONFIRMED",
-        "EMPTY_UNPROVEN",
-        "FAILED",
-    }:
+    if set(record.get("completenessStates") or []) != {"COMPLETE", "PARTIAL", "EMPTY_CONFIRMED", "EMPTY_UNPROVEN", "FAILED"}:
         fail("completeness vocabulary drifted")
 
     projection = contract.get("csvProjection") or {}
     required_columns = {
-        "input_kind",
-        "playlist_id",
-        "playlist_index",
-        "position_source",
-        "occurrence_status",
-        "video_id",
-        "title",
-        "url",
-        "channel",
-        "duration_seconds",
-        "completeness_state",
-        "extractor_version",
-        "donor_commit",
+        "input_kind", "playlist_id", "playlist_index", "position_source", "occurrence_status", "video_id",
+        "title", "url", "channel", "duration_seconds", "completeness_state", "extractor_version", "donor_commit",
     }
     if not required_columns <= set(projection.get("columns") or []):
         fail("CSV projection is missing required occurrence/completeness columns")
@@ -143,26 +123,14 @@ def validate_contract(contract: dict[str, Any]) -> None:
         fail("source import path collision rule is missing")
 
     rules = "\n".join(str(item) for item in contract.get("rules") or [])
-    for literal in (
-        "single video is valid input",
-        "repeated videos reuse the source actor",
-        "occurrence tombstones",
-        "playlist_index",
-        "local-study-exports",
-    ):
+    for literal in ("single video is valid input", "repeated videos reuse the source actor", "occurrence tombstones", "playlist_index", "local-study-exports"):
         if literal.lower() not in rules.lower():
             fail(f"source-import rules missing {literal!r}")
 
 
 def validate_repo_surfaces() -> None:
     types = TYPES.read_text(encoding="utf-8")
-    for literal in (
-        "'source-ref'",
-        "export interface SourceRefData",
-        "sourceKind: string",
-        "locator: string",
-        "positionSource?:",
-    ):
+    for literal in ("'source-ref'", "export interface SourceRefData", "sourceKind: string", "locator: string", "positionSource?:"):
         if literal not in types:
             fail(f"factored domain types missing {literal!r}")
 
@@ -177,6 +145,7 @@ def validate_repo_surfaces() -> None:
         "harness/sources/youtube-playlist-donor.v1.json",
         "content/learning/source-import.v1.json",
         "scripts/source-ingest-youtube.py",
+        "docs/YOUTUBE_SOURCE_INGESTION.md",
     ):
         if path not in source_adapters:
             fail(f"harness sourceAdapters missing {path}")
@@ -187,16 +156,14 @@ def validate_repo_surfaces() -> None:
         fail("YouTube URL corpus regression fixture must preserve the supplied 26 occurrences")
 
     readme = README.read_text(encoding="utf-8")
-    for literal in (
-        "## YouTube Source Ingestion",
-        "source-ingest-youtube.py",
-        "yt-dlp.yt-dlp",
-        "multiple video URLs",
-        "completeness",
-        "path collision",
-    ):
+    for literal in ("## YouTube Playlist Source Ingestion", "source-ingest-youtube.py", "yt-dlp.yt-dlp", ".csv"):
         if literal not in readme:
             fail(f"README missing source-ingestion navigation: {literal}")
+
+    run_sheet = RUN_SHEET.read_text(encoding="utf-8")
+    for literal in ("multiple video URLs", "completeness", "path collision", "local-study-exports", "--input-json", "PowerShell"):
+        if literal not in run_sheet:
+            fail(f"YouTube source run sheet missing {literal!r}")
 
     workflow = WORKFLOW.read_text(encoding="utf-8")
     for literal in (
@@ -204,6 +171,7 @@ def validate_repo_surfaces() -> None:
         "scripts/validate-source-ingestion.py",
         "tests/test_youtube_source_ingestion.py",
         '"tests/fixtures/**"',
+        '"docs/YOUTUBE_SOURCE_INGESTION.md"',
     ):
         if literal not in workflow:
             fail(f"harness workflow does not trigger for source-ingestion surface: {literal}")
