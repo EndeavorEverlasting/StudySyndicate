@@ -95,7 +95,7 @@ function Get-OneDriveState([string]$DesktopPath) {
     ) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
 
     $roots = @($rawRoots | ForEach-Object {
-        try { [IO.Path]::GetFullPath($_).TrimEnd([char[]]@('\\','/')) } catch { $_.TrimEnd([char[]]@('\\','/')) }
+        try { [IO.Path]::GetFullPath($_).TrimEnd([char[]]@('\','/')) } catch { $_.TrimEnd([char[]]@('\','/')) }
     } | Sort-Object -Unique)
 
     if ($roots.Count -eq 0) { return 'ABSENT' }
@@ -106,9 +106,9 @@ function Get-OneDriveState([string]$DesktopPath) {
         return 'ROOT_UNAVAILABLE'
     }
 
-    $desktopFull = [IO.Path]::GetFullPath($DesktopPath).TrimEnd([char[]]@('\\','/'))
+    $desktopFull = [IO.Path]::GetFullPath($DesktopPath).TrimEnd([char[]]@('\','/'))
     if ($desktopFull.Equals($root, [StringComparison]::OrdinalIgnoreCase) -or
-        $desktopFull.StartsWith($root + '\\', [StringComparison]::OrdinalIgnoreCase)) {
+        $desktopFull.StartsWith($root + '\', [StringComparison]::OrdinalIgnoreCase)) {
         return 'TARGET_FOLDER_REDIRECTED'
     }
 
@@ -136,8 +136,8 @@ function Resolve-ProfilePath($Rule, [string]$DesktopKnownFolder) {
 function Paths-Equal([string]$Left, [string]$Right) {
     if ([string]::IsNullOrWhiteSpace($Left) -or [string]::IsNullOrWhiteSpace($Right)) { return $false }
     try {
-        $a = [IO.Path]::GetFullPath($Left).TrimEnd([char[]]@('\\','/'))
-        $b = [IO.Path]::GetFullPath($Right).TrimEnd([char[]]@('\\','/'))
+        $a = [IO.Path]::GetFullPath($Left).TrimEnd([char[]]@('\','/'))
+        $b = [IO.Path]::GetFullPath($Right).TrimEnd([char[]]@('\','/'))
         if ($IsWindows) { return $a.Equals($b, [StringComparison]::OrdinalIgnoreCase) }
         return $a -ceq $b
     }
@@ -149,8 +149,8 @@ function Paths-Equal([string]$Left, [string]$Right) {
 function Path-IsWithin([string]$Candidate, [string]$Root) {
     if ([string]::IsNullOrWhiteSpace($Candidate) -or [string]::IsNullOrWhiteSpace($Root)) { return $false }
     try {
-        $candidateFull = [IO.Path]::GetFullPath($Candidate).TrimEnd([char[]]@('\\','/'))
-        $rootFull = [IO.Path]::GetFullPath($Root).TrimEnd([char[]]@('\\','/'))
+        $candidateFull = [IO.Path]::GetFullPath($Candidate).TrimEnd([char[]]@('\','/'))
+        $rootFull = [IO.Path]::GetFullPath($Root).TrimEnd([char[]]@('\','/'))
         if (Paths-Equal $candidateFull $rootFull) { return $true }
         $comparison = if ($IsWindows) { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
         return $candidateFull.StartsWith($rootFull + [IO.Path]::DirectorySeparatorChar, $comparison)
@@ -181,7 +181,7 @@ function Get-ExecutionContextReceipt {
 function Find-ActiveUseConsumer([string]$CanonicalPath) {
     if (-not $IsWindows -or [string]::IsNullOrWhiteSpace($CanonicalPath)) { return $null }
     try {
-        $escaped = [regex]::Escape([IO.Path]::GetFullPath($CanonicalPath).TrimEnd([char[]]@('\\','/')))
+        $escaped = [regex]::Escape([IO.Path]::GetFullPath($CanonicalPath).TrimEnd([char[]]@('\','/')))
         $processes = @(Get-CimInstance Win32_Process -ErrorAction Stop | Where-Object {
             $commandLine = [string]$_.CommandLine
             -not [string]::IsNullOrWhiteSpace($commandLine) -and
@@ -216,7 +216,7 @@ if ($profile.use.relation -ne 'same-as-development') {
 $canonicalUsePath = $canonicalDevelopmentPath
 $canonicalWorktreeRoot = Resolve-ProfilePath $profile.worktree $desktopKnownFolder
 $oneDriveState = Get-OneDriveState $desktopKnownFolder
-$executionContext = Get-ExecutionContextReceipt
+$executionContextReceipt = Get-ExecutionContextReceipt
 
 $observedPath = Normalize-ExistingPath $StartPath
 $observedRepoRoot = Get-RepositoryRoot $StartPath
@@ -330,7 +330,7 @@ if ($status -eq 'CANONICAL + PROVED' -and $mutationSafety -like 'BLOCKED_*') {
 $payload = [ordered]@{
     schema = 'studysyndicate.path-input-receipt.v1'
     repository = $expectedRepository
-    platform = [string]$executionContext.platform
+    platform = [string]$executionContextReceipt.platform
     profileKey = [string]$profile.key
     desktopKnownFolder = $desktopKnownFolder
     oneDriveState = $oneDriveState
@@ -340,7 +340,7 @@ $payload = [ordered]@{
     pathRelation = [string]$profile.use.relation
     entrypoint = @($profile.use.entrypoint)
     productionDeployment = [string]$profile.use.productionDeployment
-    executionContext = $executionContext
+    executionContext = $executionContextReceipt
     prodUseState = $resolvedProdUseState
     prodUseStateSource = $prodUseStateSource
     activeConsumerEvidence = $activeConsumer
@@ -366,8 +366,8 @@ else {
     Write-Host "USE=$canonicalUsePath"
     Write-Host "WORKTREES=$canonicalWorktreeRoot"
     Write-Host "ENTRYPOINT=$(@($payload.entrypoint) -join ' ')"
-    Write-Host "EXECUTION_TARGET=$($executionContext.executionTarget)"
-    Write-Host "SHELL=$($executionContext.shellInterpreter)"
+    Write-Host "EXECUTION_TARGET=$($executionContextReceipt.executionTarget)"
+    Write-Host "SHELL=$($executionContextReceipt.shellInterpreter)"
     Write-Host "OBSERVED=$observedPath"
     Write-Host "OBSERVED_REPO=$observedRepoRoot"
     Write-Host "ONEDRIVE_STATE=$oneDriveState"
