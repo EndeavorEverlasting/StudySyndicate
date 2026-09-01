@@ -58,6 +58,11 @@ export type MediaOrigin = 'recorded' | 'generated' | 'imported';
 export type LearningFacet = 'construct' | 'apply' | 'debug' | 'explain' | 'discover';
 export type AssistanceBand = 'none' | 'docs' | 'hint' | 'ai-scaffold' | 'ai-answer';
 
+export type SourceOccurrencePositionSource =
+  | 'playlist_index'
+  | 'encounter_order'
+  | 'input_order';
+
 export interface TimestampedRecord {
   id: string;
   createdAt: string;
@@ -74,6 +79,7 @@ export interface Relationship extends TimestampedRecord {
   fromActorId: string;
   toActorId: string;
   order?: number;
+  positionSource?: SourceOccurrencePositionSource;
   weight?: number;
 }
 

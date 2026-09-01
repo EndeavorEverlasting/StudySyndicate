@@ -1,10 +1,10 @@
 {
   "id": "PL_TEST_123",
-  "title": "Building the LLM",
+  "title": "Building the LLM — Café",
   "webpage_url": "https://www.youtube.com/playlist?list=PL_TEST_123",
   "channel": "Cheeks McClappeth",
   "channel_id": "UC_PLAYLIST_OWNER",
-  "description": "Playlist-level study fodder.",
+  "description": "Playlist-level study fodder with Unicode Ω.",
   "entries": [
     {
       "id": "videoA001",
@@ -31,7 +31,7 @@
         {"url": "https://i.ytimg.com/vi/videoB002/default.jpg"},
         {"url": "https://i.ytimg.com/vi/videoB002/maxresdefault.jpg"}
       ],
-      "description": "A compact explanation, with commas,\nand a newline for CSV coverage."
+      "description": "A compact explanation, with commas,\nand a newline, an embedded \"quote\", and Unicode 東京."
     }
   ]
 }
