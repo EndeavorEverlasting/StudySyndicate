@@ -72,7 +72,8 @@
       "harness/sources/parallaxport-claims.v1.json",
       "harness/sources/youtube-playlist-donor.v1.json",
       "content/learning/source-import.v1.json",
-      "scripts/source-ingest-youtube.py"
+      "scripts/source-ingest-youtube.py",
+      "docs/YOUTUBE_SOURCE_INGESTION.md"
     ]
   },
   "workflows": [
