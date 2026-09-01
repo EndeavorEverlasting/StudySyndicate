@@ -465,7 +465,13 @@ def normalize_video(
     captured_at: str | None = None,
 ) -> dict[str, Any]:
     captured = captured_at or now_utc()
-    video_id = str(raw.get("id") or youtube_video_id_from_url(requested_url) or "").strip()
+    requested_video_id = youtube_video_id_from_url(requested_url)
+    extractor_video_id = str(raw.get("id") or "").strip() or None
+    if requested_video_id and extractor_video_id and requested_video_id != extractor_video_id:
+        fail(
+            f"yt-dlp identity mismatch: requested {requested_video_id} but extractor returned {extractor_video_id}"
+        )
+    video_id = extractor_video_id or requested_video_id or ""
     if not video_id:
         fail("cannot resolve video id")
     entry = dict(raw)
@@ -675,7 +681,12 @@ def build_url_list_raw(executable: str, urls: list[str], mode: str) -> dict[str,
 
 def safe_basename(text: str) -> str:
     cleaned = re.sub(r"[^A-Za-z0-9._-]+", "-", text).strip("-._")
-    return cleaned[:120] or "youtube-source"
+    if not cleaned:
+        return "youtube-source"
+    if len(cleaned) <= 120:
+        return cleaned
+    digest = hashlib.sha256(cleaned.encode("utf-8")).hexdigest()[:16]
+    return f"{cleaned[:103]}-{digest}"
 
 
 def assert_output_paths_safe(inputs: list[Path], outputs: list[Path]) -> None:
@@ -753,7 +764,12 @@ def main(argv: list[str] | None = None) -> int:
         root_id = str(document.get("rootActorId") or "").rsplit(":", 1)[-1] or "source"
         basename = safe_basename(args.basename or f"youtube-{document.get('inputKind', 'source')}-{root_id}")
         json_path, csv_path = args.output_dir / f"{basename}.json", args.output_dir / f"{basename}.csv"
-        assert_output_paths_safe(protected_inputs, [json_path, csv_path])
+        selected_outputs = []
+        if args.format in ("both", "json"):
+            selected_outputs.append(json_path)
+        if args.format in ("both", "csv"):
+            selected_outputs.append(csv_path)
+        assert_output_paths_safe(protected_inputs, selected_outputs)
         if args.format in ("both", "json"):
             write_json(document, json_path)
             print(json_path)
