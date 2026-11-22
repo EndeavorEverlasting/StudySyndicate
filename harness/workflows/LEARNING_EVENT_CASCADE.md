@@ -3,6 +3,11 @@
 Use this workflow when a learner attempt, debugging session, explanation, experiment, or discovery should become
 durable evidence and receive evidence-based partial credit instead of being reduced to pass/fail.
 
+For a private session, resolve the [AfterHours host workspace](https://github.com/EndeavorEverlasting/AfterHours#canonical-paths)
+before writing an event. Keep actual attempts and event JSON there. The operator
+chooses the exact reviewed content, destination and operation for any later
+repository transfer.
+
 ## Inputs
 
 - one concept id

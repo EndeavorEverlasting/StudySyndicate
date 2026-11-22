@@ -3,8 +3,8 @@
   "naming": {
     "trackedContract": "<domain>-<purpose>.v<major>.json",
     "operatorReport": "harness/reports/<UPPER_SNAKE_NAME>.md",
-    "localSession": "local-study-exports/session-YYYYMMDD-HHMM-<track>.json",
-    "learningEvent": "local-study-exports/learning-event-YYYYMMDD-HHMM-<concept>.json",
+    "localSession": "<host-teaching-workspace>/session-YYYYMMDD-HHMM-<track>.json",
+    "learningEvent": "<host-teaching-workspace>/learning-event-YYYYMMDD-HHMM-<concept>.json",
     "studyGuidance": "local-study-exports/study-guidance-YYYYMMDD-HHMM-<origin>.json",
     "sourceImport": "local-study-exports/youtube-playlist-<playlist-id>.json",
     "sourceImportCsv": "local-study-exports/youtube-playlist-<playlist-id>.csv",
@@ -32,8 +32,8 @@
     {"id":"software-foundations-pack","kind":"tracked-contract","path":"content/software/sql-rust-foundations.v1.json","generate":null,"validate":["python","scripts/validate-software-foundations.py"]},
     {"id":"arrays-mastery-pack","kind":"tracked-contract","path":"content/software/arrays-mastery.v1.json","generate":null,"validate":["python","scripts/validate-arrays-mastery.py"]},
     {"id":"media-contract","kind":"tracked-contract","path":"content/media/multimodal-media-contract.v1.json","generate":null,"validate":["python","scripts/validate-multimodal-media.py"]},
-    {"id":"local-study-session","kind":"ignored-operator-artifact","path":"local-study-exports/session-YYYYMMDD-HHMM-<track>.json","generate":"operator/session workflow","validate":"track-specific validator plus recorded evidence"},
-    {"id":"local-learning-event","kind":"ignored-operator-artifact","path":"local-study-exports/learning-event-YYYYMMDD-HHMM-<concept>.json","generate":"harness/workflows/LEARNING_EVENT_CASCADE.md","validate":["python","scripts/learning-evidence.py","score","PATH_TO_EVENT.json"]},
+    {"id":"local-study-session","kind":"host-private-operator-artifact","path":"<host-teaching-workspace>/session-YYYYMMDD-HHMM-<track>.json","generate":"operator/session workflow","validate":"track-specific validator plus recorded evidence"},
+    {"id":"local-learning-event","kind":"host-private-operator-artifact","path":"<host-teaching-workspace>/learning-event-YYYYMMDD-HHMM-<concept>.json","generate":"harness/workflows/LEARNING_EVENT_CASCADE.md","validate":["python","scripts/learning-evidence.py","score","PATH_TO_EVENT.json"]},
     {"id":"local-study-guidance","kind":"ignored-operator-artifact","path":"local-study-exports/study-guidance-YYYYMMDD-HHMM-<origin>.json","generate":"harness/workflows/STUDY_GUIDANCE_INGEST.md","validate":["python","scripts/study-guidance.py","validate","PATH_TO_PACKET.json"]},
     {"id":"portable-media-bundle","kind":"ignored-binary-artifact","path":"media-bundles/<study-id>-YYYYMMDD.study-media.zip","generate":["python","scripts/media-bundle.py","pack"],"validate":["python","scripts/media-bundle.py","validate"]}
   ]

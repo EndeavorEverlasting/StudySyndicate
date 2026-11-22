@@ -27,6 +27,17 @@ Do not claim completion from intent, file creation, or inspection alone. Complet
 ### Learning evidence integrity
 For learning and study work, preserve learner-produced evidence before generating replacement answers. Award partial credit only for observed construction, application, debugging, explanation, or discovery, and record assistance as provenance rather than hiding it. AI/source output is scaffold or source evidence unless the learner independently reconstructs and transfers the idea. Cascade/derived credit may acknowledge exercised prerequisite or adjacent concepts, but it must never be silently converted into direct mastery evidence or public skill proof.
 
+### Private teaching state
+
+For private teaching requests and `/teach`, use the
+[AfterHours host workspace runner](https://github.com/EndeavorEverlasting/AfterHours#canonical-paths)
+on the learner's actual machine before writing attempts, files, recordings or
+records. Keep the teaching checkout read-only and generate personal outputs only
+in the verified workspace outside Git. The operator must choose the exact
+reviewed artifact, destination and operation before any repository transfer.
+The tracked reusable study content and product test fixtures keep their existing
+ownership and evidence gates.
+
 ### Gameful learning experience
 Study activities should feel like games to the learner, not like decorated forms. Leverage already-proven stable mechanics — premise-first objectives, bounded attempts, feedback, retries, progression, evidence, and study modes — as the substrate for gamification. Prefer clear objectives, immediate feedback, visible progress, progressive challenge, meaningful choices, replayability, and satisfying completion states. Game systems must amplify learning mechanics rather than replace them.
 

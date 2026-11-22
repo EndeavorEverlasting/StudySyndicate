@@ -1,5 +1,10 @@
 # Practice Workbench Workflow
 
+For private practice, choose the verified [AfterHours host workspace](https://github.com/EndeavorEverlasting/AfterHours#canonical-paths)
+when saving an attempt from the browser. Check the browser's actual download
+destination before saving. The operator chooses any later repository transfer.
+
+
 Use this workflow when a learner wants to practice a concept through the browser shell or when a
 new language/runner is added.
 

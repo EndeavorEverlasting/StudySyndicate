@@ -3,6 +3,12 @@
 Use this when the learner does not know how to begin, cannot reconstruct the assignment from memory,
 or needs feedback without immediately seeing a solution.
 
+When working with a learner, use the [AfterHours host teaching workspace](https://github.com/EndeavorEverlasting/AfterHours#canonical-paths)
+for personal attempts and records. For the examples below, use absolute output
+and attempt paths inside that verified workspace when running packet commands from
+the checkout. Reusable packets are repository source. A repository transfer of
+private learning material requires explicit selection by the learner.
+
 ## Non-negotiable packet order
 
 A guided exercise must not begin with vague questions such as "What comes in?" before presenting the
@@ -57,7 +63,7 @@ Create an editable Python attempt with the premise, example, checkpoints, feedba
 starter function already present:
 
 ```bash
-python scripts/study-problem.py render two-sum --mode guided --format comments --output two_sum_guided_attempt.py
+python scripts/study-problem.py render two-sum --mode guided --format comments --output "<private-workspace>/two_sum_guided_attempt.py"
 ```
 
 A learner should be able to close the repository documentation and still know exactly what problem
@@ -82,7 +88,7 @@ solution is useful evidence that the contract is understood.
 Run:
 
 ```bash
-python scripts/study-problem.py check two-sum two_sum_guided_attempt.py
+python scripts/study-problem.py check two-sum "<private-workspace>/two_sum_guided_attempt.py"
 ```
 
 The checker does not reveal a solution. It reports concrete failures such as a missing function,

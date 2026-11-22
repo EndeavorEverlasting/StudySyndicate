@@ -32,7 +32,7 @@ The staged-artifact checker examines staged **path names only**. It does not rea
 
 It refuses obvious machine-local/generated categories such as:
 
-- local study exports or runtime evidence;
+- local study exports, runtime evidence, or files in a private `.teach/` workspace;
 - logs and crash dumps;
 - local virtual environments/tool installs;
 - save/session/process files;
@@ -69,4 +69,4 @@ Normal source code, Markdown/docs, study contracts, and tracked harness reports 
 
 The pre-commit hook does not launch the browser/app, run a learner/runtime adapter, or perform network activity. It retains the existing quick harness validation floor and staged whitespace check.
 
-Live/generated evidence belongs in ignored local output. If an artifact needs to become durable repository authority, first create a sanitized fixture or register a tracked contract through the owning harness/artifact workflow instead of force-adding raw operator output.
+Private teaching evidence belongs in the AfterHours host workspace outside Git. The learner must choose the exact reviewed artifact, destination and action for any repository transfer. Other live/generated evidence belongs in ignored local output. If an artifact needs to become durable repository authority, first create a sanitized fixture or register a tracked contract through the owning harness/artifact workflow instead of force-adding raw operator output.

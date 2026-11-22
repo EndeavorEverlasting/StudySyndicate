@@ -18,7 +18,7 @@ incorrect attempt, partial implementation, debugging trace, explanation, experim
 1. Read `docs/LEARNING_EVIDENCE_DOCTRINE.md`.
 2. Read `content/learning/learning-evidence.v1.json`.
 3. Do not score content generated solely by the agent as learner evidence.
-4. Build one event JSON matching the contract.
+4. Follow the [learning event workflow](../../workflows/LEARNING_EVENT_CASCADE.md) to resolve the host workspace, then build one event JSON there.
 5. Run `python scripts/learning-evidence.py score <event.json>`.
 6. Report earned facets before missing facets.
 7. Preserve assistance provenance and the mastery boundary.

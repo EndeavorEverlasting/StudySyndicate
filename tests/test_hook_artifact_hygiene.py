@@ -53,6 +53,13 @@ class HookArtifactHygieneTests(unittest.TestCase):
         )
         self.assertIn(REMEDIATION, result.stderr)
 
+    def test_blocks_teaching_state_even_under_fixture_paths(self) -> None:
+        path = "tests/fixtures/.teach/learning-records/session.fixture.md"
+        self.stage(path)
+        result = self.check()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(path, result.stderr)
+
     def test_blocks_crash_dump_and_local_tool_install(self) -> None:
         self.stage("crash-dumps/app.dmp")
         self.stage(".venv/pyvenv.cfg")

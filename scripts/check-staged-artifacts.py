@@ -96,6 +96,8 @@ def generated_reason(path: str) -> str | None:
     parts = PurePosixPath(p).parts
     if is_sensitive(p):
         return "sensitive/local credential artifact"
+    if ".teach" in (part.casefold() for part in parts[:-1]):
+        return "private teaching workspace"
     if is_approved_fixture(p):
         return None
     if any(part in BLOCKED_DIR_NAMES for part in parts[:-1]):

@@ -58,6 +58,7 @@ runtime-evidence/
 crash-dumps/
 .local-tools/
 .study-syndicate/
+.teach/
 .venv/
 .tox/
 .pytest_cache/
