@@ -161,6 +161,16 @@ def main() -> int:
     artifact_ids = [item.get("id") for item in artifact_items]
     if len(artifact_ids) != len(set(artifact_ids)):
         fail("artifact ids must be unique")
+    for artifact_id, naming_key in (
+        ("local-study-session", "localSession"),
+        ("local-learning-event", "learningEvent"),
+    ):
+        entry = next((item for item in artifact_items if item.get("id") == artifact_id), {})
+        path = entry.get("path", "")
+        if (entry.get("kind") != "host-private-operator-artifact"
+                or not path.startswith("<host-teaching-workspace>/")
+                or (artifacts.get("naming") or {}).get(naming_key) != path):
+            fail(f"{artifact_id} must write to the verified host teaching workspace")
     for item in artifact_items:
         path = item.get("path")
         if item.get("kind", "").startswith("tracked-") and (not path or not (ROOT / path).is_file()):
