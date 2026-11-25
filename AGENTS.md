@@ -27,6 +27,10 @@ Do not claim completion from intent, file creation, or inspection alone. Complet
 ### Learning evidence integrity
 For learning and study work, preserve learner-produced evidence before generating replacement answers. Award partial credit only for observed construction, application, debugging, explanation, or discovery, and record assistance as provenance rather than hiding it. AI/source output is scaffold or source evidence unless the learner independently reconstructs and transfers the idea. Cascade/derived credit may acknowledge exercised prerequisite or adjacent concepts, but it must never be silently converted into direct mastery evidence or public skill proof.
 
+### Independent product ownership
+
+StudySyndicate is a standalone study product; external teaching routes and curriculum repositories are optional. The product owns reusable study packets, practice mechanics and app interfaces, not private curriculum or generic agent routing. Do not make external teaching, graduation, or engineering orchestration a prerequisite of standalone product operation. The host-local workspace rule below applies to agent-conducted private teaching, not ordinary browser app startup.
+
 ### Private teaching state
 
 For private teaching requests and `/teach`, use the
