@@ -9,6 +9,8 @@ and attempt paths inside that verified workspace when running packet commands fr
 the checkout. Reusable packets are repository source. A repository transfer of
 private learning material requires explicit selection by the learner.
 
+The standalone product owns this exercise contract. An external agent may opt into a packet without installing or integrating the study app. The workspace guidance above applies to private agent-conducted teaching, not ordinary standalone browser use. No private session is transferred into product content automatically.
+
 ## Non-negotiable packet order
 
 A guided exercise must not begin with vague questions such as "What comes in?" before presenting the

@@ -11,6 +11,10 @@ StudySyndicate helps learners build their own study system instead of relying on
 It supports text, image, audio, and video-based cards, tracks weak areas, recommends targeted practice,
 and turns public software-skill claims into repeatable evidence-backed exercises.
 
+## Product boundary
+
+StudySyndicate is a standalone study product; external teaching routes and curriculum repositories are optional. Its reusable exercises, practice mechanics and browser app do not require an external teaching route. A private lesson may optionally use selected reusable packets as read-only references. Private learning records are not imported or published automatically.
+
 ## Core Features
 
 - Local-first storage model

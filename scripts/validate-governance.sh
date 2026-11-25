@@ -23,6 +23,8 @@ required_literals=(
   "### One writer per branch"
   "### Reuse before replacing"
   "### No completion without proof"
+  "### Independent product ownership"
+  "StudySyndicate is a standalone study product; external teaching routes and curriculum repositories are optional."
   "### Learning evidence integrity"
   "Cascade/derived credit"
   "### Gameful learning experience"
